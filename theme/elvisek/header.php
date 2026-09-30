@@ -21,9 +21,8 @@ $ek_topics  = ek_nav_topics();
 				<?php ek_logo(); ?>
 				<?php ek_header_tools( 'ek-search-hero' ); ?>
 			</div>
-			<div id="ek-search-hero" class="ek-searchbar ek-searchbar--inline" hidden><?php get_search_form(); ?></div>
 			<nav class="ek-tiles" aria-label="Témata">
-				<ul>
+				<ul style="<?php echo esc_attr( ek_tiles_style( count( $ek_topics ) ) ); ?>">
 					<?php foreach ( $ek_topics as $cat ) : ?>
 						<li>
 							<a class="ek-tile" href="<?php echo esc_url( get_category_link( $cat ) ); ?>">
@@ -42,7 +41,7 @@ $ek_topics  = ek_nav_topics();
 <header class="ek-bar<?php echo $ek_is_hero ? ' ek-bar--floating' : ''; ?>" <?php echo $ek_is_hero ? 'aria-hidden="true" inert' : ''; ?> data-ek-bar>
 	<div class="ek-wrap ek-bar__inner">
 		<?php ek_logo( true ); ?>
-		<nav class="ek-chipsnav" aria-label="Témata">
+		<nav class="ek-chipsnav<?php echo count( $ek_topics ) > 8 ? ' ek-chipsnav--many' : ''; ?>" aria-label="Témata" data-ek-chipsnav>
 			<ul>
 				<?php foreach ( $ek_topics as $cat ) : ?>
 					<li class="<?php echo ek_is_current_topic( $cat ) ? 'is-current' : ''; ?>">
@@ -54,8 +53,5 @@ $ek_topics  = ek_nav_topics();
 			</ul>
 		</nav>
 		<?php ek_header_tools( 'ek-search' ); ?>
-	</div>
-	<div id="ek-search" class="ek-searchbar" hidden>
-		<div class="ek-wrap"><?php get_search_form(); ?></div>
 	</div>
 </header>

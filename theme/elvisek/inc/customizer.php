@@ -56,7 +56,7 @@ add_action( 'customize_register', function ( WP_Customize_Manager $wpc ) {
 		'section'   => 'ek_home',
 		'mime_type' => 'image',
 	) ) );
-	$add( 'ek_topics_count', 'ek_home', 'Počet témat', 'number', 'absint', array( 'input_attrs' => array( 'min' => 0, 'max' => 16 ) ) );
+	$add( 'ek_topics_count', 'ek_home', 'Počet témat', 'number', 'absint', array( 'input_attrs' => array( 'min' => 0, 'max' => 12 ) ) );
 
 	// Články
 	$add( 'ek_sidebar_mode', 'ek_article', 'Boční panel', 'select',

@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.1 — 2026-09-30
+### Šablona
+- Dlaždice témat se přizpůsobí počtu: vyvážené řádky (10 → 1 řádek, 12 → 2×6; tablet i mobil zvlášť), max. počet v Přizpůsobit snížen na 12
+- Hledání v hlavičce: pole vyjede vedle lupy (max. 320 px) místo panelu přes celou šířku; lupa s textem hledá, prázdná zavře, Esc zavře
+- Kompaktní lišta: při více než 8 tématech bez ikon a těsněji; maska na okraji jen když lišta opravdu přetéká
+### ElvisEK Core
+- Beze změny funkcí (verze srovnaná se šablonou kvůli společnému release)
+### Dokumentace
+- README: release s anotovaným tagem (`git tag -a`)
+
 ## 0.3.0 — 2026-09-30
 ### Šablona
 - Témata místo menu: na titulce dlaždice témat, při rolování plynulý přechod do kompaktní lišty; ostatní stránky mají lištu rovnou

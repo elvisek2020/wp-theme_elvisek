@@ -47,27 +47,42 @@
 		update();
 	}
 
-	/* Vyhledávání (každé tlačítko ovládá svůj panel přes aria-controls) */
-	document.querySelectorAll('[data-ek-search-toggle]').forEach((btn) => {
-		const panel = document.getElementById(btn.getAttribute('aria-controls'));
-		if (!panel) return;
-		btn.addEventListener('click', () => {
-			const open = panel.hidden;
-			panel.hidden = !open;
+	/* Vyhledávání: pole vyjede vedle lupy. Lupa s textem = hledat, prázdná = zavřít. */
+	document.querySelectorAll('[data-ek-qs]').forEach((qs) => {
+		const btn = qs.querySelector('[data-ek-search-toggle]');
+		const form = qs.querySelector('form');
+		const input = qs.querySelector('input[type="search"]');
+		if (!btn || !form || !input) return;
+		const setOpen = (open) => {
+			qs.classList.toggle('is-open', open);
 			btn.setAttribute('aria-expanded', String(open));
-			if (open) panel.querySelector('input[type="search"]')?.focus();
+			btn.setAttribute('aria-label', open ? 'Hledat (prázdné pole zavře)' : 'Hledat');
+			input.tabIndex = open ? 0 : -1;
+			if (open) input.focus();
+		};
+		btn.addEventListener('click', () => {
+			if (!qs.classList.contains('is-open')) { setOpen(true); return; }
+			if (input.value.trim()) { form.requestSubmit ? form.requestSubmit() : form.submit(); } else { setOpen(false); }
 		});
-		document.addEventListener('keydown', (e) => {
-			if (e.key === 'Escape' && !panel.hidden) {
-				panel.hidden = true;
-				btn.setAttribute('aria-expanded', 'false');
-				btn.focus();
-			}
+		form.addEventListener('submit', (e) => { if (!input.value.trim()) { e.preventDefault(); } });
+		qs.addEventListener('keydown', (e) => {
+			if (e.key === 'Escape' && qs.classList.contains('is-open')) { setOpen(false); btn.focus(); }
+		});
+		document.addEventListener('click', (e) => {
+			if (qs.classList.contains('is-open') && !qs.contains(e.target) && !input.value.trim()) setOpen(false);
 		});
 	});
 
 	/* Aktuální téma v liště vyrolovat do viditelné části (mobil) */
 	document.querySelector('.ek-chipsnav .is-current')?.scrollIntoView({ block: 'nearest', inline: 'center' });
+	/* Maska na okraji lišty jen při přetečení */
+	const chipsnav = document.querySelector('[data-ek-chipsnav]');
+	if (chipsnav) {
+		const syncOverflow = () => chipsnav.classList.toggle('is-overflowing', chipsnav.scrollWidth > chipsnav.clientWidth + 1);
+		syncOverflow();
+		if ('ResizeObserver' in window) new ResizeObserver(syncOverflow).observe(chipsnav);
+		else window.addEventListener('resize', syncOverflow);
+	}
 
 	/* Tisk */
 	document.querySelectorAll('[data-ek-print]').forEach((b) => b.addEventListener('click', () => window.print()));

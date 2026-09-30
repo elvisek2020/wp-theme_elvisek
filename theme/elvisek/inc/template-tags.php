@@ -245,9 +245,15 @@ function ek_logo( bool $compact = false ): void {
 function ek_header_tools( string $search_id ): void {
 	?>
 	<div class="ek-tools">
-		<button type="button" class="ek-iconbtn" data-ek-search-toggle aria-expanded="false" aria-controls="<?php echo esc_attr( $search_id ); ?>" aria-label="Hledat">
-			<?php echo ek_icon( 'search' ); ?>
-		</button>
+		<div class="ek-qs" data-ek-qs>
+			<form role="search" method="get" class="ek-qs__form" id="<?php echo esc_attr( $search_id ); ?>" action="<?php echo esc_url( home_url( '/' ) ); ?>">
+				<label class="screen-reader-text" for="<?php echo esc_attr( $search_id ); ?>-input">Hledat</label>
+				<input id="<?php echo esc_attr( $search_id ); ?>-input" class="ek-qs__input" type="search" name="s" value="<?php echo esc_attr( get_search_query() ); ?>" placeholder="Hledat návody…" autocomplete="off" tabindex="-1">
+			</form>
+			<button type="button" class="ek-iconbtn" data-ek-search-toggle aria-expanded="false" aria-controls="<?php echo esc_attr( $search_id ); ?>" aria-label="Hledat">
+				<?php echo ek_icon( 'search' ); ?>
+			</button>
+		</div>
 		<button type="button" class="ek-iconbtn" data-ek-theme-toggle aria-label="Přepnout světlý/tmavý režim">
 			<span class="ek-when-light"><?php echo ek_icon( 'moon' ); ?></span>
 			<span class="ek-when-dark"><?php echo ek_icon( 'sun' ); ?></span>
@@ -265,6 +271,25 @@ function ek_nav_topics(): array {
 		$topics = ek_topics( (int) ek_opt( 'ek_topics_count' ) ?: 8 );
 	}
 	return $topics;
+}
+
+/**
+ * Vyvážený počet sloupců dlaždic: nejméně řádků při daném maximu, řádky co nejplnější.
+ * (10 → 10 | 5 | 5, 12 → 6 | 6 | 4, 8 → 8 | 4 | 4 pro max 10 / 6 / 5)
+ */
+function ek_tile_cols( int $n, int $max ): int {
+	if ( $n < 1 ) {
+		return 1;
+	}
+	$rows = (int) ceil( $n / $max );
+	return (int) ceil( $n / $rows );
+}
+
+/**
+ * Inline CSS proměnné pro mřížku dlaždic (desktop / tablet / mobil).
+ */
+function ek_tiles_style( int $n ): string {
+	return sprintf( '--ek-cols-d:%d;--ek-cols-t:%d;--ek-cols-m:%d', ek_tile_cols( $n, 10 ), ek_tile_cols( $n, 6 ), ek_tile_cols( $n, 5 ) );
 }
 
 /**

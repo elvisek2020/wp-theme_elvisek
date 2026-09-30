@@ -12,7 +12,8 @@
 Šablona i plugin mají **společnou verzi**.
 
 1. Zvýšit `Version:` v `theme/elvisek/style.css` **i** v `plugins/elvisek-core/elvisek-core.php` (např. `0.4.0`).
-2. `git add -A && git commit -m "…" && git tag v0.4.0 && git push --follow-tags`
+2. `git add -A && git commit -m "…" && git tag -a v0.4.0 -m "0.4.0" && git push --follow-tags`
+   (tag musí být **anotovaný** `-a`, jinak ho `--follow-tags` nepošle; případně `git push origin v0.4.0`)
 3. GitHub Action zkontroluje verze a PHP, sestaví `elvisek.zip` + `elvisek-core.zip` a vytvoří Release.
 4. Ve WordPressu: Nástěnka → Aktualizace → *Zkontrolovat znovu* → aktualizovat šablonu i plugin.
 
