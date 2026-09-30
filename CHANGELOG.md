@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.4 — 2026-10-01
+### Šablona
+- Ikona pro iOS podle nové varianty ikony webu (čitelnější „EK“ v domku)
+
 ## 0.4.3 — 2026-10-01
 ### Šablona
 - Ikona pro rubriku AI nástroje (`ai-tools`) – „jiskra“
