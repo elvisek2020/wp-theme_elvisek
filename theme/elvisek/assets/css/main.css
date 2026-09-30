@@ -256,6 +256,17 @@ a.ek-chip:hover { color: var(--ek-accent-hover); }
 .ek-masthead--image::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgb(8 14 24 / 0.35), rgb(8 14 24 / 0.75)); }
 .ek-masthead--image .ek-masthead__motto { color: rgb(255 255 255 / 0.88); }
 .ek-masthead__inner { position: relative; }
+/* Světlá varianta obrázku: ve světlém režimu tmavý text a světlý přechod zleva (kvůli čitelnosti) */
+.ek-masthead__pic { position: absolute; inset: 0; z-index: -2; }
+.ek-masthead__pic .ek-masthead__bg { z-index: auto; }
+:root[data-theme="light"] .ek-masthead--dual { color: var(--ek-text); }
+:root[data-theme="light"] .ek-masthead--dual::before { background: linear-gradient(90deg, color-mix(in srgb, var(--ek-bg) 88%, transparent) 0%, color-mix(in srgb, var(--ek-bg) 55%, transparent) 45%, transparent 75%); }
+:root[data-theme="light"] .ek-masthead--dual .ek-masthead__motto { color: var(--ek-muted); }
+@media (prefers-color-scheme: light) {
+	:root:not([data-theme="dark"]) .ek-masthead--dual { color: var(--ek-text); }
+	:root:not([data-theme="dark"]) .ek-masthead--dual::before { background: linear-gradient(90deg, color-mix(in srgb, var(--ek-bg) 88%, transparent) 0%, color-mix(in srgb, var(--ek-bg) 55%, transparent) 45%, transparent 75%); }
+	:root:not([data-theme="dark"]) .ek-masthead--dual .ek-masthead__motto { color: var(--ek-muted); }
+}
 
 /* ---------- Záhlaví výpisů ---------- */
 .ek-pagehead { display: flex; align-items: center; gap: 18px; padding-top: 48px; padding-bottom: 32px; }

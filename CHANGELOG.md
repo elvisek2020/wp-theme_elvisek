@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.6 — 2026-09-30
+### Šablona
+- Přizpůsobit → Úvodní stránka: volitelná „Světlá varianta obrázku“ pro nadpis – ve světlém režimu se použije ona, text je tmavý a čitelnost drží světlý přechod zleva; v tmavém režimu zůstává tmavý obrázek s bílým textem
+- Stahuje se jen varianta pro aktuální režim (`<picture>` + přepnutí při ručním přepínači)
+
 ## 0.3.5 — 2026-09-30
 ### Šablona
 - Článek a stránky mají stejnou šířku jako titulka (1480 px): sloupec článku se roztáhne, boční panel 340 px

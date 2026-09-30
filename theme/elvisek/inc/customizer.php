@@ -12,6 +12,7 @@ function ek_defaults(): array {
 	return array(
 		'ek_motto'       => get_bloginfo( 'description' ),
 		'ek_hero_image'  => '',
+		'ek_hero_image_light' => '',
 		'ek_about'       => 'Memo blog – poznámky co, jak, kde a proč ze světa jedniček a nul.',
 		'ek_since'       => '2016',
 		'ek_meta_desc'   => 'ElvisEK – Linux, Apple, macOS, Synology, NAS, Raspberry, LibreELEC – instalace, konfigurace, debugging. Loxone, Zigbee, weby.',
@@ -54,9 +55,17 @@ add_action( 'customize_register', function ( WP_Customize_Manager $wpc ) {
 	$add( 'ek_motto', 'ek_home', 'Motto pod nadpisem', 'textarea', 'sanitize_textarea_field' );
 	$wpc->add_setting( 'ek_hero_image', array( 'default' => '', 'sanitize_callback' => 'absint' ) );
 	$wpc->add_control( new WP_Customize_Media_Control( $wpc, 'ek_hero_image', array(
-		'label'     => 'Obrázek na pozadí nadpisu (volitelné)',
-		'section'   => 'ek_home',
-		'mime_type' => 'image',
+		'label'       => 'Obrázek na pozadí nadpisu (volitelné)',
+		'description' => 'Tmavý obrázek, bílý text. Použije se v tmavém režimu a ve světlém, pokud níže není světlá varianta. Ideálně 2400 × 1000 px, motiv ve středovém pruhu.',
+		'section'     => 'ek_home',
+		'mime_type'   => 'image',
+	) ) );
+	$wpc->add_setting( 'ek_hero_image_light', array( 'default' => '', 'sanitize_callback' => 'absint' ) );
+	$wpc->add_control( new WP_Customize_Media_Control( $wpc, 'ek_hero_image_light', array(
+		'label'       => 'Světlá varianta obrázku (volitelné)',
+		'description' => 'Světlý obrázek pro světlý režim – text bude tmavý. Stejný rozměr a kompozice jako tmavý.',
+		'section'     => 'ek_home',
+		'mime_type'   => 'image',
 	) ) );
 	$add( 'ek_topics_count', 'ek_home', 'Počet témat', 'number', 'absint', array( 'input_attrs' => array( 'min' => 0, 'max' => 12 ) ) );
 

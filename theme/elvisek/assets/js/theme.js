@@ -13,6 +13,8 @@
 			const next = currentTheme() === 'dark' ? 'light' : 'dark';
 			root.dataset.theme = next;
 			try { localStorage.setItem('ek-theme', next); } catch (e) { /* soukromé okno */ }
+			const heroLight = document.querySelector('[data-ek-hero-light]');
+			if (heroLight) heroLight.media = next === 'light' ? 'all' : 'not all';
 			sync();
 		});
 	});
