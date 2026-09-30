@@ -226,7 +226,7 @@ add_action( 'template_redirect', function () {
 } );
 
 /* =========================================================================
- * 7) Přechod na šablonu ElvisEK — Nástroje → Přechod ElvisEK
+ * 7) Údržba ElvisEK (dříve Přechod) — Nástroje → Údržba ElvisEK
  *    a) migrace [php], [su_spoiler] a bloků SyntaxHighlighter na nativní HTML/bloky
  *       (náhled → provést → případně vrátit; záloha obsahu v post meta _ek_premigration)
  *    b) vypnutí pluginů, které šablona / elvisek-core nahrazují
@@ -344,7 +344,7 @@ function ek_mig_undo(): int {
 }
 
 add_action( 'admin_menu', function () {
-	add_management_page( 'Přechod ElvisEK', 'Přechod ElvisEK', 'manage_options', 'ek-migrace', 'ek_mig_page' );
+	add_management_page( 'Údržba ElvisEK', 'Údržba ElvisEK', 'manage_options', 'ek-migrace', 'ek_mig_page' );
 } );
 
 function ek_mig_page(): void {
@@ -358,6 +358,9 @@ function ek_mig_page(): void {
 		$do = sanitize_key( $_POST['ek_do'] ?? '' );
 		if ( 'migrate' === $do ) {
 			$notice = sprintf( 'Převedeno článků: %d. Původní obsah je zálohovaný.', ek_mig_apply() );
+		} elseif ( 'mig-forget' === $do ) {
+			$notice = sprintf( 'Smazány zálohy původního obsahu u %d článků.', count( get_posts( array( 'post_type' => 'any', 'post_status' => 'any', 'meta_key' => '_ek_premigration', 'fields' => 'ids', 'posts_per_page' => -1 ) ) ) );
+			delete_post_meta_by_key( '_ek_premigration' );
 		} elseif ( 'undo' === $do ) {
 			$notice = sprintf( 'Vráceno článků: %d.', ek_mig_undo() );
 		} elseif ( 'plugins' === $do ) {
@@ -379,58 +382,67 @@ function ek_mig_page(): void {
 	$migrated = (int) $GLOBALS['wpdb']->get_var( "SELECT COUNT(*) FROM {$GLOBALS['wpdb']->postmeta} WHERE meta_key = '_ek_premigration'" );
 	$plugins  = ek_mig_replaced_plugins();
 	$active   = array_filter( array_keys( $plugins ), 'is_plugin_active' );
+	$present  = array_filter( array_keys( $plugins ), fn( $f ) => file_exists( WP_PLUGIN_DIR . '/' . $f ) );
+	if ( ! $present && get_option( 'ek_mig_deactivated' ) ) {
+		delete_option( 'ek_mig_deactivated' ); // pluginy jsou smazané, není co zapínat
+	}
 	$form     = function ( string $do, string $label, string $class = 'button' ) {
 		echo '<form method="post" style="display:inline-block;margin-right:8px">';
 		wp_nonce_field( 'ek_mig' );
 		printf( '<input type="hidden" name="ek_do" value="%s"><button class="%s">%s</button></form>', esc_attr( $do ), esc_attr( $class ), esc_html( $label ) );
 	};
 
-	echo '<div class="wrap"><h1>Přechod na šablonu ElvisEK</h1>';
+	echo '<div class="wrap"><h1>Údržba ElvisEK</h1>';
 	if ( $notice ) {
 		printf( '<div class="notice notice-success"><p>%s</p></div>', esc_html( $notice ) );
 	}
 
-	echo '<h2>1) Migrace obsahu</h2>';
-	echo '<p>Převede <code>[php]</code> a <code>[su_spoiler]</code> a bloky SyntaxHighlighter na nativní bloky Kód a Rozbalovací sekce. Nemění datum úpravy, nevytváří revize, původní obsah si uloží.</p>';
-	if ( $cands ) {
-		echo '<table class="widefat striped" style="max-width:900px"><thead><tr><th>ID</th><th>Článek</th><th>Stav</th><th>Náhled</th></tr></thead><tbody>';
-		foreach ( $cands as $id => [ $title, $status, $old, $new ] ) {
-			$pos = strpos( $new, '<details' );
-			$pos = false === $pos ? strpos( $new, '<pre class="wp-block-code' ) : $pos;
-			printf(
-				'<tr><td>%d</td><td><a href="%s" target="_blank">%s</a></td><td>%s</td><td><code style="white-space:pre-wrap;font-size:11px">%s</code></td></tr>',
-				$id, esc_url( get_permalink( $id ) ), esc_html( $title ), esc_html( $status ),
-				esc_html( mb_substr( $new, (int) $pos, 220 ) )
-			);
+	if ( $cands || $migrated ) {
+		echo '<h2>Migrace obsahu</h2>';
+		echo '<p>Převede <code>[php]</code> a <code>[su_spoiler]</code> a bloky SyntaxHighlighter na nativní bloky Kód a Rozbalovací sekce. Nemění datum úpravy, nevytváří revize, původní obsah si uloží.</p>';
+		if ( $cands ) {
+			echo '<table class="widefat striped" style="max-width:900px"><thead><tr><th>ID</th><th>Článek</th><th>Stav</th><th>Náhled</th></tr></thead><tbody>';
+			foreach ( $cands as $id => [ $title, $status, $old, $new ] ) {
+				$pos = strpos( $new, '<details' );
+				$pos = false === $pos ? strpos( $new, '<pre class="wp-block-code' ) : $pos;
+				printf(
+					'<tr><td>%d</td><td><a href="%s" target="_blank">%s</a></td><td>%s</td><td><code style="white-space:pre-wrap;font-size:11px">%s</code></td></tr>',
+					$id, esc_url( get_permalink( $id ) ), esc_html( $title ), esc_html( $status ),
+					esc_html( mb_substr( $new, (int) $pos, 220 ) )
+				);
+			}
+			echo '</tbody></table><p>';
+			$form( 'migrate', sprintf( 'Převést %d článků', count( $cands ) ), 'button button-primary' );
+			echo '</p>';
 		}
-		echo '</tbody></table><p>';
-		$form( 'migrate', sprintf( 'Převést %d článků', count( $cands ) ), 'button button-primary' );
-		echo '</p>';
-	} else {
-		echo '<p>✅ Nic k převodu.</p>';
-	}
-	if ( $migrated ) {
-		printf( '<p>Převedených se zálohou: %d. ', $migrated );
-		$form( 'undo', 'Vrátit původní obsah' );
-		echo '</p>';
+		if ( $migrated ) {
+			printf( '<p>Převedených se zálohou: %d. ', $migrated );
+			$form( 'undo', 'Vrátit původní obsah' );
+			echo '<form method="post" style="display:inline-block" onsubmit="return confirm(\'Smazat zálohy? Pak už nepůjde vrátit původní obsah.\');">';
+			wp_nonce_field( 'ek_mig' );
+			echo '<input type="hidden" name="ek_do" value="mig-forget"><button class="button">Vše v pořádku – smazat zálohy</button></form>';
+			echo '</p><p class="description">Po smazání záloh tahle sekce zmizí.</p>';
+		}
 	}
 
-	echo '<h2>2) Pluginy nahrazené šablonou</h2><table class="widefat striped" style="max-width:900px"><tbody>';
-	foreach ( $plugins as $file => $name ) {
-		$state = ! file_exists( WP_PLUGIN_DIR . '/' . $file ) ? 'není nainstalován' : ( is_plugin_active( $file ) ? '🟢 aktivní' : '⚪ vypnutý' );
-		printf( '<tr><td>%s</td><td>%s</td></tr>', esc_html( $name ), esc_html( $state ) );
-	}
-	echo '</tbody></table><p>';
-	if ( $active ) {
-		if ( $cands ) {
-			echo '<em>Nejdřív proveďte migraci obsahu, jinak se v článcích objeví holé shortcody.</em><br>';
+	if ( $present ) {
+		echo '<h2>Pluginy nahrazené šablonou</h2><table class="widefat striped" style="max-width:900px"><tbody>';
+		foreach ( $plugins as $file => $name ) {
+			$state = ! file_exists( WP_PLUGIN_DIR . '/' . $file ) ? 'není nainstalován' : ( is_plugin_active( $file ) ? '🟢 aktivní' : '⚪ vypnutý' );
+			printf( '<tr><td>%s</td><td>%s</td></tr>', esc_html( $name ), esc_html( $state ) );
 		}
-		$form( 'plugins', sprintf( 'Vypnout %d aktivních pluginů', count( $active ) ), $cands ? 'button' : 'button button-primary' );
+		echo '</tbody></table><p>';
+		if ( $active ) {
+			if ( $cands ) {
+				echo '<em>Nejdřív proveďte migraci obsahu, jinak se v článcích objeví holé shortcody.</em><br>';
+			}
+			$form( 'plugins', sprintf( 'Vypnout %d aktivních pluginů', count( $active ) ), $cands ? 'button' : 'button button-primary' );
+		}
+		if ( get_option( 'ek_mig_deactivated' ) ) {
+			$form( 'plugins-undo', 'Znovu zapnout vypnuté pluginy' );
+		}
+		echo '</p><p class="description">Pluginy se jen vypnou, nesmažou. ManageWP (worker) zůstává.</p>';
 	}
-	if ( get_option( 'ek_mig_deactivated' ) ) {
-		$form( 'plugins-undo', 'Znovu zapnout vypnuté pluginy' );
-	}
-	echo '</p><p class="description">Pluginy se jen vypnou, nesmažou. ManageWP (worker) zůstává.</p>';
 
 	ek_maint_section_perf( $form );
 	ek_maint_section_cleanup( $form );
@@ -438,7 +450,7 @@ function ek_mig_page(): void {
 }
 
 /* =========================================================================
- * 8) Výkon a úklid — sekce na stránce Nástroje → Přechod ElvisEK
+ * 8) Výkon a úklid — sekce na stránce Nástroje → Údržba ElvisEK
  * ====================================================================== */
 
 const EK_HTACCESS_MARKER = 'ElvisEK cache';
@@ -622,7 +634,7 @@ function ek_maint_section_perf( callable $form ): void {
 	$has_ht  = str_contains( $ht, '# BEGIN ' . EK_HTACCESS_MARKER );
 	$webp    = wp_image_editor_supports( array( 'mime_type' => 'image/webp' ) );
 
-	echo '<h2>3) Výkon</h2><table class="widefat striped" style="max-width:900px"><tbody>';
+	echo '<h2>Výkon</h2><table class="widefat striped" style="max-width:900px"><tbody>';
 	printf( '<tr><td>Náhledy pro šablonu (karty, hlavní článek, úvodní obrázek)</td><td>%s</td></tr>', $missing ? sprintf( '⚠️ chybí u %d z %d obrázků', $missing, count( $ids ) ) : '✅ hotovo' );
 	printf( '<tr><td>Nové zmenšeniny ve formátu WebP</td><td>%s</td></tr>', $webp ? '✅ server podporuje' : '⚪ server WebP neumí, zůstávají JPG/PNG' );
 	printf( '<tr><td>Cache hlavičky v .htaccess</td><td>%s</td></tr>', $has_ht ? '✅ nastaveno' : '⚪ nenastaveno' );
@@ -641,7 +653,7 @@ function ek_maint_section_cleanup( callable $form ): void {
 	$drafts     = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_status IN ('auto-draft','trash')" );
 	$confirm    = "return confirm('Opravdu? Tohle nejde vrátit bez zálohy databáze.');";
 
-	echo '<h2>4) Úklid</h2><div class="notice notice-warning inline"><p><strong>Před úklidem si udělejte zálohu databáze.</strong> Mazání nejde vrátit.</p></div>';
+	echo '<h2>Úklid</h2><div class="notice notice-warning inline"><p><strong>Před úklidem si udělejte zálohu databáze.</strong> Mazání nejde vrátit.</p></div>';
 
 	echo '<h3>Tabulky po starých pluginech</h3>';
 	if ( $tables ) {

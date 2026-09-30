@@ -73,12 +73,15 @@ add_filter( 'excerpt_length', fn() => 45 );
 add_filter( 'excerpt_more', fn() => '…' );
 
 // Výpis článků: 7 na stránku (1 hlavní + 6 karet), archivy 9.
+/** Karet v jedné dávce: 12 = plné řádky při 1, 2, 3 i 4 sloupcích. */
+const EK_BATCH = 12;
+
 add_action( 'pre_get_posts', function ( WP_Query $q ) {
 	if ( is_admin() || ! $q->is_main_query() ) {
 		return;
 	}
 	if ( $q->is_archive() || $q->is_search() ) {
-		$q->set( 'posts_per_page', 9 );
+		$q->set( 'posts_per_page', EK_BATCH );
 	}
 	// Titulka: 1 hlavní článek + N karet, další strany po N kartách.
 	if ( $q->is_home() ) {
@@ -94,7 +97,7 @@ add_action( 'pre_get_posts', function ( WP_Query $q ) {
 } );
 
 function ek_home_posts(): int {
-	return max( 3, min( 48, (int) ek_opt( 'ek_home_posts' ) ?: 6 ) );
+	return EK_BATCH;
 }
 
 // Stránkování titulky: počet stran = 1 + zbytek po N (offset ruší výpočet WP).

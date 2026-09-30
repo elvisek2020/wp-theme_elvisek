@@ -18,7 +18,6 @@ function ek_defaults(): array {
 		'ek_ga_id'       => '',
 		'ek_topics_count'=> 8,
 		'ek_show_masthead' => true,
-		'ek_home_posts'  => 6,
 		'ek_sidebar_mode'=> 'wide',
 		'ek_sidebar_toc' => true,
 		'ek_sidebar_recent' => true,
@@ -60,10 +59,6 @@ add_action( 'customize_register', function ( WP_Customize_Manager $wpc ) {
 		'mime_type' => 'image',
 	) ) );
 	$add( 'ek_topics_count', 'ek_home', 'Počet témat', 'number', 'absint', array( 'input_attrs' => array( 'min' => 0, 'max' => 12 ) ) );
-	$add( 'ek_home_posts', 'ek_home', 'Počet článků pod hlavním článkem', 'number', 'absint', array(
-		'input_attrs' => array( 'min' => 3, 'max' => 48, 'step' => 1 ),
-		'description' => 'Platí i pro každé „Načíst další“. Násobky 12 vyplní řádky při 3 i 4 sloupcích.',
-	) );
 
 	// Články
 	$add( 'ek_sidebar_mode', 'ek_article', 'Boční panel', 'select',

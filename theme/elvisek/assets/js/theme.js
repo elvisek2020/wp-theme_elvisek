@@ -114,31 +114,43 @@
 		wrap.appendChild(btn);
 	});
 
-	/* Načíst další články (bez JS funguje jako odkaz na další stránku) */
-	document.addEventListener('click', async (e) => {
-		const link = e.target.closest('[data-ek-more]');
-		if (!link) return;
-		const grid = document.querySelector('[data-ek-grid]');
-		if (!grid) return;
-		e.preventDefault();
-		const box = link.parentElement;
-		box.classList.add('is-loading');
-		try {
-			const res = await fetch(link.href, { credentials: 'same-origin' });
-			if (!res.ok) throw new Error(res.status);
-			const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
-			const items = doc.querySelectorAll('[data-ek-grid] > *');
-			items.forEach((el) => grid.appendChild(document.importNode(el, true)));
-			const next = doc.querySelector('[data-ek-more]');
-			if (next) { link.href = next.href; } else { box.remove(); }
-			items[0]?.querySelector('a:not([tabindex])')?.focus({ preventScroll: true });
-		} catch (err) {
-			window.location.href = link.href;
-		} finally {
-			box.classList.remove('is-loading');
-		}
-	});
-
+	/* Další články: načítají se samy při dorolování (max. 3×, pak tlačítko, ať jde dojet k patičce).
+	   Dávky jsou po 12 = plné řádky při 1, 2, 3 i 4 sloupcích. Bez JS funguje jako odkaz. */
+	const moreLink = document.querySelector('[data-ek-more]');
+	const grid = document.querySelector('[data-ek-grid]');
+	if (moreLink && grid) {
+		const box = moreLink.parentElement;
+		let busy = false;
+		let auto = 3;
+		const loadMore = async (byUser) => {
+			if (busy) return;
+			busy = true;
+			box.classList.add('is-loading');
+			try {
+				const res = await fetch(moreLink.href, { credentials: 'same-origin' });
+				if (!res.ok) throw new Error(res.status);
+				const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
+				const items = doc.querySelectorAll('[data-ek-grid] > *');
+				items.forEach((el) => grid.appendChild(document.importNode(el, true)));
+				const next = doc.querySelector('[data-ek-more]');
+				if (next) { moreLink.href = next.href; } else { box.remove(); io?.disconnect(); }
+				if (byUser) items[0]?.querySelector('a:not([tabindex])')?.focus({ preventScroll: true });
+			} catch (err) {
+				if (byUser) window.location.href = moreLink.href;
+			} finally {
+				box.classList.remove('is-loading');
+				busy = false;
+			}
+		};
+		moreLink.addEventListener('click', (e) => { e.preventDefault(); loadMore(true); });
+		const io = 'IntersectionObserver' in window ? new IntersectionObserver((entries) => {
+			if (!entries.some((en) => en.isIntersecting) || auto <= 0) return;
+			auto -= 1;
+			if (auto <= 0) io.disconnect();
+			loadMore(false);
+		}, { rootMargin: '0px 0px 600px 0px' }) : null;
+		io?.observe(box);
+	}
 
 	/* Obsah článku nad textem (zobrazí se, když není vidět boční panel — řeší CSS) */
 	const tocTpl = document.getElementById('ek-toc-tpl');

@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.3 — 2026-09-30
+### Šablona
+- Články se načítají po dávkách 12 (plné řádky při 1, 2, 3 i 4 sloupcích) – titulka, rubriky i hledání
+- Automatické načítání při dorolování (3×), pak tlačítko „Načíst další články“, aby šlo dojet k patičce
+- Odebráno nastavení „Počet článků pod hlavním článkem“ (nahrazeno pevnou dávkou 12)
+### ElvisEK Core
+- Nástroje → „Přechod ElvisEK“ přejmenováno na „Údržba ElvisEK“
+- Sekce Migrace obsahu a Pluginy nahrazené šablonou se zobrazí jen tehdy, když mají co dělat
+- Nové tlačítko „Vše v pořádku – smazat zálohy“ (zálohy původního obsahu po migraci)
+
 ## 0.3.2 — 2026-09-30
 ### ElvisEK Core
 - Přechod ElvisEK → Úklid: nová část „Nastavení po starých pluginech a šablonách“ – náhled zbytků ve `wp_options` (velikost, autoload) se zaškrtávátky a smazáním; ManageWP (`mwp_`, `mmb_`, `worker_`) a nastavení ElvisEK se nikdy nenabízí
