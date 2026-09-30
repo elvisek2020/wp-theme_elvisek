@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.4.1 — 2026-09-30
+- Vydání druhé části změn 0.4.0 (bezpečnostní hlavičky, sitemap bez uživatelů, `llms.txt`, alt texty, `twitter:*`, jedna hlavička na titulce, tisk v `main.css`, odkaz Soukromí, ikona pro iOS) – tag v0.4.0 ukazoval na dřívější commit
+
 ## 0.4.0 — 2026-09-30
 ### ElvisEK Core
 - **Nástroje → Údržba webu** (dříve Údržba/Přechod ElvisEK), nový modul `inc/maintenance.php`; stará adresa přesměruje
