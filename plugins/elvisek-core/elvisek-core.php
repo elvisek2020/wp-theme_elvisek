@@ -2,8 +2,8 @@
 /**
  * Plugin Name: ElvisEK Core
  * Plugin URI: https://github.com/elvisek2020/wp-theme_elvisek
- * Description: Funkce webu nezávislé na šabloně — ochrana přihlášení, log přihlášení, poslední přihlášení, info v adminu, další typy souborů, automatické aktualizace, hardening, nástroje pro přechod a údržbu. Nahrazuje 7 pluginů.
- * Version: 0.3.8
+ * Description: Funkce webu nezávislé na šabloně — ochrana přihlášení, log přihlášení, poslední přihlášení, info v adminu, další typy souborů, automatické aktualizace, hardening, nástroje pro údržbu webu. Nahrazuje 7 pluginů.
+ * Version: 0.4.0
  * Requires at least: 6.6
  * Tested up to: 7.1
  * Requires PHP: 8.1

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.0 — 2026-09-30
+### ElvisEK Core
+- **Nástroje → Údržba webu** (dříve Údržba/Přechod ElvisEK), nový modul `inc/maintenance.php`; stará adresa přesměruje
+- Odebráno vše k přechodu z Graphene: migrace shortcodů, vypínání pluginů, osiřelé tabulky a volby (jednorázově se uklidí i jejich zbytky)
+- **WebP pro starší obrázky**: ke starým PNG/JPG vytvoří `soubor.png.webp` (dávkově), web je posílá místo originálu v obsahu, náhledech i lightboxu; bez zásahu do databáze, jde vypnout nebo smazat; při smazání přílohy se smažou i kopie
+- **Databáze**: velikost tabulek, autoload (celkem + top 10), optimalizace tabulek
+- **Média a odkazy** (jen přehled): největší soubory, nepoužité obrázky, rozbité interní odkazy a obrázky v obsahu
+- Úklid obsahu: revize, koncepty a koš, transienty (s potvrzením)
+
 ## 0.3.8 — 2026-09-30
 ### Šablona
 - Ikona pro rubriku Home Assistant (`homeassistant`)
