@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.4 — 2026-09-30
+### ElvisEK Core
+- Aktualizace hlásí kompatibilitu s WordPressem (hlavička „Tested up to“, teď 7.1) – pryč „Nebylo otestováno“
+- Okno „Zobrazit podrobnosti o verzi“ ukazuje poznámky k release z GitHubu místo chyby z wordpress.org
+
 ## 0.3.3 — 2026-09-30
 ### Šablona
 - Články se načítají po dávkách 12 (plné řádky při 1, 2, 3 i 4 sloupcích) – titulka, rubriky i hledání

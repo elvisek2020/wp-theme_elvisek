@@ -732,6 +732,8 @@ if ( 'local' !== wp_get_environment_type() ) {
 							'version' => ltrim( (string) $data['tag_name'], 'vV' ),
 							'url'     => (string) $data['html_url'],
 							'package' => (string) $asset['browser_download_url'],
+							'notes'   => (string) ( $data['body'] ?? '' ),
+							'date'    => (string) ( $data['published_at'] ?? '' ),
 						);
 						break;
 					}
@@ -748,7 +750,34 @@ if ( 'local' !== wp_get_environment_type() ) {
 			'version'      => $release['version'],
 			'url'          => $release['url'],
 			'package'      => $release['package'],
+			'tested'       => EK_CORE_TESTED_WP,
+			'requires'     => '6.6',
 			'requires_php' => '8.1',
+		);
+	}, 10, 3 );
+
+	// Okno „Zobrazit podrobnosti“ (jinak by WP hledal plugin na wordpress.org).
+	add_filter( 'plugins_api', function ( $res, $action, $args ) {
+		if ( 'plugin_information' !== $action || 'elvisek-core' !== ( $args->slug ?? '' ) ) {
+			return $res;
+		}
+		$release = get_site_transient( 'ek_core_release' );
+		$notes   = is_array( $release ) && ! empty( $release['notes'] ) ? $release['notes'] : 'Viz CHANGELOG na GitHubu.';
+		return (object) array(
+			'name'          => 'ElvisEK Core',
+			'slug'          => 'elvisek-core',
+			'version'       => is_array( $release ) ? ( $release['version'] ?? EK_CORE_VERSION ) : EK_CORE_VERSION,
+			'author'        => 'Zdeněk Král (ElvisEK)',
+			'homepage'      => 'https://github.com/elvisek2020/wp-theme_elvisek',
+			'tested'        => EK_CORE_TESTED_WP,
+			'requires'      => '6.6',
+			'requires_php'  => '8.1',
+			'last_updated'  => is_array( $release ) ? ( $release['date'] ?? '' ) : '',
+			'download_link' => is_array( $release ) ? ( $release['package'] ?? '' ) : '',
+			'sections'      => array(
+				'description' => 'Funkce webu elvisek.cz nezávislé na šabloně: ochrana a log přihlášení, hardening, automatické aktualizace, WebP, údržba databáze.',
+				'changelog'   => '<pre style="white-space:pre-wrap">' . esc_html( $notes ) . '</pre><p><a href="https://github.com/elvisek2020/wp-theme_elvisek/blob/main/CHANGELOG.md" target="_blank">Celý CHANGELOG</a></p>',
+			),
 		);
 	}, 10, 3 );
 
