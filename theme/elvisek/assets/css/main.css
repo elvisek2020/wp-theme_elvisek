@@ -267,6 +267,13 @@ a.ek-chip:hover { color: var(--ek-accent-hover); }
 	:root:not([data-theme="dark"]) .ek-masthead--dual::before { background: linear-gradient(90deg, color-mix(in srgb, var(--ek-bg) 88%, transparent) 0%, color-mix(in srgb, var(--ek-bg) 55%, transparent) 45%, transparent 75%); }
 	:root:not([data-theme="dark"]) .ek-masthead--dual .ek-masthead__motto { color: var(--ek-muted); }
 }
+/* Mobil: text je přes celý obrázek → světlý závoj zdola místo přechodu zleva */
+@media (max-width: 760px) {
+	:root[data-theme="light"] .ek-masthead--dual::before { background: linear-gradient(180deg, color-mix(in srgb, var(--ek-bg) 35%, transparent) 0%, color-mix(in srgb, var(--ek-bg) 88%, transparent) 55%); }
+}
+@media (max-width: 760px) and (prefers-color-scheme: light) {
+	:root:not([data-theme="dark"]) .ek-masthead--dual::before { background: linear-gradient(180deg, color-mix(in srgb, var(--ek-bg) 35%, transparent) 0%, color-mix(in srgb, var(--ek-bg) 88%, transparent) 55%); }
+}
 
 /* ---------- Záhlaví výpisů ---------- */
 .ek-pagehead { display: flex; align-items: center; gap: 18px; padding-top: 48px; padding-bottom: 32px; }

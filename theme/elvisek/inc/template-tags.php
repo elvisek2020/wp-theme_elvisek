@@ -29,6 +29,7 @@ function ek_icon( string $name, int $size = 18 ): string {
 		'terminal' => '<path d="m4 17 6-5-6-5M12 19h8"/>',
 		'phone'    => '<rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/>',
 		'home'     => '<path d="m3 11 9-7 9 7M5 10v10h14V10M10 20v-6h4v6"/>',
+		'smarthome' => '<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><circle cx="12" cy="14.5" r="1.8"/><path d="M12 12.7V10M10.4 15.4l-2.2 1.3M13.6 15.4l2.2 1.3"/>',
 		'server'   => '<rect x="3" y="4" width="18" height="7" rx="1"/><rect x="3" y="13" width="18" height="7" rx="1"/><path d="M7 7.5h.01M7 16.5h.01"/>',
 		'globe'    => '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>',
 		'wifi'     => '<path d="M12 20h.01M8.5 16.5a5 5 0 0 1 7 0M5 13a10 10 0 0 1 14 0M2 9.5a15 15 0 0 1 20 0"/>',
@@ -58,6 +59,7 @@ function ek_category_icon_name( string $slug ): string {
 		'zigbee'       => 'wifi',
 		'car'          => 'car',
 		'aliexpress'   => 'bag',
+		'homeassistant' => 'smarthome',
 	);
 	return $map[ $slug ] ?? 'folder';
 }

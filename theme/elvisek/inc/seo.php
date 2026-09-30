@@ -23,6 +23,30 @@ function ek_meta_description(): string {
 	return mb_strlen( $text ) > 160 ? rtrim( mb_substr( $text, 0, 157 ) ) . '…' : $text;
 }
 
+// Canonical i pro titulku, rubriky, štítky a stránkování (WordPress ho sám dává jen u článků a stránek).
+add_action( 'wp_head', function () {
+	if ( is_singular() || is_search() || is_404() ) {
+		return;
+	}
+	$paged = max( 1, (int) get_query_var( 'paged' ) );
+	if ( is_front_page() || is_home() ) {
+		$url = home_url( '/' );
+	} elseif ( is_category() || is_tag() || is_tax() ) {
+		$url = get_term_link( get_queried_object() );
+	} elseif ( is_author() ) {
+		$url = get_author_posts_url( get_queried_object_id() );
+	} else {
+		return;
+	}
+	if ( is_wp_error( $url ) ) {
+		return;
+	}
+	if ( $paged > 1 ) {
+		$url = trailingslashit( $url ) . user_trailingslashit( 'page/' . $paged, 'paged' );
+	}
+	printf( '<link rel="canonical" href="%s">' . "\n", esc_url( $url ) );
+}, 1 );
+
 add_action( 'wp_head', function () {
 	$desc  = ek_meta_description();
 	$title = wp_get_document_title();

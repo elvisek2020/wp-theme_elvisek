@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.8 — 2026-09-30
+### Šablona
+- Ikona pro rubriku Home Assistant (`homeassistant`)
+- Mobil, světlý režim: pod nadpisem se světlou variantou obrázku světlý závoj zdola (motto se už nepere s obrázkem)
+- Nový `screenshot.png` (aktuální hlavička s dlaždicemi a obrázkem)
+- SEO: `rel=canonical` i pro titulku, rubriky, štítky, autory a stránkování
+### Nástroje
+- `tools/img.py` přeskočí už zpracované a nedostupné soubory (iCloud)
+
 ## 0.3.7 — 2026-09-30
 ### Šablona
 - Obrázek rubriky: nové pole u rubriky (Příspěvky → Rubriky → Upravit) s výběrem z médií a sloupec s náhledem v seznamu rubrik

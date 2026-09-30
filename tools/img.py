@@ -22,10 +22,16 @@ for name in sorted(os.listdir(a.src)):
     if not name.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
         continue
     src = os.path.join(a.src, name)
-    im = ImageOps.exif_transpose(Image.open(src)).convert('RGB')
+    out = os.path.join(a.dst, os.path.splitext(name)[0] + '.webp')
+    if os.path.exists(out) and os.path.getmtime(out) >= os.path.getmtime(src):
+        continue  # už zpracováno
+    try:
+        im = ImageOps.exif_transpose(Image.open(src)).convert('RGB')
+    except OSError as e:
+        print(f'{name}: nelze otevřít ({e}) – přeskočeno', file=sys.stderr)
+        continue
     im = im.copy() if a.no_crop else ImageOps.fit(im, (w, h), Image.LANCZOS, centering=(0.5, 0.5))
     if a.no_crop:
         im.thumbnail((w, h), Image.LANCZOS)
-    out = os.path.join(a.dst, os.path.splitext(name)[0] + '.webp')
     im.save(out, 'WEBP', quality=a.quality, method=6)
     print(f"{name}: {os.path.getsize(src)//1024} kB -> {os.path.basename(out)} {im.size[0]}x{im.size[1]} {os.path.getsize(out)//1024} kB")
