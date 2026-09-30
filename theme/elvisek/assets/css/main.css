@@ -338,23 +338,27 @@ a.ek-chip:hover { color: var(--ek-accent-hover); }
 .ek-more.is-loading .ek-btn { opacity: .6; pointer-events: none; }
 
 /* ---------- Článek ---------- */
-/* Článek: sloupec pro čtení + volitelný boční panel (Přizpůsobit → ElvisEK) */
-.ek-single { display: grid; grid-template-columns: minmax(0, 880px); justify-content: center; gap: 72px; padding-top: 40px; padding-bottom: 72px; }
+/* Článek: stejná šířka jako titulka (--ek-wrap). Sloupec článku se roztáhne, boční panel má pevnou šířku.
+   Běžný text drží čitelnou délku řádku (--ek-measure), kód, obrázky, tabulky a hlavička jdou přes celý sloupec. */
+:root { --ek-measure: 920px; }
+.ek-single { display: grid; grid-template-columns: minmax(0, 1fr); gap: 64px; padding-top: 40px; padding-bottom: 72px; }
 .ek-sidebar { display: none; }
 .ek-toc-inline { margin: 24px 0 0; }
 /* „jen na širokých“ (výchozí): panel od 1400 px */
 @media (min-width: 1400px) {
-	.ek-single--wide { grid-template-columns: minmax(0, 880px) 320px; }
+	.ek-single--wide { grid-template-columns: minmax(0, 1fr) 340px; }
 	.ek-single--wide .ek-sidebar { display: block; }
 	.ek-single--wide:has(.ek-sidebar .ek-toc) .ek-toc-inline { display: none; }
 }
 /* „vždy“: panel od 1080 px */
 @media (min-width: 1080px) {
-	.ek-single--always { grid-template-columns: minmax(0, 880px) 300px; gap: 56px; }
+	.ek-single--always { grid-template-columns: minmax(0, 1fr) 300px; gap: 48px; }
 	.ek-single--always .ek-sidebar { display: block; }
 	.ek-single--always:has(.ek-sidebar .ek-toc) .ek-toc-inline { display: none; }
 }
-.ek-page { max-width: calc(860px + 2 * var(--ek-gutter)); padding-top: 40px; padding-bottom: 72px; }
+.ek-page { padding-top: 40px; padding-bottom: 72px; }
+.ek-content > :is(p, ul, ol, dl, blockquote, h2, h3, h4, h5, h6, details, .wp-block-quote, .wp-block-list),
+.ek-article__head .ek-article__title, .ek-toc-inline { max-width: var(--ek-measure); }
 .ek-crumbs { display: flex; gap: 8px; font-size: 14px; color: var(--ek-muted); flex-wrap: wrap; }
 .ek-crumbs a { color: var(--ek-muted); text-decoration: none; }
 .ek-crumbs a:hover { color: var(--ek-accent); }

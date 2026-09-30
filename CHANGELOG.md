@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.5 — 2026-09-30
+### Šablona
+- Článek a stránky mají stejnou šířku jako titulka (1480 px): sloupec článku se roztáhne, boční panel 340 px
+- Běžný text drží čitelnou délku řádku (max. 920 px, proměnná `--ek-measure`); kód, obrázky, tabulky a úvodní obrázek jdou přes celou šířku sloupce
+
 ## 0.3.4 — 2026-09-30
 ### ElvisEK Core
 - Aktualizace hlásí kompatibilitu s WordPressem (hlavička „Tested up to“, teď 7.1) – pryč „Nebylo otestováno“
