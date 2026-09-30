@@ -1,0 +1,111 @@
+<?php
+/**
+ * Úpravy obsahu článků: externí odkazy, kotvy nadpisů, obsah článku (TOC),
+ * sjednocení bloků kódu. Nahrazuje pluginy open-external-links a část syntaxhighlighter.
+ */
+
+defined( 'ABSPATH' ) || exit;
+
+/** Položky obsahu článku posbírané při zpracování the_content. */
+$GLOBALS['ek_toc'] = array();
+
+add_filter( 'the_content', 'ek_process_content', 20 );
+
+function ek_process_content( string $html ): string {
+	if ( is_admin() || ! in_the_loop() || ! is_main_query() || '' === trim( $html ) ) {
+		return $html;
+	}
+
+	$home_host = wp_parse_url( home_url(), PHP_URL_HOST );
+	$toc       = array();
+	$used_ids  = array();
+	$p         = new WP_HTML_Tag_Processor( $html );
+
+	while ( $p->next_tag() ) {
+		$tag = $p->get_tag();
+
+		// Externí odkazy do nového okna.
+		if ( 'A' === $tag ) {
+			$href = (string) $p->get_attribute( 'href' );
+			$host = wp_parse_url( $href, PHP_URL_HOST );
+			if ( $host && $host !== $home_host && preg_match( '#^https?://#i', $href ) ) {
+				$p->set_attribute( 'target', '_blank' );
+				$p->set_attribute( 'rel', 'noopener' );
+			}
+			continue;
+		}
+
+		// Kódové bloky: jednotná třída, aby šly stylovat a kopírovat.
+		if ( 'PRE' === $tag ) {
+			$p->add_class( 'ek-code' );
+		}
+	}
+	$html = $p->get_updated_html();
+
+	// Kotvy pro nadpisy H2/H3 a rozbalovací sekce + položky obsahu článku.
+	$html = preg_replace_callback(
+		'#<(h2|h3|details)(\s[^>]*)?>(.*?)</\1>#is',
+		function ( $m ) use ( &$toc, &$used_ids ) {
+			$tag   = strtolower( $m[1] );
+			$attrs = $m[2] ?? '';
+			$inner = $m[3];
+
+			if ( 'details' === $tag ) {
+				if ( ! preg_match( '#<summary[^>]*>(.*?)</summary>#is', $inner, $s ) ) {
+					return $m[0];
+				}
+				$text = trim( wp_strip_all_tags( $s[1] ) );
+			} else {
+				$text = trim( wp_strip_all_tags( $inner ) );
+			}
+			if ( '' === $text ) {
+				return $m[0];
+			}
+
+			if ( preg_match( '#\sid=["\']([^"\']+)["\']#i', $attrs, $idm ) ) {
+				$id = $idm[1];
+			} else {
+				$base = sanitize_title( $text ) ?: 'sekce';
+				$id   = $base;
+				$i    = 2;
+				while ( isset( $used_ids[ $id ] ) ) {
+					$id = $base . '-' . $i++;
+				}
+				$attrs .= ' id="' . esc_attr( $id ) . '"';
+			}
+			$used_ids[ $id ] = true;
+			$toc[]           = array( 'level' => 'h3' === $tag ? 3 : 2, 'id' => $id, 'text' => $text );
+
+			return '<' . $tag . $attrs . '>' . $inner . '</' . $tag . '>';
+		},
+		$html
+	);
+
+	$GLOBALS['ek_toc'] = $toc;
+	return $html;
+}
+
+/**
+ * Vypíše obsah článku, pokud má aspoň 2 položky.
+ */
+function ek_the_toc(): void {
+	$toc = $GLOBALS['ek_toc'] ?? array();
+	if ( count( $toc ) < 2 ) {
+		return;
+	}
+	echo '<nav class="ek-box ek-toc" aria-label="Obsah článku"><h2 class="ek-box__title">Obsah článku</h2><ol>';
+	foreach ( $toc as $item ) {
+		printf(
+			'<li class="ek-toc__l%d"><a href="#%s">%s</a></li>',
+			(int) $item['level'],
+			esc_attr( $item['id'] ),
+			esc_html( $item['text'] )
+		);
+	}
+	echo '</ol></nav>';
+}
+
+// Staré třídy z Graphene/SyntaxHighlighter v obsahu nechat projít, ale bez inline fontů (Arial).
+add_filter( 'the_content', function ( string $html ): string {
+	return preg_replace( '#\sstyle="font-family:\s*arial,\s*helvetica,\s*sans-serif;?"#i', '', $html );
+}, 5 );

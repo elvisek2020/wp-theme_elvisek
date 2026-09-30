@@ -1,0 +1,220 @@
+<?php
+/**
+ * Pomocné funkce pro šablony.
+ */
+
+defined( 'ABSPATH' ) || exit;
+
+/**
+ * Inline SVG ikona (stroke, barva = currentColor).
+ */
+function ek_icon( string $name, int $size = 18 ): string {
+	static $paths = array(
+		'search'   => '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+		'moon'     => '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>',
+		'sun'      => '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+		'menu'     => '<path d="M4 6h16M4 12h16M4 18h16"/>',
+		'close'    => '<path d="M6 6l12 12M18 6 6 18"/>',
+		'print'    => '<path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="7"/>',
+		'chevron'  => '<path d="m6 9 6 6 6-6"/>',
+		'arrow'    => '<path d="M5 12h14M13 6l6 6-6 6"/>',
+		'arrow-l'  => '<path d="M19 12H5M11 6l-6 6 6 6"/>',
+		'copy'     => '<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>',
+		'lock'     => '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+		'rss'      => '<path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/>',
+		'folder'   => '<path d="M3 6a1 1 0 0 1 1-1h5l2 2h9a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/>',
+		// Ikony kategorií.
+		'chip'     => '<path d="M9 3v2M15 3v2M9 19v2M15 19v2M3 9h2M3 15h2M19 9h2M19 15h2"/><rect x="5" y="5" width="14" height="14" rx="1"/><path d="M9 9h6v6H9z"/>',
+		'laptop'   => '<path d="M4 5h16a1 1 0 0 1 1 1v10H3V6a1 1 0 0 1 1-1zM1 19h22"/>',
+		'terminal' => '<path d="m4 17 6-5-6-5M12 19h8"/>',
+		'phone'    => '<rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/>',
+		'home'     => '<path d="m3 11 9-7 9 7M5 10v10h14V10M10 20v-6h4v6"/>',
+		'server'   => '<rect x="3" y="4" width="18" height="7" rx="1"/><rect x="3" y="13" width="18" height="7" rx="1"/><path d="M7 7.5h.01M7 16.5h.01"/>',
+		'globe'    => '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>',
+		'wifi'     => '<path d="M12 20h.01M8.5 16.5a5 5 0 0 1 7 0M5 13a10 10 0 0 1 14 0M2 9.5a15 15 0 0 1 20 0"/>',
+		'car'      => '<path d="M5 17h14M5 17a2 2 0 1 1-4 0v-4l2-5h18l2 5v4a2 2 0 1 1-4 0"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/>',
+		'bag'      => '<path d="M6 7h12l1 13H5zM9 7a3 3 0 0 1 6 0"/>',
+	);
+	$inner = $paths[ $name ] ?? $paths['folder'];
+	return sprintf(
+		'<svg class="ek-icon" width="%1$d" height="%1$d" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">%2$s</svg>',
+		$size,
+		$inner
+	);
+}
+
+/**
+ * Ikona podle slugu kategorie.
+ */
+function ek_category_icon_name( string $slug ): string {
+	$map = array(
+		'raspberry-pi' => 'chip',
+		'osx'          => 'laptop',
+		'debian'       => 'terminal',
+		'ios'          => 'phone',
+		'loxone'       => 'home',
+		'synology'     => 'server',
+		'webportfolio' => 'globe',
+		'zigbee'       => 'wifi',
+		'car'          => 'car',
+		'aliexpress'   => 'bag',
+	);
+	return $map[ $slug ] ?? 'folder';
+}
+
+/**
+ * Hlavní kategorie článku (mimo „Nezařazené“).
+ */
+function ek_primary_category( $post = null ): ?WP_Term {
+	$cats = get_the_category( $post ? get_post( $post )->ID : 0 );
+	foreach ( $cats as $cat ) {
+		if ( (int) $cat->term_id !== (int) get_option( 'default_category' ) ) {
+			return $cat;
+		}
+	}
+	return $cats[0] ?? null;
+}
+
+/**
+ * Doba čtení v minutách (200 slov/min, obrázek ~ 10 s).
+ */
+function ek_reading_time( $post = null ): int {
+	$post    = get_post( $post );
+	$content = (string) $post->post_content;
+	$words   = str_word_count( wp_strip_all_tags( strip_shortcodes( $content ) ), 0, 'áčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ' );
+	$images  = substr_count( $content, '<img' );
+	return max( 1, (int) round( ( $words / 200 ) + ( $images * 10 / 60 ) ) );
+}
+
+/**
+ * Štítek kategorie.
+ */
+function ek_category_chip( $post = null, string $class = 'ek-chip' ): string {
+	$cat = ek_primary_category( $post );
+	if ( ! $cat ) {
+		return '';
+	}
+	return sprintf( '<a class="%s" href="%s">%s</a>', esc_attr( $class ), esc_url( get_category_link( $cat ) ), esc_html( $cat->name ) );
+}
+
+/**
+ * Náhled článku — obrázek nebo zástupná plocha s ikonou kategorie.
+ */
+function ek_thumbnail( string $size = 'ek-card', array $attr = array() ): void {
+	if ( has_post_thumbnail() ) {
+		$class = 'ek-thumb__img' . ( ek_thumb_is_logo( get_post_thumbnail_id() ) ? ' ek-thumb__img--contain' : '' );
+		the_post_thumbnail( $size, array_merge( array( 'alt' => '' ), $attr, array( 'class' => $class ) ) );
+		return;
+	}
+	$cat = ek_primary_category();
+	echo '<span class="ek-thumb__placeholder">' . ek_icon( ek_category_icon_name( $cat ? $cat->slug : '' ), 40 ) . '</span>';
+}
+
+/**
+ * Je obrázek spíš logo/ikona (malý nebo čtvercový)? Pak se nezvětšuje ani neořezává.
+ */
+function ek_thumb_is_logo( int $attachment_id ): bool {
+	$meta = wp_get_attachment_metadata( $attachment_id );
+	$w    = (int) ( $meta['width'] ?? 0 );
+	$h    = (int) ( $meta['height'] ?? 0 );
+	if ( ! $w || ! $h ) {
+		return false;
+	}
+	return $w < 700 || abs( ( $w / $h ) - 1 ) < 0.2 || str_ends_with( strtolower( (string) ( $meta['file'] ?? '' ) ), '.png' ) && $w < 1000;
+}
+
+/**
+ * Datum pro karty (15. 11. 2023) a pro článek (15. listopadu 2023).
+ */
+function ek_date( string $format = 'short' ): string {
+	$fmt = 'short' === $format ? 'j. n. Y' : 'j. F Y';
+	return sprintf( '<time datetime="%s">%s</time>', esc_attr( get_the_date( 'c' ) ), esc_html( get_the_date( $fmt ) ) );
+}
+
+/**
+ * Témata na titulce — nejpočetnější kategorie.
+ */
+function ek_topics( int $limit = 8 ): array {
+	return get_categories( array(
+		'orderby'    => 'count',
+		'order'      => 'DESC',
+		'hide_empty' => true,
+		'exclude'    => array( (int) get_option( 'default_category' ) ),
+		'number'     => $limit,
+	) );
+}
+
+/**
+ * Tlačítko „Načíst další“ (funguje i bez JS jako odkaz na další stránku).
+ */
+function ek_load_more( string $label = 'Načíst další články' ): void {
+	global $wp_query;
+	$paged = max( 1, (int) get_query_var( 'paged' ) );
+	if ( $paged >= (int) $wp_query->max_num_pages ) {
+		return;
+	}
+	printf(
+		'<div class="ek-more"><a class="ek-btn ek-btn--ghost" data-ek-more href="%s">%s</a></div>',
+		esc_url( get_pagenum_link( $paged + 1 ) ),
+		esc_html( $label )
+	);
+}
+
+/**
+ * Drobečková navigace pro článek.
+ */
+function ek_breadcrumbs(): void {
+	$items = array( sprintf( '<a href="%s">Úvod</a>', esc_url( home_url( '/' ) ) ) );
+	if ( is_single() ) {
+		$cat = ek_primary_category();
+		if ( $cat ) {
+			$items[] = sprintf( '<a href="%s">%s</a>', esc_url( get_category_link( $cat ) ), esc_html( $cat->name ) );
+		}
+	}
+	echo '<nav class="ek-crumbs" aria-label="Drobečková navigace">' . implode( '<span aria-hidden="true">›</span>', $items ) . '</nav>';
+}
+
+/**
+ * Související články ze stejné kategorie.
+ */
+function ek_related_posts( int $count = 3 ): array {
+	$cat = ek_primary_category();
+	if ( ! $cat ) {
+		return array();
+	}
+	return get_posts( array(
+		'category__in'        => array( $cat->term_id ),
+		'post__not_in'        => array( get_the_ID() ),
+		'posts_per_page'      => $count,
+		'ignore_sticky_posts' => true,
+		'no_found_rows'       => true,
+	) );
+}
+
+/**
+ * Rozsah let pro copyright.
+ */
+function ek_copyright_years(): string {
+	$since = (int) ek_opt( 'ek_since' );
+	$now   = (int) wp_date( 'Y' );
+	return ( $since && $since < $now ) ? $since . '–' . $now : (string) $now;
+}
+
+/**
+ * Záložní menu: Úvod + kategorie (když není přiřazené menu).
+ */
+function ek_nav_fallback(): void {
+	echo '<ul class="ek-nav__list"><li class="' . ( is_front_page() ? 'current-menu-item' : '' ) . '"><a href="' . esc_url( home_url( '/' ) ) . '">Úvod</a></li>';
+	foreach ( ek_topics( 7 ) as $cat ) {
+		printf( '<li class="%s"><a href="%s">%s</a></li>', is_category( $cat->term_id ) ? 'current-menu-item' : '', esc_url( get_category_link( $cat ) ), esc_html( $cat->name ) );
+	}
+	echo '</ul>';
+}
+
+/**
+ * České skloňování podle čísla: 1 článek, 2–4 články, 5+ článků.
+ */
+function ek_plural( int $n, string $one, string $few, string $many ): string {
+	$form = 1 === $n ? $one : ( ( $n >= 2 && $n <= 4 ) ? $few : $many );
+	return $n . ' ' . $form;
+}

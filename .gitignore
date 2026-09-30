@@ -1,0 +1,11 @@
+# zálohy a lokální prostředí neverzujeme
+backup-*/
+dev/wp/
+dev/db/
+_to_delete/
+ctime.txt
+.DS_Store
+dev/_incoming/
+dev/_disabled-plugins/
+dev/wp-content-uploads/
+*.log

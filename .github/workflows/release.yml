@@ -1,0 +1,40 @@
+# Po pushnutí tagu vX.Y.Z sestaví elvisek.zip a vytvoří GitHub Release.
+# WordPress (inc/updater.php) si pak aktualizaci najde sám.
+name: Release šablony
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Kontrola verze (tag = Version ve style.css)
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          VER=$(grep -m1 -E '^Version:' theme/elvisek/style.css | awk '{print $2}')
+          echo "tag=$TAG style.css=$VER"
+          if [ "$TAG" != "$VER" ]; then
+            echo "::error::Tag v$TAG neodpovídá Version: $VER ve style.css"; exit 1
+          fi
+
+      - name: Kontrola syntaxe PHP
+        run: find theme/elvisek -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: Sestavení ZIPu
+        run: |
+          cd theme
+          zip -rq ../elvisek.zip elvisek -x 'elvisek/.gitkeep' -x '*/.DS_Store'
+          cd .. && unzip -l elvisek.zip | tail -1
+
+      - name: GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: elvisek.zip
+          generate_release_notes: true

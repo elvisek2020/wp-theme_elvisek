@@ -1,0 +1,50 @@
+name: elvisek-dev
+
+services:
+  db:
+    image: mariadb:10.11
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: elvisek
+      MARIADB_USER: wp
+      MARIADB_PASSWORD: wp
+      MARIADB_ROOT_PASSWORD: root
+    volumes:
+      - db-data:/var/lib/mysql
+      - ./db:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 60
+
+  wp:
+    image: wordpress:php8.3-apache
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "80:80"      # http://10.5.11.173 z jiné stanice
+      - "8080:80"    # http://localhost:8080
+    volumes:
+      - ./wp:/var/www/html
+      - ./wp-config.php:/var/www/html/wp-config.php:ro
+      - ../theme/elvisek:/var/www/html/wp-content/themes/elvisek
+      - ../mu-plugins:/var/www/html/wp-content/mu-plugins
+
+  cli:
+    image: wordpress:cli-php8.3
+    profiles: ["cli"]
+    user: "33:33"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./wp:/var/www/html
+      - ./wp-config.php:/var/www/html/wp-config.php:ro
+      - ../theme/elvisek:/var/www/html/wp-content/themes/elvisek
+      - ../mu-plugins:/var/www/html/wp-content/mu-plugins
+
+volumes:
+  db-data:
