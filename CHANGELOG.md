@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.2 — 2026-09-30
+### ElvisEK Core
+- Přechod ElvisEK → Úklid: nová část „Nastavení po starých pluginech a šablonách“ – náhled zbytků ve `wp_options` (velikost, autoload) se zaškrtávátky a smazáním; ManageWP (`mwp_`, `mmb_`, `worker_`) a nastavení ElvisEK se nikdy nenabízí
+### Šablona
+- Přizpůsobit → Úvodní stránka: „Zobrazit nadpis webu s mottem“ (vypnuto = jen skrytý H1 pro čtečky a SEO)
+- Přizpůsobit → Úvodní stránka: „Počet článků pod hlavním článkem“ (3–48, výchozí 6); stejný počet i pro „Načíst další“ a další strany, nezávisle na Nastavení → Čtení
+
 ## 0.3.1 — 2026-09-30
 ### Šablona
 - Dlaždice témat se přizpůsobí počtu: vyvážené řádky (10 → 1 řádek, 12 → 2×6; tablet i mobil zvlášť), max. počet v Přizpůsobit snížen na 12

@@ -247,6 +247,7 @@ a.ek-chip:hover { color: var(--ek-accent-hover); }
 .ek-search__input:focus { outline: 2px solid var(--ek-accent); outline-offset: 0; border-color: transparent; }
 
 /* ---------- Nadpis webu (masthead) ---------- */
+.ek-home-gap { height: 40px; }
 .ek-masthead { position: relative; padding: 64px 0 44px; overflow: hidden; }
 .ek-masthead__title { margin: 0; font-size: clamp(44px, 7vw, 72px); line-height: 1; letter-spacing: -0.03em; }
 .ek-masthead__motto { margin: 18px 0 0; max-width: 820px; font-size: clamp(18px, 2vw, 22px); line-height: 1.5; color: var(--ek-muted); }

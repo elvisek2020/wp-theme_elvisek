@@ -11,7 +11,10 @@ $ek_paged = max( 1, (int) get_query_var( 'paged' ) );
 $ek_hero  = (int) ek_opt( 'ek_hero_image' );
 ?>
 <main id="obsah" class="ek-main">
-	<?php if ( 1 === $ek_paged ) : ?>
+	<?php if ( 1 === $ek_paged && ! ek_opt( 'ek_show_masthead' ) ) : ?>
+		<h1 class="screen-reader-text"><?php bloginfo( 'name' ); ?></h1>
+		<div class="ek-home-gap"></div>
+	<?php elseif ( 1 === $ek_paged ) : ?>
 		<section class="ek-masthead<?php echo $ek_hero ? ' ek-masthead--image' : ''; ?>">
 			<?php if ( $ek_hero ) : ?>
 				<?php echo wp_get_attachment_image( $ek_hero, 'ek-hero', false, array( 'class' => 'ek-masthead__bg', 'alt' => '', 'loading' => 'eager', 'fetchpriority' => 'high' ) ); ?>

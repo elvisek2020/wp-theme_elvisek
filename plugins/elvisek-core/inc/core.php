@@ -483,6 +483,57 @@ function ek_maint_orphan_tables(): array {
 	return $rows ?: array();
 }
 
+/**
+ * Volby (wp_options) po odinstalovaných pluginech a smazaných šablonách.
+ * ManageWP (mwp_, mmb_, worker_) a vše aktivní se nikdy nenabízí.
+ */
+function ek_maint_orphan_options(): array {
+	global $wpdb;
+	$prefixes = array(
+		'jqlb_', 'coming_soon_page_', 'su_option_', 'su_presets_', 'exactmetrics_', '_amn_exact-metrics', 'monsterinsights_',
+		'wp-mail-bank', 'mail_bank_', 'mb_tech_banker', 'wp-optimize-', 'wpo_', 'updraft_', 'recaptcha_', 'c4wp_', 'itsec_', 'fs_',
+		'lightpress_', 'social_facbook_', 'social_twiter_', 'social_google_', 'social_youtobe_', 'social_', 'gadwp_', 'jetpack_', 'jpsq_',
+		'advgb_', 'ossdl_', 'wpeft_', 'wt_cli_', 'cli_heading', 'cli_pg_', 'CookieLawInfo', 'cookielawinfo_', 'wpseo', 'yoast_', 'mwai_',
+		'siteorigin_', 'megamenu_', 'wpsupercache_', 'supercache_', 'wpsc_', 'gutenberg_', 'hmbkp_', 'slb_', 'amp-options', 'amp_',
+		'wpXSG_', 'xmsg_', 'syntaxhighlighter_', 'eum_', '_lab_opt_in_',
+	);
+	$exact = array( 'sunrise_defaults_su', 'sm_options', 'sm_status', 'user_hit_count', 'disabled_hit_count', 'show_from_name_in_email', 'show_from_email_in_email', 'update_email_configuration', 'do_activate', 'customize_stashed_theme_mods' );
+
+	// Šablony, které už nejsou nainstalované.
+	$like_mods = $wpdb->esc_like( 'theme_mods_' ) . '%';
+	foreach ( $wpdb->get_col( $wpdb->prepare( "SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE %s", $like_mods ) ) as $name ) {
+		$slug = substr( $name, strlen( 'theme_mods_' ) );
+		if ( $slug !== get_stylesheet() && ! wp_get_theme( $slug )->exists() ) {
+			$exact[] = $name;
+		}
+	}
+	if ( ! wp_get_theme( 'graphene-plus' )->exists() && ! wp_get_theme( 'graphene' )->exists() ) {
+		array_push( $prefixes, 'graphene', '_graphene' );
+	}
+
+	$keep  = array( 'mwp_', 'mmb_', 'worker_' );
+	$where = array();
+	$args  = array();
+	foreach ( $prefixes as $px ) {
+		$where[] = 'option_name LIKE %s';
+		$args[]  = $wpdb->esc_like( $px ) . '%';
+	}
+	$where[] = 'option_name IN (' . implode( ',', array_fill( 0, count( $exact ), '%s' ) ) . ')';
+	$args    = array_merge( $args, $exact );
+	$rows    = $wpdb->get_results( $wpdb->prepare(
+		"SELECT option_name AS n, autoload AS a, LENGTH(option_value) AS b FROM {$wpdb->options} WHERE ( " . implode( ' OR ', $where ) . ' ) ORDER BY option_name',
+		$args
+	) );
+	return array_values( array_filter( (array) $rows, function ( $r ) use ( $keep ) {
+		foreach ( $keep as $k ) {
+			if ( str_starts_with( $r->n, $k ) ) {
+				return false;
+			}
+		}
+		return ! str_starts_with( $r->n, 'ek_' );
+	} ) );
+}
+
 function ek_maint_thumb_ids(): array {
 	global $wpdb;
 	return array_map( 'intval', $wpdb->get_col(
@@ -537,6 +588,14 @@ function ek_maint_handle( string $do ): string {
 				$wpdb->query( "DROP TABLE IF EXISTS `" . esc_sql( $t ) . "`" );
 			}
 			return sprintf( 'Smazáno tabulek: %d.', count( $drop ) );
+		case 'maint-options':
+			$names = array_map( 'wp_unslash', (array) ( $_POST['ek_options'] ?? array() ) );
+			$valid = wp_list_pluck( ek_maint_orphan_options(), 'n' );
+			$drop  = array_intersect( $names, $valid );
+			foreach ( $drop as $n ) {
+				delete_option( $n );
+			}
+			return sprintf( 'Smazáno voleb: %d.', count( $drop ) );
 		case 'maint-revisions':
 			$ids = $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} WHERE post_type = 'revision'" );
 			foreach ( $ids as $id ) {
@@ -597,6 +656,24 @@ function ek_maint_section_cleanup( callable $form ): void {
 		printf( '</tbody></table><p><button class="button">Smazat vybrané tabulky (%s MB)</button></p></form>', esc_html( number_format_i18n( $sum, 1 ) ) );
 	} else {
 		echo '<p>✅ Žádné nepoužívané tabulky.</p>';
+	}
+
+	$options = ek_maint_orphan_options();
+	echo '<h3>Nastavení po starých pluginech a šablonách</h3>';
+	if ( $options ) {
+		$kb    = array_sum( wp_list_pluck( $options, 'b' ) ) / 1024;
+		$auto  = array_filter( $options, fn( $o ) => in_array( $o->a, array( 'yes', 'on', 'auto', 'auto-on' ), true ) );
+		$kb_ld = array_sum( wp_list_pluck( $auto, 'b' ) ) / 1024;
+		printf( '<p>%d položek, %s kB celkem, z toho %d se načítá při každém požadavku (%s kB).</p>', count( $options ), esc_html( number_format_i18n( $kb, 1 ) ), count( $auto ), esc_html( number_format_i18n( $kb_ld, 1 ) ) );
+		echo '<form method="post" onsubmit="' . esc_attr( $confirm ) . '">';
+		wp_nonce_field( 'ek_mig' );
+		echo '<input type="hidden" name="ek_do" value="maint-options"><details><summary style="cursor:pointer">Zobrazit seznam</summary><table class="widefat striped" style="max-width:900px;margin-top:8px"><thead><tr><th></th><th>Volba</th><th>kB</th><th>Autoload</th></tr></thead><tbody>';
+		foreach ( $options as $o ) {
+			printf( '<tr><td><input type="checkbox" name="ek_options[]" value="%1$s" checked></td><td><code>%1$s</code></td><td>%2$s</td><td>%3$s</td></tr>', esc_attr( $o->n ), esc_html( number_format_i18n( $o->b / 1024, 1 ) ), esc_html( $o->a ) );
+		}
+		echo '</tbody></table></details><p><button class="button">Smazat vybrané volby</button></p></form>';
+	} else {
+		echo '<p>✅ Žádné zbytky nastavení.</p>';
 	}
 
 	echo '<h3>Obsah databáze</h3><table class="widefat striped" style="max-width:900px"><tbody>';

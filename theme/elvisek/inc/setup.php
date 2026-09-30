@@ -80,7 +80,32 @@ add_action( 'pre_get_posts', function ( WP_Query $q ) {
 	if ( $q->is_archive() || $q->is_search() ) {
 		$q->set( 'posts_per_page', 9 );
 	}
+	// Titulka: 1 hlavní článek + N karet, další strany po N kartách.
+	if ( $q->is_home() ) {
+		$n     = ek_home_posts();
+		$paged = max( 1, (int) $q->get( 'paged' ) );
+		if ( 1 === $paged ) {
+			$q->set( 'posts_per_page', $n + 1 );
+		} else {
+			$q->set( 'posts_per_page', $n );
+			$q->set( 'offset', 1 + ( $paged - 1 ) * $n );
+		}
+	}
 } );
+
+function ek_home_posts(): int {
+	return max( 3, min( 48, (int) ek_opt( 'ek_home_posts' ) ?: 6 ) );
+}
+
+// Stránkování titulky: počet stran = 1 + zbytek po N (offset ruší výpočet WP).
+add_filter( 'found_posts', function ( $found, WP_Query $q ) {
+	if ( is_admin() || ! $q->is_main_query() || ! $q->is_home() ) {
+		return $found;
+	}
+	$n     = ek_home_posts();
+	$pages = max( 1, (int) ceil( max( 0, $found - 1 ) / $n ) );
+	return $pages * (int) $q->get( 'posts_per_page' );
+}, 10, 2 );
 
 // Třída pro <body>, když má článek obsah (TOC) — nastavuje se v content.php.
 add_filter( 'body_class', function ( $classes ) {
