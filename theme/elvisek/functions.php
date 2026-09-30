@@ -16,6 +16,7 @@ $ek_modules = array(
 	'customizer',        // motto, obrázek hlavičky, text do patičky, GA4 ID
 	'assets',            // CSS/JS, podmíněné načítání
 	'template-tags',     // pomocné funkce pro šablony (meta, ikony, karty)
+	'category-image',    // obrázek rubriky (náhled článků bez vlastního / místo vlastního)
 	'content',           // externí odkazy, kotvy nadpisů, obsah článku (TOC)
 	'seo',               // meta description, Open Graph, JSON-LD
 	'comments-antispam', // honeypot + časová kontrola

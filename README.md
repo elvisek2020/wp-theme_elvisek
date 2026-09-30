@@ -18,3 +18,13 @@
 4. Ve WordPressu: Nástěnka → Aktualizace → *Zkontrolovat znovu* → aktualizovat šablonu i plugin.
 
 První instalace: stáhnout ZIPy z Releases → Vzhled → Motivy → Přidat → Nahrát (`elvisek.zip`), Pluginy → Přidat → Nahrát (`elvisek-core.zip`).
+
+## Psaní článků přes Claude (tools/wp.py)
+
+Malý klient pro WordPress REST API. Přístup (uživatel `claude`, role Redaktor, heslo aplikace) čte z `ctime.txt`, který je v `.gitignore`. Články vytváří a upravuje **jen jako koncepty**, publikuje člověk.
+
+```bash
+python3 tools/wp.py whoami | categories | drafts | get <id>
+python3 tools/wp.py draft --title "…" --content clanek.html --categories 15 --tags "docker,rpi" [--featured obrazek.jpg] [--id <id konceptu>]
+python3 tools/wp.py upload obrazek.jpg --alt "…"
+```

@@ -23,6 +23,7 @@ function ek_defaults(): array {
 		'ek_sidebar_toc' => true,
 		'ek_sidebar_recent' => true,
 		'ek_code_lines'  => true,
+		'ek_cat_image_mode' => 'always',
 	);
 }
 
@@ -81,6 +82,14 @@ add_action( 'customize_register', function ( WP_Customize_Manager $wpc ) {
 	$add( 'ek_sidebar_toc', 'ek_article', 'Boční panel: obsah článku', 'checkbox', 'rest_sanitize_boolean' );
 	$add( 'ek_sidebar_recent', 'ek_article', 'Boční panel: novinky', 'checkbox', 'rest_sanitize_boolean' );
 	$add( 'ek_code_lines', 'ek_article', 'Čísla řádků u kódu', 'checkbox', 'rest_sanitize_boolean' );
+	$add( 'ek_cat_image_mode', 'ek_article', 'Obrázek rubriky (Příspěvky → Rubriky)', 'select',
+		fn( $v ) => in_array( $v, array( 'always', 'fallback', 'off' ), true ) ? $v : 'always',
+		array( 'choices' => array(
+			'always'   => 'Vždy – místo náhledového obrázku článku',
+			'fallback' => 'Jen u článků bez náhledového obrázku',
+			'off'      => 'Nepoužívat',
+		) )
+	);
 
 	// Patička
 	$add( 'ek_about', 'ek_footer', 'Krátký text o webu', 'textarea', 'sanitize_textarea_field' );

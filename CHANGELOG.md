@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.7 — 2026-09-30
+### Šablona
+- Obrázek rubriky: nové pole u rubriky (Příspěvky → Rubriky → Upravit) s výběrem z médií a sloupec s náhledem v seznamu rubrik
+- Přizpůsobit → Články → „Obrázek rubriky“: vždy (místo náhledu článku) / jen u článků bez náhledu / nepoužívat; platí pro karty, detail článku i Open Graph, data článků se nemění
+### Nástroje
+- `tools/wp.py` – klient REST API (koncepty, média, výpis článků a stránek), `tools/img.py` – příprava obrázků (16 : 9, 1600 × 900, WebP)
+
 ## 0.3.6 — 2026-09-30
 ### Šablona
 - Přizpůsobit → Úvodní stránka: volitelná „Světlá varianta obrázku“ pro nadpis – ve světlém režimu se použije ona, text je tmavý a čitelnost drží světlý přechod zleva; v tmavém režimu zůstává tmavý obrázek s bílým textem
