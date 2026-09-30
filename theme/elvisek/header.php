@@ -38,10 +38,10 @@ $ek_topics  = ek_nav_topics();
 	</header>
 <?php endif; ?>
 
-<header class="ek-bar<?php echo $ek_is_hero ? ' ek-bar--floating' : ''; ?>" <?php echo $ek_is_hero ? 'aria-hidden="true" inert' : ''; ?> data-ek-bar>
+<<?php echo $ek_is_hero ? 'div' : 'header'; ?> class="ek-bar<?php echo $ek_is_hero ? ' ek-bar--floating' : ''; ?>" <?php echo $ek_is_hero ? 'aria-hidden="true" inert' : ''; ?> data-ek-bar>
 	<div class="ek-wrap ek-bar__inner">
 		<?php ek_logo( true ); ?>
-		<nav class="ek-chipsnav<?php echo count( $ek_topics ) > 8 ? ' ek-chipsnav--many' : ''; ?>" aria-label="Témata" data-ek-chipsnav>
+		<<?php echo $ek_is_hero ? 'div' : 'nav'; ?> class="ek-chipsnav<?php echo count( $ek_topics ) > 8 ? ' ek-chipsnav--many' : ''; ?>" aria-label="Témata" data-ek-chipsnav>
 			<ul>
 				<?php foreach ( $ek_topics as $cat ) : ?>
 					<li class="<?php echo ek_is_current_topic( $cat ) ? 'is-current' : ''; ?>">
@@ -51,7 +51,7 @@ $ek_topics  = ek_nav_topics();
 					</li>
 				<?php endforeach; ?>
 			</ul>
-		</nav>
+		</<?php echo $ek_is_hero ? 'div' : 'nav'; ?>>
 		<?php ek_header_tools( 'ek-search' ); ?>
 	</div>
-</header>
+</<?php echo $ek_is_hero ? 'div' : 'header'; ?>>

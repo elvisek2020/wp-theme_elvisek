@@ -33,7 +33,7 @@ get_header();
 
 				<?php if ( has_post_thumbnail() ) : ?>
 					<figure class="ek-article__hero ek-thumb<?php echo ek_thumb_is_logo( get_post_thumbnail_id() ) ? ' ek-article__hero--logo' : ''; ?>">
-						<?php the_post_thumbnail( 'ek-hero', array( 'class' => 'ek-thumb__img', 'loading' => 'eager', 'fetchpriority' => 'high', 'sizes' => '(max-width: 900px) 100vw, 860px' ) ); ?>
+						<?php the_post_thumbnail( 'ek-hero', array( 'alt' => ek_plain_title(), 'class' => 'ek-thumb__img', 'loading' => 'eager', 'fetchpriority' => 'high', 'sizes' => '(max-width: 900px) 100vw, 860px' ) ); ?>
 					</figure>
 				<?php endif; ?>
 

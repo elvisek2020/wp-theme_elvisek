@@ -30,3 +30,4 @@ define( 'EK_CORE_TESTED_WP', $ek_core_meta['t'] ?: '7.1' ); // při ověření n
 unset( $ek_core_meta );
 
 require __DIR__ . '/inc/core.php';
+require __DIR__ . '/inc/seo-extra.php';

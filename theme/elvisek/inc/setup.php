@@ -131,3 +131,15 @@ add_action( 'admin_notices', function () {
 		esc_url( admin_url( 'plugins.php' ) )
 	);
 } );
+
+// Ikona pro iOS vždy jako PNG z šablony (ikona webu se jinak ukládá jako WebP, to Apple nemusí vzít).
+add_filter( 'site_icon_meta_tags', function ( $tags ) {
+	$tags = array_filter( (array) $tags, fn( $t ) => ! str_contains( $t, 'apple-touch-icon' ) );
+	$tags[] = sprintf( '<link rel="apple-touch-icon" href="%s" />', esc_url( EK_URI . '/assets/icons/apple-touch-icon.png' ) );
+	return $tags;
+} );
+add_action( 'wp_head', function () {
+	if ( ! has_site_icon() ) {
+		printf( '<link rel="apple-touch-icon" href="%s">' . "\n", esc_url( EK_URI . '/assets/icons/apple-touch-icon.png' ) );
+	}
+}, 99 );

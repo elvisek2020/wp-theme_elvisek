@@ -600,3 +600,27 @@ a.ek-chip:hover { color: var(--ek-accent-hover); }
 .ek-toc-inline[open] > summary::after { content: "−"; }
 .ek-toc-inline .ek-toc { border: 0; padding: 0 0 12px; background: none; }
 .ek-toc-inline .ek-box__title { display: none; }
+
+/* ---------- Tisk (dříve print.css) ---------- */
+@media print {
+/* Tisková verze článku (nahrazuje tisk z Graphene). */
+@page { margin: 18mm 16mm; }
+:root { --ek-bg: #fff; --ek-surface: #fff; --ek-text: #000; --ek-muted: #444; --ek-line: #ccc; --ek-chip: #f1f1f1; }
+html, body { background: #fff !important; color: #000 !important; font-size: 11.5pt; }
+.ek-bar, .ek-hero-head, .ek-footer, .ek-sidebar, .ek-postnav, .ek-related, .ek-comments, .ek-article__print,
+.ek-copy, .ek-consent, .ek-skip, .ek-more, #wpadminbar { display: none !important; }
+.ek-single { display: block; padding: 0; }
+.ek-wrap { max-width: none; padding: 0; }
+.ek-article__title { font-size: 22pt; }
+.ek-article__hero { aspect-ratio: auto; max-height: 70mm; border-radius: 0; }
+.ek-content { font-size: 11.5pt; margin-top: 8mm; }
+.ek-content pre, pre.ek-code { background: #f6f6f6 !important; color: #000 !important; border: 1px solid #ccc; white-space: pre-wrap; padding: 8pt; }
+.ek-content pre .token { color: #000 !important; }
+.ek-content details { border: 1px solid #ccc; padding: 0 8pt 8pt; break-inside: avoid; }
+.ek-content details > summary::after { display: none; }
+.ek-content a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 9pt; color: #555; word-break: break-all; }
+.ek-content a:has(img)::after { content: none; }
+img { break-inside: avoid; }
+h2, h3 { break-after: avoid; }
+
+}

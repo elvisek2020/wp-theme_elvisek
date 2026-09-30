@@ -29,12 +29,13 @@ add_action( 'admin_init', function () {
 	update_option( 'ek_maint_v', '2', false );
 } );
 
-// Staré záložky na „Přechod ElvisEK“ → nová stránka.
-add_action( 'admin_init', function () {
-	if ( ( $_GET['page'] ?? '' ) === 'ek-migrace' ) {
+// Staré záložky na „Přechod ElvisEK“ → nová stránka (skrytá stránka, jinak WP ohlásí „nemáte oprávnění“).
+add_action( 'admin_menu', function () {
+	$hook = add_submenu_page( '', 'Údržba webu', '', 'manage_options', 'ek-migrace', '__return_null' );
+	add_action( 'load-' . $hook, function () {
 		wp_safe_redirect( admin_url( 'tools.php?page=' . EK_MAINT_SLUG ) );
 		exit;
-	}
+	} );
 } );
 
 add_action( 'admin_menu', function () {
@@ -348,7 +349,7 @@ function ek_links_broken(): array {
 				continue;
 			}
 			$seen[ $key ] = true;
-			if ( str_contains( $path, '/wp-content/' ) ) {
+			if ( str_contains( $path, '/wp-content/' ) || preg_match( '#\.(?!html?$|php$)[a-z0-9]{2,5}$#i', $path ) ) {
 				$ok = is_file( untrailingslashit( ABSPATH ) . $path );
 			} elseif ( isset( $terms[ $path ] ) || preg_match( '#/(feed|page/\d+|wp-admin|wp-login\.php)#', $path ) ) {
 				$ok = true;
@@ -569,7 +570,7 @@ function ek_maint_page(): void {
 		echo '<table class="widefat striped" style="max-width:900px"><thead><tr><th>Soubor</th><th>Velikost</th><th>WebP</th></tr></thead><tbody>';
 		foreach ( ek_media_largest() as [ $id, $size, $name ] ) {
 			$w = get_post_meta( $id, EK_WEBP_META, true );
-			printf( '<tr><td><a href="%s">%s</a></td><td>%s</td><td>%s</td></tr>', esc_url( get_edit_post_link( $id ) ), esc_html( $name ), esc_html( ek_kb( $size ) ), is_array( $w ) ? '✅ ' . esc_html( ek_kb( $w['webp'] ) ) . ' (všechny velikosti)' : '–' );
+			printf( '<tr><td><a href="%s">%s</a></td><td>%s</td><td>%s</td></tr>', esc_url( get_edit_post_link( $id ) ), esc_html( $name ), esc_html( ek_kb( $size ) ), is_array( $w ) && $w['orig'] ? sprintf( '✅ −%d %%', round( 100 - 100 * $w['webp'] / $w['orig'] ) ) : ( 'skip' === $w ? '⚪ nevyplatí se' : '–' ) );
 		}
 		echo '</tbody></table>';
 	} elseif ( 'unused' === $report ) {

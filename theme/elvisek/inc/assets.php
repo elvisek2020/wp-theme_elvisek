@@ -23,7 +23,6 @@ function ek_has_code(): bool {
 
 add_action( 'wp_enqueue_scripts', function () {
 	wp_enqueue_style( 'ek-main', EK_URI . '/assets/css/main.css', array(), ek_asset_ver( 'assets/css/main.css' ) );
-	wp_enqueue_style( 'ek-print', EK_URI . '/assets/css/print.css', array( 'ek-main' ), ek_asset_ver( 'assets/css/print.css' ), 'print' );
 
 	wp_enqueue_script( 'ek-theme', EK_URI . '/assets/js/theme.js', array(), ek_asset_ver( 'assets/js/theme.js' ), array( 'in_footer' => true, 'strategy' => 'defer' ) );
 

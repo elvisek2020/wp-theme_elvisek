@@ -8,6 +8,16 @@
 - **Databáze**: velikost tabulek, autoload (celkem + top 10), optimalizace tabulek
 - **Média a odkazy** (jen přehled): největší soubory, nepoužité obrázky, rozbité interní odkazy a obrázky v obsahu
 - Úklid obsahu: revize, koncepty a koš, transienty (s potvrzením)
+- Bezpečnostní hlavičky: HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy
+- Sitemapa bez uživatelů (prozrazovala login), `lastmod` u článků i v indexu; autorské archivy přesměrují na titulku
+- `/llms.txt` – stručný přehled webu pro AI (témata, nejnovější články)
+### Šablona
+- Alt text náhledů = název článku (karty, hlavní článek, detail); obrázek v nadpisu zůstává dekorativní
+- `twitter:title` a `twitter:description`
+- Na titulce jen jedna `<header>` a jedna navigace (plovoucí lišta je `div`)
+- Tiskové styly sloučeny do `main.css` (o jeden požadavek méně)
+- Odkaz „Soukromí“ v patičce (stránka z Nastavení → Soukromí)
+- Ikona pro iOS (`apple-touch-icon`) jako PNG z šablony
 
 ## 0.3.8 — 2026-09-30
 ### Šablona

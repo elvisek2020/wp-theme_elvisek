@@ -13,6 +13,9 @@
 				<a href="<?php echo esc_url( get_permalink( $ek_contact ) ); ?>">Kontakt</a>
 			<?php endif; ?>
 			<a href="<?php echo esc_url( get_feed_link() ); ?>"><?php echo ek_icon( 'rss', 14 ); ?> RSS</a>
+			<?php if ( $ek_privacy = get_privacy_policy_url() ) : ?>
+				<a href="<?php echo esc_url( $ek_privacy ); ?>">Soukromí</a>
+			<?php endif; ?>
 			<?php if ( function_exists( 'ek_consent_link' ) ) { ek_consent_link(); } ?>
 			<a href="<?php echo esc_url( admin_url() ); ?>" aria-label="Administrace" rel="nofollow"><?php echo ek_icon( 'lock', 14 ); ?></a>
 		</nav>

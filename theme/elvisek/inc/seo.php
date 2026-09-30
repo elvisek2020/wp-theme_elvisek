@@ -80,6 +80,10 @@ add_action( 'wp_head', function () {
 		printf( '<meta property="article:modified_time" content="%s">' . "\n", esc_attr( get_the_modified_date( 'c' ) ) );
 	}
 	printf( '<meta name="twitter:card" content="%s">' . "\n", $image ? 'summary_large_image' : 'summary' );
+	printf( '<meta name="twitter:title" content="%s">' . "\n", esc_attr( $og['og:title'] ) );
+	if ( $desc ) {
+		printf( '<meta name="twitter:description" content="%s">' . "\n", esc_attr( $desc ) );
+	}
 
 	// JSON-LD
 	$schema = array(

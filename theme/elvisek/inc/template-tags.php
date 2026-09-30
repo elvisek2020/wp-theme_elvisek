@@ -125,7 +125,7 @@ function ek_category_chips( $post = null, string $class = 'ek-chip' ): string {
 function ek_thumbnail( string $size = 'ek-card', array $attr = array() ): void {
 	if ( has_post_thumbnail() ) {
 		$class = 'ek-thumb__img' . ( ek_thumb_is_logo( get_post_thumbnail_id() ) ? ' ek-thumb__img--contain' : '' );
-		the_post_thumbnail( $size, array_merge( array( 'alt' => '' ), $attr, array( 'class' => $class ) ) );
+		the_post_thumbnail( $size, array_merge( array( 'alt' => trim( html_entity_decode( wp_strip_all_tags( get_the_title() ), ENT_QUOTES, 'UTF-8' ) ) ), $attr, array( 'class' => $class ) ) );
 		return;
 	}
 	$cat = ek_primary_category();
