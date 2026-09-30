@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.5 — 2026-10-01
+### Šablona
+- Bezpečnost: JSON-LD se kóduje s `JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT` – text z článku (např. „</script>“) už nemůže ukončit blok skriptu (uložené XSS, audit 2026-10-01)
+
 ## 0.4.4 — 2026-10-01
 ### Šablona
 - Ikona pro iOS podle nové varianty ikony webu (čitelnější „EK“ v domku)

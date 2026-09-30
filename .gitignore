@@ -10,3 +10,4 @@ dev/_disabled-plugins/
 dev/wp-content-uploads/
 *.log
 obrazky/
+_docs/sec-audit/ # audit do veřejného repa nepatří
