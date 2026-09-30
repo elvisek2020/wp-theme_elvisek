@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.3 — 2026-10-01
+### Šablona
+- Ikona pro rubriku AI nástroje (`ai-tools`) – „jiskra“
+- Nová ikona pro iOS (domek s monogramem EK a kurzorem) – `apple-touch-icon.png` 180 × 180; v 0.4.2 se kvůli pořadí commitu dostala ještě stará
+
 ## 0.4.2 — 2026-09-30
 ### Šablona
 - Oprava: dlouhý nezalomitelný řetězec v komentáři (výpis ze sériové linky) roztáhl stránku na 8 000 px – komentáře se teď zalamují kdekoli, sloupce mřížky mají `min-width: 0`
