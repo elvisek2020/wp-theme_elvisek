@@ -1,4 +1,4 @@
-# Po pushnutí tagu vX.Y.Z sestaví elvisek.zip a vytvoří GitHub Release.
+# Po pushnutí tagu vX.Y.Z sestaví elvisek.zip (šablona) + elvisek-core.zip (plugin) a vytvoří GitHub Release.
 # WordPress (inc/updater.php) si pak aktualizaci najde sám.
 name: Release šablony
 
@@ -15,26 +15,29 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Kontrola verze (tag = Version ve style.css)
+      - name: Kontrola verze (tag = Version šablony i pluginu)
         run: |
           TAG="${GITHUB_REF_NAME#v}"
-          VER=$(grep -m1 -E '^Version:' theme/elvisek/style.css | awk '{print $2}')
-          echo "tag=$TAG style.css=$VER"
-          if [ "$TAG" != "$VER" ]; then
-            echo "::error::Tag v$TAG neodpovídá Version: $VER ve style.css"; exit 1
+          THEME=$(grep -m1 -E '^Version:' theme/elvisek/style.css | awk '{print $2}')
+          CORE=$(grep -m1 -E '^ \* Version:' plugins/elvisek-core/elvisek-core.php | awk '{print $3}')
+          echo "tag=$TAG theme=$THEME core=$CORE"
+          if [ "$TAG" != "$THEME" ] || [ "$TAG" != "$CORE" ]; then
+            echo "::error::Tag v$TAG musí odpovídat Version ve style.css ($THEME) i v elvisek-core.php ($CORE)"; exit 1
           fi
 
       - name: Kontrola syntaxe PHP
-        run: find theme/elvisek -name '*.php' -print0 | xargs -0 -n1 php -l
+        run: find theme/elvisek plugins/elvisek-core -name '*.php' -print0 | xargs -0 -n1 php -l
 
-      - name: Sestavení ZIPu
+      - name: Sestavení ZIPů
         run: |
-          cd theme
-          zip -rq ../elvisek.zip elvisek -x 'elvisek/.gitkeep' -x '*/.DS_Store'
-          cd .. && unzip -l elvisek.zip | tail -1
+          (cd theme && zip -rq ../elvisek.zip elvisek -x 'elvisek/.gitkeep' -x '*/.DS_Store' -x 'elvisek/README.md')
+          (cd plugins && zip -rq ../elvisek-core.zip elvisek-core -x '*/.DS_Store')
+          unzip -l elvisek.zip | tail -1; unzip -l elvisek-core.zip | tail -1
 
       - name: GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: elvisek.zip
+          files: |
+            elvisek.zip
+            elvisek-core.zip
           generate_release_notes: true

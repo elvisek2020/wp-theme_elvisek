@@ -20,7 +20,7 @@ get_header();
 					<?php ek_breadcrumbs(); ?>
 					<h1 class="ek-article__title"><?php the_title(); ?></h1>
 					<div class="ek-article__meta">
-						<?php echo ek_category_chip(); ?>
+						<?php echo ek_category_chips(); ?>
 						<span><?php echo ek_date( 'long' ); ?></span>
 						<span aria-hidden="true">·</span>
 						<span><?php echo (int) ek_reading_time(); ?> min čtení</span>

@@ -9,46 +9,53 @@
 <body <?php body_class(); ?>>
 <?php wp_body_open(); ?>
 <a class="ek-skip" href="#obsah">Přeskočit na obsah</a>
+<?php
+$ek_is_hero = is_home() && ! is_paged();
+$ek_topics  = ek_nav_topics();
+?>
 
-<header class="ek-header">
-	<div class="ek-header__inner ek-wrap">
-		<a class="ek-logo" href="<?php echo esc_url( home_url( '/' ) ); ?>" aria-label="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?> – úvod">
-			<?php if ( has_custom_logo() ) : ?>
-				<?php echo wp_get_attachment_image( get_theme_mod( 'custom_logo' ), 'thumbnail', false, array( 'class' => 'ek-logo__img', 'alt' => '' ) ); ?>
-			<?php else : ?>
-				<span class="ek-logo__mark" aria-hidden="true">EK</span>
-			<?php endif; ?>
-			<span class="ek-logo__name"><?php bloginfo( 'name' ); ?></span>
-		</a>
-
-		<button type="button" class="ek-iconbtn ek-nav-toggle" aria-expanded="false" aria-controls="ek-nav" aria-label="Menu">
-			<?php echo ek_icon( 'menu' ); ?>
-		</button>
-
-		<nav id="ek-nav" class="ek-nav" aria-label="Hlavní menu">
-			<?php
-			wp_nav_menu( array(
-				'theme_location' => 'primary',
-				'container'      => false,
-				'menu_class'     => 'ek-nav__list',
-				'depth'          => 2,
-				'fallback_cb'    => 'ek_nav_fallback',
-			) );
-			?>
-		</nav>
-
-		<div class="ek-header__tools">
-			<button type="button" class="ek-iconbtn" data-ek-search-toggle aria-expanded="false" aria-controls="ek-search" aria-label="Hledat">
-				<?php echo ek_icon( 'search' ); ?>
-			</button>
-			<button type="button" class="ek-iconbtn" data-ek-theme-toggle aria-label="Přepnout světlý/tmavý režim">
-				<span class="ek-when-light"><?php echo ek_icon( 'moon' ); ?></span>
-				<span class="ek-when-dark"><?php echo ek_icon( 'sun' ); ?></span>
-			</button>
+<?php if ( $ek_is_hero ) : ?>
+	<header class="ek-hero-head" data-ek-hero-head>
+		<div class="ek-wrap">
+			<div class="ek-hero-head__top">
+				<?php ek_logo(); ?>
+				<?php ek_header_tools( 'ek-search-hero' ); ?>
+			</div>
+			<div id="ek-search-hero" class="ek-searchbar ek-searchbar--inline" hidden><?php get_search_form(); ?></div>
+			<nav class="ek-tiles" aria-label="Témata">
+				<ul>
+					<?php foreach ( $ek_topics as $cat ) : ?>
+						<li>
+							<a class="ek-tile" href="<?php echo esc_url( get_category_link( $cat ) ); ?>">
+								<span class="ek-tile__icon"><?php echo ek_icon( ek_category_icon_name( $cat->slug ), 19 ); ?></span>
+								<span class="ek-tile__name"><?php echo esc_html( $cat->name ); ?></span>
+								<span class="ek-tile__count"><?php echo esc_html( ek_plural( (int) $cat->count, 'článek', 'články', 'článků' ) ); ?></span>
+							</a>
+						</li>
+					<?php endforeach; ?>
+				</ul>
+			</nav>
 		</div>
+	</header>
+<?php endif; ?>
+
+<header class="ek-bar<?php echo $ek_is_hero ? ' ek-bar--floating' : ''; ?>" <?php echo $ek_is_hero ? 'aria-hidden="true" inert' : ''; ?> data-ek-bar>
+	<div class="ek-wrap ek-bar__inner">
+		<?php ek_logo( true ); ?>
+		<nav class="ek-chipsnav" aria-label="Témata">
+			<ul>
+				<?php foreach ( $ek_topics as $cat ) : ?>
+					<li class="<?php echo ek_is_current_topic( $cat ) ? 'is-current' : ''; ?>">
+						<a href="<?php echo esc_url( get_category_link( $cat ) ); ?>"<?php echo is_category( $cat->term_id ) ? ' aria-current="page"' : ''; ?>>
+							<?php echo ek_icon( ek_category_icon_name( $cat->slug ), 16 ); ?><span><?php echo esc_html( $cat->name ); ?></span>
+						</a>
+					</li>
+				<?php endforeach; ?>
+			</ul>
+		</nav>
+		<?php ek_header_tools( 'ek-search' ); ?>
 	</div>
 	<div id="ek-search" class="ek-searchbar" hidden>
 		<div class="ek-wrap"><?php get_search_form(); ?></div>
 	</div>
 </header>
-

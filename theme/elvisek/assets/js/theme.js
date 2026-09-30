@@ -17,34 +17,57 @@
 		});
 	});
 
-	/* Mobilní menu */
-	const navToggle = document.querySelector('.ek-nav-toggle');
-	const nav = document.getElementById('ek-nav');
-	if (navToggle && nav) {
-		navToggle.addEventListener('click', () => {
-			const open = nav.classList.toggle('is-open');
-			navToggle.setAttribute('aria-expanded', String(open));
-		});
+	/* Titulka: plynulý přechod dlaždice → lišta řízený rolováním.
+	   --ek-p (0–1) = jak moc je velká hlavička odrolovaná; dlaždice podle něj blednou a zmenšují se,
+	   lišta současně sjíždí shora. Nahoře p = 0 (jen dlaždice), po odrolování hlavičky p = 1 (jen lišta). */
+	const heroHead = document.querySelector('[data-ek-hero-head]');
+	const bar = document.querySelector('[data-ek-bar]');
+	if (heroHead && bar) {
+		let ticking = false;
+		let shown = null;
+		const update = () => {
+			ticking = false;
+			const range = Math.max(1, heroHead.offsetHeight - 16);
+			const p = Math.min(1, Math.max(0, window.scrollY / range));
+			root.style.setProperty('--ek-p', p.toFixed(3));
+			// Lišta vyjíždí rychleji než mizí dlaždice (celá venku už v ~55 % cesty).
+			root.style.setProperty('--ek-q', Math.min(1, p * 1.8).toFixed(3));
+			const show = p > 0.3;
+			if (show !== shown) {
+				shown = show;
+				bar.classList.toggle('is-shown', show);
+				bar.toggleAttribute('inert', !show);
+				bar.setAttribute('aria-hidden', String(!show));
+			}
+		};
+		window.addEventListener('scroll', () => {
+			if (!ticking) { ticking = true; requestAnimationFrame(update); }
+		}, { passive: true });
+		window.addEventListener('resize', update);
+		update();
 	}
 
-	/* Vyhledávání v hlavičce */
-	const searchToggle = document.querySelector('[data-ek-search-toggle]');
-	const searchBar = document.getElementById('ek-search');
-	if (searchToggle && searchBar) {
-		searchToggle.addEventListener('click', () => {
-			const open = searchBar.hidden;
-			searchBar.hidden = !open;
-			searchToggle.setAttribute('aria-expanded', String(open));
-			if (open) searchBar.querySelector('input[type="search"]')?.focus();
+	/* Vyhledávání (každé tlačítko ovládá svůj panel přes aria-controls) */
+	document.querySelectorAll('[data-ek-search-toggle]').forEach((btn) => {
+		const panel = document.getElementById(btn.getAttribute('aria-controls'));
+		if (!panel) return;
+		btn.addEventListener('click', () => {
+			const open = panel.hidden;
+			panel.hidden = !open;
+			btn.setAttribute('aria-expanded', String(open));
+			if (open) panel.querySelector('input[type="search"]')?.focus();
 		});
 		document.addEventListener('keydown', (e) => {
-			if (e.key === 'Escape' && !searchBar.hidden) {
-				searchBar.hidden = true;
-				searchToggle.setAttribute('aria-expanded', 'false');
-				searchToggle.focus();
+			if (e.key === 'Escape' && !panel.hidden) {
+				panel.hidden = true;
+				btn.setAttribute('aria-expanded', 'false');
+				btn.focus();
 			}
 		});
-	}
+	});
+
+	/* Aktuální téma v liště vyrolovat do viditelné části (mobil) */
+	document.querySelector('.ek-chipsnav .is-current')?.scrollIntoView({ block: 'nearest', inline: 'center' });
 
 	/* Tisk */
 	document.querySelectorAll('[data-ek-print]').forEach((b) => b.addEventListener('click', () => window.print()));
@@ -63,7 +86,9 @@
 		btn.textContent = 'Kopírovat';
 		btn.addEventListener('click', async () => {
 			try {
-				await navigator.clipboard.writeText(pre.innerText.replace(/\n$/, ''));
+				const clone = pre.cloneNode(true);
+				clone.querySelectorAll('.line-numbers-rows').forEach((n) => n.remove());
+				await navigator.clipboard.writeText(clone.textContent.replace(/\n$/, ''));
 				btn.textContent = 'Zkopírováno ✓';
 				btn.classList.add('is-done');
 			} catch (e) {

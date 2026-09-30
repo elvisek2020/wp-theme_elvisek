@@ -22,7 +22,7 @@ Vlastní šablona pro www.elvisek.cz. Hybrid: PHP šablony + `theme.json`. Bez j
 | `assets/fonts/` | Nunito Sans, Space Grotesk, JetBrains Mono (OFL) |
 
 ## Kód v článcích
-Blok **Kód** + do „Další CSS třídy“ napsat `language-bash` (nebo `language-php`, `language-powershell`, `language-python` …).
+Blok **Kód** → v pravém panelu **Jazyk kódu** vybrat jazyk (nastaví třídu `language-…`). Čísla řádků jdou vypnout v Přizpůsobit → ElvisEK.
 
 ## Související
 - `../../mu-plugins/elvisek-core.php` — funkce nezávislé na šabloně (login, log, MIME, aktualizace, hardening)

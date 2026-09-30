@@ -9,7 +9,7 @@ defined( 'ABSPATH' ) || exit;
 		<?php ek_thumbnail( 'ek-card', array( 'loading' => 'lazy', 'sizes' => '(max-width: 700px) 100vw, 400px' ) ); ?>
 	</a>
 	<div class="ek-card__body">
-		<?php echo ek_category_chip(); ?>
+		<?php echo ek_category_chips(); ?>
 		<h3 class="ek-card__title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
 		<p class="ek-card__excerpt"><?php echo esc_html( wp_trim_words( get_the_excerpt(), 34, '…' ) ); ?></p>
 		<div class="ek-card__meta">

@@ -53,7 +53,7 @@ add_action( 'wp_footer', function () {
 
 // Odkaz v patičce pro změnu volby.
 function ek_consent_link(): void {
-	if ( ek_ga_id() ) {
+	if ( ek_ga_id() && ! is_user_logged_in() ) {
 		echo '<button type="button" class="ek-linkbtn" data-ek-consent-open>Nastavení cookies</button>';
 	}
 }

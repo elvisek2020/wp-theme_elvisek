@@ -97,6 +97,9 @@ function ek_dev_activate(): array {
 	require_once ABSPATH . 'wp-admin/includes/plugin.php';
 	$deactivate = array_values( array_filter( ek_dev_replaced_plugins(), 'is_plugin_active' ) );
 	deactivate_plugins( $deactivate, true );
+	if ( file_exists( WP_PLUGIN_DIR . '/elvisek-core/elvisek-core.php' ) ) {
+		activate_plugin( 'elvisek-core/elvisek-core.php' );
+	}
 	switch_theme( 'elvisek' );
 	do_action( 'after_switch_theme', 'elvisek', wp_get_theme( 'elvisek' ) );
 	return array( 'ok' => true, 'theme' => get_stylesheet(), 'deactivated' => $deactivate, 'still_active' => get_option( 'active_plugins' ) );

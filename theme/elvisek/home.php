@@ -35,7 +35,6 @@ $ek_hero  = (int) ek_opt( 'ek_hero_image' );
 			if ( 1 === $ek_paged ) {
 				the_post();
 				get_template_part( 'template-parts/card', 'featured' );
-				get_template_part( 'template-parts/topics' );
 			}
 			?>
 			<section class="ek-section" aria-labelledby="ek-latest-title">

@@ -60,3 +60,14 @@ add_action( 'wp_head', function () {
 	echo "<script>(function(){try{var t=localStorage.getItem('ek-theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>\n";
 	echo '<meta name="color-scheme" content="light dark">' . "\n";
 }, 0 );
+
+// Editor: výběr jazyka v bloku Kód.
+add_action( 'enqueue_block_editor_assets', function () {
+	wp_enqueue_script(
+		'ek-editor-code-language',
+		EK_URI . '/assets/js/editor-code-language.js',
+		array( 'wp-hooks', 'wp-compose', 'wp-element', 'wp-block-editor', 'wp-components' ),
+		ek_asset_ver( 'assets/js/editor-code-language.js' ),
+		true
+	);
+} );

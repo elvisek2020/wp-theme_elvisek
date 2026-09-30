@@ -17,6 +17,7 @@ function ek_process_content( string $html ): string {
 	}
 
 	$home_host = wp_parse_url( home_url(), PHP_URL_HOST );
+	$lines     = (bool) ek_opt( 'ek_code_lines' );
 	$toc       = array();
 	$used_ids  = array();
 	$p         = new WP_HTML_Tag_Processor( $html );
@@ -38,6 +39,9 @@ function ek_process_content( string $html ): string {
 		// Kódové bloky: jednotná třída, aby šly stylovat a kopírovat.
 		if ( 'PRE' === $tag ) {
 			$p->add_class( 'ek-code' );
+			if ( $lines && str_contains( (string) $p->get_attribute( 'class' ), 'language-' ) ) {
+				$p->add_class( 'line-numbers' );
+			}
 		}
 	}
 	$html = $p->get_updated_html();

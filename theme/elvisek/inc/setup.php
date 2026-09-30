@@ -92,3 +92,14 @@ add_filter( 'body_class', function ( $classes ) {
 
 // Archiv bez prefixu „Rubrika:“.
 add_filter( 'get_the_archive_title_prefix', '__return_empty_string' );
+
+// Upozornění v administraci, když chybí plugin ElvisEK Core (login, hardening, aktualizace…).
+add_action( 'admin_notices', function () {
+	if ( function_exists( 'ek_client_ip' ) || ! current_user_can( 'activate_plugins' ) ) {
+		return;
+	}
+	printf(
+		'<div class="notice notice-error"><p><strong>Šablona ElvisEK:</strong> není aktivní plugin <em>ElvisEK Core</em> (ochrana přihlášení, zabezpečení, aktualizace). <a href="%s">Pluginy</a></p></div>',
+		esc_url( admin_url( 'plugins.php' ) )
+	);
+} );

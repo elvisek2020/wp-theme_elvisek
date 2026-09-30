@@ -3,15 +3,17 @@
 | Složka | Obsah |
 |---|---|
 | `theme/elvisek/` | šablona ElvisEK (viz její README) |
-| `mu-plugins/elvisek-core.php` | funkce nezávislé na šabloně — na produkci do `wp-content/mu-plugins/` |
+| `plugins/elvisek-core/` | plugin ElvisEK Core — funkce nezávislé na šabloně, nástroje pro přechod a údržbu |
 | `mu-plugins/elvisek-dev-tools.php` | **jen lokální vývoj, nenasazovat** |
 | `dev/` | lokální WordPress v Dockeru (`dev/README.md`) |
 | `docs/` | plán a wishlist |
 
 ## Vydání nové verze šablony
-1. Zvýšit `Version:` v `theme/elvisek/style.css` (např. `0.2.0`).
-2. `git commit -am "…" && git tag v0.2.0 && git push --follow-tags`
-3. GitHub Action sestaví `elvisek.zip` a vytvoří Release.
-4. Ve WordPressu: Nástěnka → Aktualizace → aktualizovat šablonu ElvisEK.
+Šablona i plugin mají **společnou verzi**.
 
-První instalace na web: stáhnout `elvisek.zip` z Releases → Vzhled → Motivy → Přidat → Nahrát.
+1. Zvýšit `Version:` v `theme/elvisek/style.css` **i** v `plugins/elvisek-core/elvisek-core.php` (např. `0.4.0`).
+2. `git add -A && git commit -m "…" && git tag v0.4.0 && git push --follow-tags`
+3. GitHub Action zkontroluje verze a PHP, sestaví `elvisek.zip` + `elvisek-core.zip` a vytvoří Release.
+4. Ve WordPressu: Nástěnka → Aktualizace → *Zkontrolovat znovu* → aktualizovat šablonu i plugin.
+
+První instalace: stáhnout ZIPy z Releases → Vzhled → Motivy → Přidat → Nahrát (`elvisek.zip`), Pluginy → Přidat → Nahrát (`elvisek-core.zip`).

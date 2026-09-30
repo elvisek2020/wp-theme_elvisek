@@ -73,7 +73,7 @@ Hlavička s obrázkem, názvem a sloganem · lepivé menu s hledáním · obsah 
 | 5 | Migrace obsahu ✅ (lokálně) | skript: shortcody → bloky, kontrola 94 článků |
 | 6 | Výkon | obrázky (WebP, správné velikosti, lazy), cache hlavičky v `.htaccess`, page cache (WEDOS Global vs. vlastní) |
 | 7 | Úklid DB a souborů | viz níže |
-| 8 | Nasazení | staging → produkce, měření před/po (Lighthouse), rollback plán |
+| 8 | Nasazení 🟡 (šablona 0.1.0 + elvisek-core 0.2.0 na produkci, migrace hotová, pluginy vypnuty; zbývá GA4 ID, PHP 8.3, úklid) | staging → produkce, měření před/po (Lighthouse), rollback plán |
 
 ## Úklid DB a souborů
 - Tabulky po nepoužívaných pluginech: `cerber_*`, `wp_cerber_*`, `wp_itsec_*`, `wp_yoast_*`, `wp_mwai_*`, `wp_tm_*`, `wp_eum_logs` (15 MB), `wp_monsterinsights_cache`, `wp_wp_phpmyadmin_extension__errors_log`, `wp_xsg_sitemap_meta`
@@ -89,6 +89,7 @@ Hlavička s obrázkem, názvem a sloganem · lepivé menu s hledáním · obsah 
 | JS | 468 kB / 24 souborů | < 30 kB |
 | Obrázky nad ohybem | ~900 kB | < 200 kB |
 | Lighthouse Performance (mobil) | měřit ve fázi 0 | ≥ 95 |
+| **Po nasazení (30. 9.)** | titulka: 1 skript, 2 CSS, 0 externích, TTFB ~0,31 s | |
 | TTFB | 0,7–1,1 s | < 0,3 s (s page cache) |
 
 ## Bezpečnost po dokončení

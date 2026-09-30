@@ -19,7 +19,7 @@ services:
       retries: 60
 
   wp:
-    image: wordpress:php8.3-apache
+    image: wordpress:php8.5-apache
     restart: unless-stopped
     depends_on:
       db:
@@ -32,9 +32,10 @@ services:
       - ./wp-config.php:/var/www/html/wp-config.php:ro
       - ../theme/elvisek:/var/www/html/wp-content/themes/elvisek
       - ../mu-plugins:/var/www/html/wp-content/mu-plugins
+      - ../plugins/elvisek-core:/var/www/html/wp-content/plugins/elvisek-core
 
   cli:
-    image: wordpress:cli-php8.3
+    image: wordpress:cli-php8.5
     profiles: ["cli"]
     user: "33:33"
     depends_on:
@@ -45,6 +46,7 @@ services:
       - ./wp-config.php:/var/www/html/wp-config.php:ro
       - ../theme/elvisek:/var/www/html/wp-content/themes/elvisek
       - ../mu-plugins:/var/www/html/wp-content/mu-plugins
+      - ../plugins/elvisek-core:/var/www/html/wp-content/plugins/elvisek-core
 
 volumes:
   db-data:

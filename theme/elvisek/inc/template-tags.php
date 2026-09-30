@@ -98,6 +98,26 @@ function ek_category_chip( $post = null, string $class = 'ek-chip' ): string {
 }
 
 /**
+ * Štítky všech rubrik článku (bez „Nezařazené“). Na stránce rubriky je ta aktuální první.
+ */
+function ek_category_chips( $post = null, string $class = 'ek-chip' ): string {
+	$default = (int) get_option( 'default_category' );
+	$cats    = array_filter( get_the_category( $post ? get_post( $post )->ID : 0 ), fn( $c ) => (int) $c->term_id !== $default );
+	if ( ! $cats ) {
+		return ek_category_chip( $post, $class );
+	}
+	if ( is_category() ) {
+		$current = get_queried_object_id();
+		usort( $cats, fn( $a, $b ) => ( (int) $b->term_id === $current ) <=> ( (int) $a->term_id === $current ) );
+	}
+	$out = '';
+	foreach ( $cats as $cat ) {
+		$out .= sprintf( '<a class="%s" href="%s">%s</a>', esc_attr( $class ), esc_url( get_category_link( $cat ) ), esc_html( $cat->name ) );
+	}
+	return '<span class="ek-chips">' . $out . '</span>';
+}
+
+/**
  * Náhled článku — obrázek nebo zástupná plocha s ikonou kategorie.
  */
 function ek_thumbnail( string $size = 'ek-card', array $attr = array() ): void {
@@ -201,14 +221,60 @@ function ek_copyright_years(): string {
 }
 
 /**
- * Záložní menu: Úvod + kategorie (když není přiřazené menu).
+ * Logo: monogram EK s kurzorem + „ElvisEK“ (EK v akcentu). $compact = jen monogram.
  */
-function ek_nav_fallback(): void {
-	echo '<ul class="ek-nav__list"><li class="' . ( is_front_page() ? 'current-menu-item' : '' ) . '"><a href="' . esc_url( home_url( '/' ) ) . '">Úvod</a></li>';
-	foreach ( ek_topics( 7 ) as $cat ) {
-		printf( '<li class="%s"><a href="%s">%s</a></li>', is_category( $cat->term_id ) ? 'current-menu-item' : '', esc_url( get_category_link( $cat ) ), esc_html( $cat->name ) );
+function ek_logo( bool $compact = false ): void {
+	$name = get_bloginfo( 'name' );
+	printf( '<a class="ek-logo%s" href="%s" aria-label="%s – úvod">', $compact ? ' ek-logo--compact' : '', esc_url( home_url( '/' ) ), esc_attr( $name ) );
+	if ( has_custom_logo() ) {
+		echo wp_get_attachment_image( get_theme_mod( 'custom_logo' ), 'thumbnail', false, array( 'class' => 'ek-logo__img', 'alt' => '' ) );
+	} else {
+		echo '<span class="ek-logo__mark" aria-hidden="true">EK<span class="ek-logo__cursor"></span></span>';
 	}
-	echo '</ul>';
+	if ( ! $compact ) {
+		// „ElvisEK“ → Elvis + EK v akcentu (když název webu končí na EK).
+		$html = str_ends_with( $name, 'EK' ) ? esc_html( substr( $name, 0, -2 ) ) . '<span>EK</span>' : esc_html( $name );
+		echo '<span class="ek-logo__name">' . $html . '</span>';
+	}
+	echo '</a>';
+}
+
+/**
+ * Tlačítka hledání a přepnutí režimu.
+ */
+function ek_header_tools( string $search_id ): void {
+	?>
+	<div class="ek-tools">
+		<button type="button" class="ek-iconbtn" data-ek-search-toggle aria-expanded="false" aria-controls="<?php echo esc_attr( $search_id ); ?>" aria-label="Hledat">
+			<?php echo ek_icon( 'search' ); ?>
+		</button>
+		<button type="button" class="ek-iconbtn" data-ek-theme-toggle aria-label="Přepnout světlý/tmavý režim">
+			<span class="ek-when-light"><?php echo ek_icon( 'moon' ); ?></span>
+			<span class="ek-when-dark"><?php echo ek_icon( 'sun' ); ?></span>
+		</button>
+	</div>
+	<?php
+}
+
+/**
+ * Témata v navigaci (kategorie podle počtu článků).
+ */
+function ek_nav_topics(): array {
+	static $topics = null;
+	if ( null === $topics ) {
+		$topics = ek_topics( (int) ek_opt( 'ek_topics_count' ) ?: 8 );
+	}
+	return $topics;
+}
+
+/**
+ * Je téma aktuální (archiv rubriky nebo článek v ní)?
+ */
+function ek_is_current_topic( WP_Term $cat ): bool {
+	if ( is_category( $cat->term_id ) ) {
+		return true;
+	}
+	return is_single() && in_category( $cat->term_id, get_queried_object_id() );
 }
 
 /**

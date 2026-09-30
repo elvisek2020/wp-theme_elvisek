@@ -12,7 +12,7 @@ function ek_defaults(): array {
 	return array(
 		'ek_motto'       => get_bloginfo( 'description' ),
 		'ek_hero_image'  => '',
-		'ek_about'       => 'Memo blog – poznámky co, jak, kde a proč ze světa jedniček a nul. Jablíčka, Linux, chytrá domácnost a sem tam web.',
+		'ek_about'       => 'Memo blog – poznámky co, jak, kde a proč ze světa jedniček a nul.',
 		'ek_since'       => '2016',
 		'ek_meta_desc'   => 'ElvisEK – Linux, Apple, macOS, Synology, NAS, Raspberry, LibreELEC – instalace, konfigurace, debugging. Loxone, Zigbee, weby.',
 		'ek_ga_id'       => '',
@@ -20,6 +20,7 @@ function ek_defaults(): array {
 		'ek_sidebar_mode'=> 'wide',
 		'ek_sidebar_toc' => true,
 		'ek_sidebar_recent' => true,
+		'ek_code_lines'  => true,
 	);
 }
 
@@ -31,57 +32,53 @@ function ek_opt( string $key ) {
 add_action( 'customize_register', function ( WP_Customize_Manager $wpc ) {
 	$d = ek_defaults();
 
-	$wpc->add_section( 'ek_theme', array(
-		'title'    => 'ElvisEK',
-		'priority' => 30,
-	) );
-
-	$fields = array(
-		'ek_motto'     => array( 'Motto pod nadpisem', 'textarea', 'sanitize_textarea_field' ),
-		'ek_about'     => array( 'Text „O webu“ v patičce', 'textarea', 'sanitize_textarea_field' ),
-		'ek_since'     => array( 'Rok založení (copyright)', 'text', 'absint' ),
-		'ek_meta_desc' => array( 'Meta description titulky', 'textarea', 'sanitize_textarea_field' ),
-		'ek_ga_id'     => array( 'Google Analytics 4 ID (G-…). Prázdné = žádná analytika ani cookie lišta.', 'text', 'ek_sanitize_ga_id' ),
-		'ek_topics_count' => array( 'Počet témat na titulce', 'number', 'absint' ),
+	// Sekce jako samostatné položky menu v Přizpůsobit.
+	$sections = array(
+		'ek_home'    => array( 'Úvodní stránka', 24 ),
+		'ek_article' => array( 'Články', 25 ),
+		'ek_footer'  => array( 'Patička', 26 ),
+		'ek_seo'     => array( 'SEO a analytika', 27 ),
 	);
-
-	foreach ( $fields as $id => [ $label, $type, $sanitize ] ) {
-		$wpc->add_setting( $id, array(
-			'default'           => $d[ $id ],
-			'sanitize_callback' => $sanitize,
-		) );
-		$wpc->add_control( $id, array(
-			'label'   => $label,
-			'section' => 'ek_theme',
-			'type'    => $type,
-		) );
+	foreach ( $sections as $id => [ $title, $prio ] ) {
+		$wpc->add_section( $id, array( 'title' => $title, 'priority' => $prio ) );
 	}
 
-	$wpc->add_setting( 'ek_sidebar_mode', array( 'default' => $d['ek_sidebar_mode'], 'sanitize_callback' => fn( $v ) => in_array( $v, array( 'wide', 'always', 'never' ), true ) ? $v : 'wide' ) );
-	$wpc->add_control( 'ek_sidebar_mode', array(
-		'label'   => 'Boční panel u článku',
-		'section' => 'ek_theme',
-		'type'    => 'select',
-		'choices' => array(
+	$add = function ( string $id, string $section, string $label, string $type, $sanitize, array $extra = array() ) use ( $wpc, $d ) {
+		$wpc->add_setting( $id, array( 'default' => $d[ $id ] ?? '', 'sanitize_callback' => $sanitize ) );
+		$wpc->add_control( $id, array_merge( array( 'label' => $label, 'section' => $section, 'type' => $type ), $extra ) );
+	};
+
+	// Úvodní stránka
+	$add( 'ek_motto', 'ek_home', 'Motto pod nadpisem', 'textarea', 'sanitize_textarea_field' );
+	$wpc->add_setting( 'ek_hero_image', array( 'default' => '', 'sanitize_callback' => 'absint' ) );
+	$wpc->add_control( new WP_Customize_Media_Control( $wpc, 'ek_hero_image', array(
+		'label'     => 'Obrázek na pozadí nadpisu (volitelné)',
+		'section'   => 'ek_home',
+		'mime_type' => 'image',
+	) ) );
+	$add( 'ek_topics_count', 'ek_home', 'Počet témat', 'number', 'absint', array( 'input_attrs' => array( 'min' => 0, 'max' => 16 ) ) );
+
+	// Články
+	$add( 'ek_sidebar_mode', 'ek_article', 'Boční panel', 'select',
+		fn( $v ) => in_array( $v, array( 'wide', 'always', 'never' ), true ) ? $v : 'wide',
+		array( 'choices' => array(
 			'wide'   => 'Jen na širokých obrazovkách (od 1400 px)',
 			'always' => 'Vždy (od 1080 px)',
 			'never'  => 'Nikdy — jen článek',
-		),
-	) );
-	foreach ( array( 'ek_sidebar_toc' => 'Panel: obsah článku', 'ek_sidebar_recent' => 'Panel: novinky' ) as $id => $label ) {
-		$wpc->add_setting( $id, array( 'default' => $d[ $id ], 'sanitize_callback' => 'rest_sanitize_boolean' ) );
-		$wpc->add_control( $id, array( 'label' => $label, 'section' => 'ek_theme', 'type' => 'checkbox' ) );
-	}
+		) )
+	);
+	$add( 'ek_sidebar_toc', 'ek_article', 'Boční panel: obsah článku', 'checkbox', 'rest_sanitize_boolean' );
+	$add( 'ek_sidebar_recent', 'ek_article', 'Boční panel: novinky', 'checkbox', 'rest_sanitize_boolean' );
+	$add( 'ek_code_lines', 'ek_article', 'Čísla řádků u kódu', 'checkbox', 'rest_sanitize_boolean' );
 
-	$wpc->add_setting( 'ek_hero_image', array(
-		'default'           => '',
-		'sanitize_callback' => 'absint',
-	) );
-	$wpc->add_control( new WP_Customize_Media_Control( $wpc, 'ek_hero_image', array(
-		'label'     => 'Obrázek na pozadí hlavičky (volitelné)',
-		'section'   => 'ek_theme',
-		'mime_type' => 'image',
-	) ) );
+	// Patička
+	$add( 'ek_about', 'ek_footer', 'Krátký text o webu', 'textarea', 'sanitize_textarea_field' );
+	$add( 'ek_since', 'ek_footer', 'Rok založení (copyright)', 'number', 'absint' );
+
+	// SEO a analytika
+	$add( 'ek_meta_desc', 'ek_seo', 'Meta description titulky', 'textarea', 'sanitize_textarea_field' );
+	$add( 'ek_ga_id', 'ek_seo', 'Google Analytics 4 ID (G-…)', 'text', 'ek_sanitize_ga_id',
+		array( 'description' => 'Prázdné = žádná analytika ani cookie lišta. Přihlášeným se GA nenačítá.' ) );
 } );
 
 function ek_sanitize_ga_id( $value ): string {
