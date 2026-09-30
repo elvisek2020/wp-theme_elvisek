@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.2 — 2026-09-30
+### Šablona
+- Oprava: dlouhý nezalomitelný řetězec v komentáři (výpis ze sériové linky) roztáhl stránku na 8 000 px – komentáře se teď zalamují kdekoli, sloupce mřížky mají `min-width: 0`
+
 ## 0.4.1 — 2026-09-30
 - Vydání druhé části změn 0.4.0 (bezpečnostní hlavičky, sitemap bez uživatelů, `llms.txt`, alt texty, `twitter:*`, jedna hlavička na titulce, tisk v `main.css`, odkaz Soukromí, ikona pro iOS) – tag v0.4.0 ukazoval na dřívější commit
 

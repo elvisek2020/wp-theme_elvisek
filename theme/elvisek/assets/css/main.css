@@ -530,6 +530,9 @@ a.ek-chip:hover { color: var(--ek-accent-hover); }
 .ek-comments__list .fn { font-style: normal; font-weight: 700; color: var(--ek-text); }
 .ek-comments__list .says { display: none; }
 .ek-comments__list .comment-content p { margin: .6em 0 0; }
+/* Dlouhé nezalomitelné řetězce v komentářích (výpisy, hashe, URL) nesmí roztáhnout stránku */
+.ek-comments__list .comment-content { overflow-wrap: anywhere; word-break: break-word; }
+.ek-single > *, .ek-comments { min-width: 0; }
 .ek-comments__list .reply { margin-top: 8px; font-size: 14px; font-weight: 700; }
 .ek-comments__form { background: var(--ek-surface); border: 1px solid var(--ek-line); border-radius: 18px; padding: 28px; }
 .comment-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 14px; }
