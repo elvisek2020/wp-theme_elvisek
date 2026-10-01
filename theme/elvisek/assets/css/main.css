@@ -29,30 +29,30 @@
 }
 
 :root[data-theme="dark"] {
-	--ek-bg: #0c111a;
-	--ek-surface: #131b28;
+	--ek-bg: #121926;
+	--ek-surface: #1a2333;
 	--ek-text: #e6ebf2;
 	--ek-muted: #9aa6b7;
-	--ek-line: #233049;
+	--ek-line: #2a3853;
 	--ek-accent: #6aabff;
 	--ek-accent-hover: #93c2ff;
 	--ek-on-accent: #0c111a;
-	--ek-chip: #172741;
+	--ek-chip: #1e2e49;
 	--ek-shadow: none;
 	color-scheme: dark;
 }
 
 @media (prefers-color-scheme: dark) {
 	:root:not([data-theme="light"]) {
-		--ek-bg: #0c111a;
-		--ek-surface: #131b28;
+		--ek-bg: #121926;
+		--ek-surface: #1a2333;
 		--ek-text: #e6ebf2;
 		--ek-muted: #9aa6b7;
-		--ek-line: #233049;
+		--ek-line: #2a3853;
 		--ek-accent: #6aabff;
 		--ek-accent-hover: #93c2ff;
 		--ek-on-accent: #0c111a;
-		--ek-chip: #172741;
+		--ek-chip: #1e2e49;
 		--ek-shadow: none;
 		color-scheme: dark;
 	}
@@ -147,7 +147,7 @@ a.ek-chip:hover { color: var(--ek-accent-hover); }
 .ek-logo--compact .ek-logo__cursor { height: 15px; }
 .ek-logo--compact { gap: 10px; }
 .ek-logo--compact .ek-logo__name { font-size: 19px; }
-@media (max-width: 640px) { .ek-logo--compact .ek-logo__name { display: none; } }
+@media (max-width: 640px) { .ek-logo--compact .ek-logo__name { font-size: 18px; } }
 .ek-tools { display: flex; gap: 8px; flex-shrink: 0; }
 
 /* Velká hlavička (titulka) */

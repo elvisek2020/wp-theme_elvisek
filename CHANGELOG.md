@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5.1 — 2026-10-01
+### Šablona
+- Kompaktní lišta na mobilu: celé logo (monogram + „ElvisEK“) jako na desktopu – místo pro něj uvolnilo hamburger menu
+- Tmavý vzhled o kousek světlejší (pozadí, plochy, linky a štítky), méně „černá díra“
+
 ## 0.5.0 — 2026-10-01
 ### Šablona
 - Kompaktní lišta: **hamburger menu** – když se témata do lišty nevejdou (menší monitor, tablet, mobil), schovají se za tlačítko ☰ a rozbalí se jako přehledný seznam s ikonami a počtem článků (zavře Esc / klik mimo)
