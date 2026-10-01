@@ -27,9 +27,7 @@ get_header();
 						<span><?php echo ek_date( 'long' ); ?></span>
 						<span aria-hidden="true">·</span>
 						<span><?php echo (int) ek_reading_time(); ?> min čtení</span>
-						<?php if ( get_the_modified_date( 'Y-m-d' ) > get_the_date( 'Y-m-d' ) ) : ?>
-							<span class="ek-muted">(aktualizováno <?php echo esc_html( get_the_modified_date( 'j. n. Y' ) ); ?>)</span>
-						<?php endif; ?>
+						<?php echo ek_updated_badge(); ?>
 						<button type="button" class="ek-linkbtn ek-article__print" data-ek-print><?php echo ek_icon( 'print', 16 ); ?> Tisk</button>
 					</div>
 				</header>

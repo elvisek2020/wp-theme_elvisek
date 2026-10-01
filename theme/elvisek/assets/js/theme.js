@@ -140,6 +140,29 @@
 		else window.addEventListener('resize', syncOverflow);
 	}
 
+	/* Tlačítko Nahoru: objeví se po odrolování zhruba jedné obrazovky */
+	const toTop = document.querySelector('[data-ek-totop]');
+	if (toTop) {
+		toTop.hidden = false;
+		let topShown = null;
+		let topTick = false;
+		const syncTop = () => {
+			topTick = false;
+			const show = window.scrollY > Math.max(600, window.innerHeight);
+			if (show === topShown) return;
+			topShown = show;
+			toTop.classList.toggle('is-shown', show);
+			toTop.tabIndex = show ? 0 : -1;
+			toTop.setAttribute('aria-hidden', String(!show));
+		};
+		window.addEventListener('scroll', () => { if (!topTick) { topTick = true; requestAnimationFrame(syncTop); } }, { passive: true });
+		syncTop();
+		toTop.addEventListener('click', () => {
+			const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+			window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+		});
+	}
+
 	/* Tisk */
 	document.querySelectorAll('[data-ek-print]').forEach((b) => b.addEventListener('click', () => window.print()));
 

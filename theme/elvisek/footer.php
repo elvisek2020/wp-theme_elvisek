@@ -32,6 +32,8 @@
 	</div>
 </footer>
 
+<button type="button" class="ek-totop" data-ek-totop aria-label="Nahoru" hidden><?php echo ek_icon( 'arrow-up', 20 ); ?></button>
+
 <?php wp_footer(); ?>
 </body>
 </html>

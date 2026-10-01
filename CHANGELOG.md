@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.6.0 — 2026-10-01
+### Šablona
+- **Štítek „Aktualizováno“** u zrevidovaných návodů: v editoru článku je box **Aktualizace návodu** (datum + tlačítko Dnes); zelený štítek s datem v detailu článku a malý štítek na kartách. Prázdné datum = bez štítku
+- Zrušeno automatické „(aktualizováno …)“ podle data změny ve WordPressu – svítilo u skoro všech článků kvůli hromadným úpravám
+- **Tlačítko Nahoru** vpravo dole: objeví se po odrolování zhruba jedné obrazovky, plynule vyroluje nahoru (bez animace při „omezit pohyb“), v tisku skryté
+
 ## 0.5.1 — 2026-10-01
 ### Šablona
 - Kompaktní lišta na mobilu: celé logo (monogram + „ElvisEK“) jako na desktopu – místo pro něj uvolnilo hamburger menu

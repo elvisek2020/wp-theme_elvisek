@@ -22,6 +22,7 @@ $ek_modules = array(
 	'comments-antispam', // honeypot + časová kontrola
 	'analytics-consent', // GA4 + cookie lišta (jen když je vyplněné ID)
 	'updater',           // aktualizace z GitHub Releases
+	'updated',           // štítek „Aktualizováno“ u návodů
 );
 
 foreach ( $ek_modules as $ek_module ) {

@@ -12,6 +12,7 @@ defined( 'ABSPATH' ) || exit;
 		<div class="ek-featured__chips">
 			<span class="ek-chip ek-chip--solid">Nejnovější</span>
 			<?php echo ek_category_chips(); ?>
+			<?php echo ek_updated_chip(); ?>
 		</div>
 		<h2 class="ek-featured__title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>
 		<p class="ek-featured__excerpt"><?php echo esc_html( wp_trim_words( get_the_excerpt(), 60, '…' ) ); ?></p>

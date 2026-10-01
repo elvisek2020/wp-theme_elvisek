@@ -21,28 +21,28 @@ Inspirace z Graphene Plus a dalších šablon. Nic z toho není ve verzi 1.
 - [ ] Tooltip, tlačítka ve variantách
 
 ## Funkce článků
-- [ ] Obsah článku (TOC) z nadpisů
-- [ ] Tlačítko „kopírovat“ u bloků kódu
+- [x] Obsah článku (TOC) z nadpisů — hotovo
+- [x] Tlačítko „kopírovat“ u bloků kódu — hotovo
 - [ ] Ukazatel průběhu čtení
-- [ ] Související články
+- [x] Související články — hotovo
 - [ ] Drobečková navigace
 - [ ] Autor box
 - [ ] Série článků (např. Zigbee, Loxone)
-- [ ] Štítek „aktualizováno“ u starších návodů
+- [x] Štítek „aktualizováno“ u starších návodů — hotovo (0.6.0)
 - [ ] Sdílení na sociální sítě / social profily
 
 ## Web a navigace
-- [ ] „Načíst další“ místo stránkování (Graphene měl infinite scroll)
+- [x] „Načíst další“ místo stránkování (Graphene měl infinite scroll) — hotovo
 - [ ] Rychlé vyhledávání (výsledky během psaní)
 - [ ] Mega menu pro kategorie
 - [ ] Rozvržení 1/2/3 sloupce podle typu stránky
-- [ ] Homepage s dlaždicemi kategorií
-- [ ] Tlačítko „nahoru“
+- [x] Homepage s dlaždicemi kategorií — hotovo
+- [x] Tlačítko „nahoru“ — hotovo (0.6.0)
 - [ ] Automatické OG obrázky pro sdílení
 
 ## Obsah webu (probrat)
-- [ ] Nové motto / podtitul
+- [x] Nové motto / podtitul — hotovo
 - [ ] Úvodní text „O mně“ do patičky a na stránku Úvod
-- [ ] Obrázek na pozadí hlavičky
-- [ ] Náhledové obrázky u článků bez featured image
+- [x] Obrázek na pozadí hlavičky — hotovo
+- [x] Náhledové obrázky u článků bez featured image — hotovo (obrázky rubrik)
 - [ ] Stránka Kontakt (je prázdná), stránka Tvorba webových stránek

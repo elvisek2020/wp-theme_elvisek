@@ -676,6 +676,29 @@ pre.ek-code--narrow { max-width: 800px; }
 .ek-toc-inline .ek-toc { border: 0; padding: 0 0 12px; background: none; }
 .ek-toc-inline .ek-box__title { display: none; }
 
+/* ---------- Štítek „Aktualizováno“ ---------- */
+.ek-updated { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 8px; border-radius: 999px; background: color-mix(in srgb, #16a34a 14%, transparent); color: #15803d; font-size: 14px; font-weight: 600; }
+.ek-chip--updated { display: inline-flex; align-items: center; gap: 4px; background: color-mix(in srgb, #16a34a 14%, transparent); color: #15803d; }
+:root[data-theme="dark"] .ek-updated, :root[data-theme="dark"] .ek-chip--updated { color: #4ade80; background: color-mix(in srgb, #22c55e 16%, transparent); }
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme="light"]) .ek-updated, :root:not([data-theme="light"]) .ek-chip--updated { color: #4ade80; background: color-mix(in srgb, #22c55e 16%, transparent); }
+}
+.ek-card__chips { display: flex; flex-wrap: wrap; gap: 6px; align-self: flex-start; }
+
+/* ---------- Tlačítko Nahoru ---------- */
+.ek-totop {
+	position: fixed; z-index: 40; right: max(20px, env(safe-area-inset-right)); bottom: max(20px, env(safe-area-inset-bottom));
+	width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--ek-line);
+	background: var(--ek-surface); color: var(--ek-accent); box-shadow: 0 6px 20px rgb(15 26 42 / .15);
+	display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
+	opacity: 0; transform: translateY(12px); pointer-events: none; transition: opacity .2s ease, transform .2s ease;
+}
+.ek-totop[hidden] { display: inline-flex; }
+.ek-totop.is-shown { opacity: 1; transform: none; pointer-events: auto; }
+.ek-totop:hover { background: var(--ek-chip); }
+@media (max-width: 640px) { .ek-totop { width: 42px; height: 42px; right: max(14px, env(safe-area-inset-right)); bottom: max(14px, env(safe-area-inset-bottom)); } }
+@media (prefers-reduced-motion: reduce) { .ek-totop { transition: none; } }
+
 /* ---------- Tisk (dříve print.css) ---------- */
 @media print {
 /* Tisková verze článku (nahrazuje tisk z Graphene). */
@@ -683,7 +706,7 @@ pre.ek-code--narrow { max-width: 800px; }
 :root { --ek-bg: #fff; --ek-surface: #fff; --ek-text: #000; --ek-muted: #444; --ek-line: #ccc; --ek-chip: #f1f1f1; }
 html, body { background: #fff !important; color: #000 !important; font-size: 11.5pt; }
 .ek-bar, .ek-hero-head, .ek-footer, .ek-sidebar, .ek-postnav, .ek-related, .ek-comments, .ek-article__print,
-.ek-copy, .ek-consent, .ek-skip, .ek-more, #wpadminbar { display: none !important; }
+.ek-copy, .ek-consent, .ek-skip, .ek-more, .ek-totop, #wpadminbar { display: none !important; }
 .ek-single { display: block; padding: 0; }
 .ek-wrap { max-width: none; padding: 0; }
 .ek-article__title { font-size: 22pt; }

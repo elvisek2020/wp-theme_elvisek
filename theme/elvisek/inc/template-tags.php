@@ -17,6 +17,8 @@ function ek_icon( string $name, int $size = 18 ): string {
 		'close'    => '<path d="M6 6l12 12M18 6 6 18"/>',
 		'print'    => '<path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="7"/>',
 		'chevron'  => '<path d="m6 9 6 6 6-6"/>',
+		'arrow-up' => '<path d="M12 19V5M6 11l6-6 6 6"/>',
+		'refresh'  => '<path d="M20 11a8 8 0 0 0-14.6-4.5L4 8M4 4v4h4M4 13a8 8 0 0 0 14.6 4.5L20 16M20 20v-4h-4"/>',
 		'arrow'    => '<path d="M5 12h14M13 6l6 6-6 6"/>',
 		'arrow-l'  => '<path d="M19 12H5M11 6l-6 6 6 6"/>',
 		'copy'     => '<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>',
