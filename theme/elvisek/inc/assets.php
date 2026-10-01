@@ -56,7 +56,7 @@ add_action( 'wp_head', function () {
 
 // Režim světlý/tmavý nastavit ještě před vykreslením (bez probliknutí).
 add_action( 'wp_head', function () {
-	echo "<script>(function(){try{var t=localStorage.getItem('ek-theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}if(localStorage.getItem('ek-wide')==='1'){document.documentElement.dataset.wide='1';}}catch(e){}})();</script>\n";
+	echo "<script>(function(){try{var t=localStorage.getItem('ek-theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}if(localStorage.getItem('ek-wide')==='0'){document.documentElement.dataset.wide='0';}}catch(e){}})();</script>\n";
 	echo '<meta name="color-scheme" content="light dark">' . "\n";
 }, 0 );
 

@@ -26,10 +26,11 @@
 	syncTheme();
 	const wideBtn = document.querySelector('[data-ek-wide-toggle]');
 	if (wideBtn) {
-		const syncWide = () => wideBtn.setAttribute('aria-pressed', String(root.dataset.wide === '1'));
+		// Výchozí je široká stránka; „0“ = užší (3 sloupce)
+		const syncWide = () => wideBtn.setAttribute('aria-pressed', String(root.dataset.wide !== '0'));
 		wideBtn.addEventListener('click', () => {
-			if (root.dataset.wide === '1') { delete root.dataset.wide; store('ek-wide', null); }
-			else { root.dataset.wide = '1'; store('ek-wide', '1'); }
+			if (root.dataset.wide === '0') { delete root.dataset.wide; store('ek-wide', null); }
+			else { root.dataset.wide = '0'; store('ek-wide', '0'); }
 			syncWide();
 			window.dispatchEvent(new Event('resize'));
 		});

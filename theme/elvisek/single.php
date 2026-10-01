@@ -50,8 +50,8 @@ get_header();
 				<?php endif; ?>
 
 				<?php
-				$ek_prev = get_previous_post();
-				$ek_next = get_next_post();
+				$ek_prev = ek_opt( 'ek_postnav' ) ? get_previous_post() : null;
+				$ek_next = ek_opt( 'ek_postnav' ) ? get_next_post() : null;
 				if ( $ek_prev || $ek_next ) :
 					?>
 					<nav class="ek-postnav" aria-label="Další články">
@@ -73,7 +73,7 @@ get_header();
 				<?php $ek_related = ek_related_posts( 3 ); ?>
 				<?php if ( $ek_related ) : ?>
 					<section class="ek-section ek-related" aria-labelledby="ek-related-title">
-						<h2 id="ek-related-title" class="ek-section__title">Mohlo by vás zajímat</h2>
+						<h2 id="ek-related-title" class="ek-section__title ek-related__head">Mohlo by vás zajímat</h2>
 						<ul class="ek-related__list">
 							<?php foreach ( $ek_related as $ek_r ) : ?>
 								<li>

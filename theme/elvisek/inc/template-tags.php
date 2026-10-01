@@ -161,6 +161,14 @@ function ek_date( string $format = 'short' ): string {
  * Témata na titulce — nejpočetnější kategorie.
  */
 function ek_topics( int $limit = 8 ): array {
+	// Ruční výběr a pořadí z Přizpůsobit → Úvodní stránka → Témata v hlavičce (prázdné = automaticky podle počtu článků).
+	$ids = array_filter( array_map( 'absint', explode( ',', (string) get_theme_mod( 'ek_topics', '' ) ) ) );
+	if ( $ids ) {
+		$terms = get_categories( array( 'include' => $ids, 'orderby' => 'include', 'hide_empty' => true ) );
+		if ( $terms ) {
+			return $terms;
+		}
+	}
 	return get_categories( array(
 		'orderby'    => 'count',
 		'order'      => 'DESC',

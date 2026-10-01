@@ -46,6 +46,24 @@ function ek_process_content( string $html ): string {
 	}
 	$html = $p->get_updated_html();
 
+	// Bloky kódu jen ve dvou šířkách: krátké (nejdelší řádek do ~64 znaků) úzké 800 px, ostatní přes celý sloupec.
+	$html = preg_replace_callback(
+		'#<pre\b([^>]*\bclass="[^"]*\bek-code\b[^"]*")([^>]*)>(.*?)</pre>#is',
+		function ( $m ) {
+			$text = html_entity_decode( wp_strip_all_tags( preg_replace( '#<br\s*/?>#i', "\n", $m[3] ) ), ENT_QUOTES, 'UTF-8' );
+			$max  = 0;
+			foreach ( explode( "\n", str_replace( "\t", '    ', $text ) ) as $line ) {
+				$max = max( $max, mb_strlen( rtrim( $line ) ) );
+			}
+			if ( $max > 64 ) {
+				return $m[0];
+			}
+			$attrs = preg_replace( '#\bek-code\b#', 'ek-code ek-code--narrow', $m[1], 1 );
+			return '<pre' . $attrs . $m[2] . '>' . $m[3] . '</pre>';
+		},
+		$html
+	);
+
 	// Kotvy pro nadpisy H2/H3 a rozbalovací sekce + položky obsahu článku.
 	$html = preg_replace_callback(
 		'#<(h2|h3|details)(\s[^>]*)?>(.*?)</\1>#is',

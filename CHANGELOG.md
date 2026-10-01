@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.9 — 2026-10-01
+### Šablona
+- Přizpůsobit → Úvodní stránka → **Témata v hlavičce**: výběr rubrik zaškrtnutím a pořadí přetažením (dlaždice i lišta); bez výběru automaticky podle počtu článků
+- Odkazy Starší / Novější pod článkem jsou ve výchozím stavu skryté – lze zapnout v Přizpůsobit → Články
+- „Mohlo by vás zajímat“: menší nadpis (20 px) a titulky (15,5 px), kompaktnější karty
+- Patička na jeden řádek: text o webu vlevo, vpravo přepínač vzhledu, Široká stránka a odkazy (menší ovládací prvky)
+- Široká stránka = dosavadní šířka 1480 px se 4 sloupci (výchozí); vypnutím užší stránka 1180 px se 3 sloupci (pamatuje si prohlížeč)
+- Bloky kódu ve dvou šířkách: krátké ukázky (nejdelší řádek do 64 znaků) úzké 800 px s tlačítkem Kopírovat u kódu, delší přes celý sloupec
+
 ## 0.4.8 — 2026-10-01
 ### Šablona
 - Přepínač vzhledu přesunut z hlavičky do patičky: **Systém / Světlý / Tmavý** (Systém = podle nastavení zařízení)
