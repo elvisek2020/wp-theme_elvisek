@@ -218,7 +218,6 @@ a.ek-chip:hover { color: var(--ek-accent-hover); }
 	.ek-chipsnav a { background: var(--ek-chip); color: var(--ek-accent); border-radius: 999px; padding: 7px 11px; font-size: 13px; font-weight: 700; }
 	.ek-chipsnav a .ek-icon { display: none; }
 	.ek-bar .ek-tools .ek-iconbtn { width: 40px; height: 40px; }
-	.ek-bar--floating .ek-tools [data-ek-theme-toggle] { display: none; }
 }
 /* Rychlé hledání: pole vyjede doleva od lupy, překryje to, co je vedle */
 .ek-qs { position: relative; display: flex; }
@@ -579,6 +578,20 @@ a.ek-chip:hover { color: var(--ek-accent-hover); }
 .ek-footer__links { display: flex; align-items: center; gap: 18px; }
 .ek-footer__links a, .ek-footer__links .ek-linkbtn { display: inline-flex; align-items: center; gap: 6px; color: var(--ek-muted); text-decoration: none; font-size: 14px; }
 .ek-footer__links a:hover, .ek-footer__links .ek-linkbtn:hover { color: var(--ek-accent); }
+/* Předvolby v patičce: vzhled + široká stránka */
+.ek-footer__prefs { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; margin-top: 14px; }
+.ek-seg { display: inline-flex; gap: 2px; padding: 4px; border: 1px solid var(--ek-line); border-radius: 999px; background: var(--ek-bg); }
+.ek-seg__btn, .ek-pill {
+	display: inline-flex; align-items: center; gap: 7px; padding: 7px 14px; border-radius: 999px; border: 0;
+	background: transparent; color: var(--ek-muted); font: 600 14px var(--ek-font); cursor: pointer;
+}
+.ek-seg__btn:hover, .ek-pill:hover { color: var(--ek-text); }
+.ek-seg__btn[aria-pressed="true"] { background: var(--ek-chip); color: var(--ek-accent); }
+.ek-pill { border: 1px solid var(--ek-line); padding: 8px 16px; }
+.ek-pill[aria-pressed="true"] { background: var(--ek-chip); color: var(--ek-accent); border-color: color-mix(in srgb, var(--ek-accent) 35%, var(--ek-line)); }
+/* Široká stránka: obsah přes celou šířku okna (s okraji) */
+:root[data-wide="1"] { --ek-wrap: 100000px; }
+@media (max-width: 1100px) { [data-ek-wide-toggle] { display: none; } }
 
 /* ---------- Cookie lišta ---------- */
 .ek-consent {

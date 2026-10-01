@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.8 — 2026-10-01
+### Šablona
+- Přepínač vzhledu přesunut z hlavičky do patičky: **Systém / Světlý / Tmavý** (Systém = podle nastavení zařízení)
+- Patička: přepínač **Široká stránka** – obsah přes celou šířku okna (od 1100 px, pamatuje si ho prohlížeč, bez probliknutí)
+
 ## 0.4.7 — 2026-10-01
 ### Šablona
 - Formulář komentářů přes celou šířku sloupce (bez omezení 920 px)

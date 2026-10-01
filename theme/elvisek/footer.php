@@ -20,6 +20,14 @@
 			<a href="<?php echo esc_url( admin_url() ); ?>" aria-label="Administrace" rel="nofollow"><?php echo ek_icon( 'lock', 14 ); ?></a>
 		</nav>
 	</div>
+	<div class="ek-wrap ek-footer__prefs" data-ek-prefs>
+		<div class="ek-seg" role="group" aria-label="Vzhled">
+			<button type="button" class="ek-seg__btn" data-ek-theme-set="system" aria-pressed="false"><?php echo ek_icon( 'gear', 16 ); ?> Systém</button>
+			<button type="button" class="ek-seg__btn" data-ek-theme-set="light" aria-pressed="false"><?php echo ek_icon( 'sun', 16 ); ?> Světlý</button>
+			<button type="button" class="ek-seg__btn" data-ek-theme-set="dark" aria-pressed="false"><?php echo ek_icon( 'moon', 16 ); ?> Tmavý</button>
+		</div>
+		<button type="button" class="ek-pill" data-ek-wide-toggle aria-pressed="false"><?php echo ek_icon( 'expand', 16 ); ?> Široká stránka</button>
+	</div>
 </footer>
 
 <?php wp_footer(); ?>

@@ -3,21 +3,38 @@
 	'use strict';
 	const root = document.documentElement;
 
-	/* Světlý / tmavý režim */
+	/* Vzhled v patičce: Systém / Světlý / Tmavý + Široká stránka (uloženo v localStorage) */
+	const store = (k, v) => { try { v === null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) { /* soukromé okno */ } };
 	const systemDark = () => window.matchMedia('(prefers-color-scheme: dark)').matches;
 	const currentTheme = () => root.dataset.theme || (systemDark() ? 'dark' : 'light');
-	document.querySelectorAll('[data-ek-theme-toggle]').forEach((btn) => {
-		const sync = () => btn.setAttribute('aria-pressed', String(currentTheme() === 'dark'));
-		sync();
-		btn.addEventListener('click', () => {
-			const next = currentTheme() === 'dark' ? 'light' : 'dark';
-			root.dataset.theme = next;
-			try { localStorage.setItem('ek-theme', next); } catch (e) { /* soukromé okno */ }
-			const heroLight = document.querySelector('[data-ek-hero-light]');
-			if (heroLight) heroLight.media = next === 'light' ? 'all' : 'not all';
-			sync();
+	const syncHero = () => {
+		const heroLight = document.querySelector('[data-ek-hero-light]');
+		if (!heroLight) return;
+		heroLight.media = root.dataset.theme ? (root.dataset.theme === 'light' ? 'all' : 'not all') : '(prefers-color-scheme: light)';
+	};
+	const themeBtns = document.querySelectorAll('[data-ek-theme-set]');
+	const syncTheme = () => {
+		const mode = root.dataset.theme || 'system';
+		themeBtns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.ekThemeSet === mode)));
+	};
+	themeBtns.forEach((b) => b.addEventListener('click', () => {
+		const mode = b.dataset.ekThemeSet;
+		if (mode === 'system') { delete root.dataset.theme; store('ek-theme', null); }
+		else { root.dataset.theme = mode; store('ek-theme', mode); }
+		syncTheme(); syncHero();
+	}));
+	syncTheme();
+	const wideBtn = document.querySelector('[data-ek-wide-toggle]');
+	if (wideBtn) {
+		const syncWide = () => wideBtn.setAttribute('aria-pressed', String(root.dataset.wide === '1'));
+		wideBtn.addEventListener('click', () => {
+			if (root.dataset.wide === '1') { delete root.dataset.wide; store('ek-wide', null); }
+			else { root.dataset.wide = '1'; store('ek-wide', '1'); }
+			syncWide();
+			window.dispatchEvent(new Event('resize'));
 		});
-	});
+		syncWide();
+	}
 
 	/* Titulka: plynulý přechod dlaždice → lišta řízený rolováním.
 	   --ek-p (0–1) = jak moc je velká hlavička odrolovaná; dlaždice podle něj blednou a zmenšují se,
