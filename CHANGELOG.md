@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.7 — 2026-10-01
+### Šablona
+- Formulář komentářů přes celou šířku sloupce (bez omezení 920 px)
+- Text článku už není omezený na 920 px – jde přes celý sloupec stejně jako obrázky (`--ek-measure: none`)
+
+### ElvisEK Core
+- Údržba webu → **Bloky kódu**: převod „Předformátovaného textu“ a holých `<pre>` na blok Kód s odhadnutým jazykem (bash, PowerShell, Python, JSON, YAML, SQL, …) → zvýraznění i čísla řádků; náhled, záloha původního obsahu, vrácení; bloky s formátováním (tučné, odkazy) se nemění
+
 ## 0.4.6 — 2026-10-01
 ### Šablona
 - Kompaktní formulář komentářů: menší box (šířka textu, menší nadpis), sbalený na jedno pole „Napište komentář…“ – jméno, e-mail a tlačítko se ukážou po kliknutí do pole nebo na „Odpovědět“ (bez JS celý formulář)

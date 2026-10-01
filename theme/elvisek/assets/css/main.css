@@ -363,8 +363,8 @@ a.ek-chip:hover { color: var(--ek-accent-hover); }
 
 /* ---------- Článek ---------- */
 /* Článek: stejná šířka jako titulka (--ek-wrap). Sloupec článku se roztáhne, boční panel má pevnou šířku.
-   Běžný text drží čitelnou délku řádku (--ek-measure), kód, obrázky, tabulky a hlavička jdou přes celý sloupec. */
-:root { --ek-measure: 920px; }
+   Text i obrázky jdou přes celý sloupec článku (--ek-measure: none). Pro užší řádky stačí nastavit např. 920px. */
+:root { --ek-measure: none; }
 .ek-single { display: grid; grid-template-columns: minmax(0, 1fr); gap: 64px; padding-top: 40px; padding-bottom: 72px; }
 .ek-sidebar { display: none; }
 .ek-toc-inline { margin: 24px 0 0; }
@@ -540,7 +540,7 @@ a.ek-chip:hover { color: var(--ek-accent-hover); }
 .ek-comments__list .comment-content { overflow-wrap: anywhere; word-break: break-word; }
 .ek-single > *, .ek-comments { min-width: 0; }
 .ek-comments__list .reply { margin-top: 8px; font-size: 14px; font-weight: 700; }
-.ek-comments__form { background: var(--ek-surface); border: 1px solid var(--ek-line); border-radius: 16px; padding: 18px 20px 6px; max-width: var(--ek-measure); }
+.ek-comments__form { background: var(--ek-surface); border: 1px solid var(--ek-line); border-radius: 16px; padding: 18px 20px 6px; }
 .ek-compose__title { margin: 0 0 12px; font: 700 19px/1.3 var(--ek-font-head); display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; }
 .ek-compose__title small { font: 400 14px var(--ek-font); }
 .comment-form .logged-in-as, .comment-form .comment-notes { font-size: 14px; color: var(--ek-muted); margin-bottom: 10px; }

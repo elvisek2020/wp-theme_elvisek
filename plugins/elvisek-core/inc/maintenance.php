@@ -197,6 +197,104 @@ function ek_webp_stats(): array {
 }
 
 /* =========================================================================
+ * Bloky kódu: „Předformátovaný text“ a holé <pre> → blok Kód s jazykem
+ * (zvýraznění + čísla řádků). Záloha původního obsahu v meta _ek_code_backup.
+ * ====================================================================== */
+
+const EK_CODE_BACKUP = '_ek_code_backup';
+
+/** Odhad jazyka z obsahu ukázky. */
+function ek_code_lang( string $code ): string {
+	$t = trim( $code );
+	if ( preg_match( '/^\s*[\{\[]/', $t ) && preg_match( '/"\s*:/', $t ) ) {
+		return 'json';
+	}
+	if ( preg_match( '/^\s*(import \w|from \S+ import |def \w+\(|print\()/m', $t ) ) {
+		return 'python';
+	}
+	if ( preg_match( '/\b(Get|Set|New|Remove|Import|Install|Connect|Invoke|Write)-[A-Z]\w+|\$env:|\bpwsh\b/', $t ) ) {
+		return 'powershell';
+	}
+	if ( preg_match( '/^\s*<\?php/', $t ) ) {
+		return 'php';
+	}
+	if ( preg_match( '/^\s*<(\?xml|!DOCTYPE|html|[a-z]+[^>]*>)/i', $t ) && ! preg_match( '/^\s*(sudo|cd|cat|echo)\b/m', $t ) ) {
+		return 'markup';
+	}
+	if ( preg_match( '/^\s*(SELECT|INSERT|UPDATE|DELETE|CREATE TABLE)\b/i', $t ) ) {
+		return 'sql';
+	}
+	if ( preg_match( '/^\s*(server|location)\s*[\w\/~^ ]*\{/m', $t ) ) {
+		return 'nginx';
+	}
+	if ( preg_match_all( '/^\s*[\w.-]+:\s+\S/m', $t ) >= 2 && ! preg_match( '/^\s*(sudo|cd|cat|echo|apt|ssh|docker|\$|#!)/m', $t ) ) {
+		return 'yaml';
+	}
+	if ( preg_match( '/^\s*\[[\w .-]+\]\s*$/m', $t ) && preg_match( '/^\s*[\w.-]+\s*=/m', $t ) ) {
+		return 'ini';
+	}
+	return 'bash';
+}
+
+/** Vnitřek <pre> → čistý (escapovaný) text kódu. */
+function ek_code_clean( string $inner ): string {
+	$inner = preg_replace( '#^\s*<code[^>]*>|</code>\s*$#i', '', $inner );
+	$inner = preg_replace( '#<br\s*/?>#i', "\n", $inner );
+	$inner = wp_strip_all_tags( $inner, false );                       // <strong>, <a>… pryč, text zůstane
+	$inner = html_entity_decode( $inner, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+	$inner = str_replace( array( "\r\n", "\r", "\xC2\xA0" ), array( "\n", "\n", ' ' ), $inner );
+	return htmlspecialchars( trim( $inner, "\n" ), ENT_NOQUOTES, 'UTF-8' ); // jako blok Kód: jen &, <, >
+}
+
+/** Převede obsah; vrací [nový obsah, počet bloků, jazyky]. */
+function ek_code_transform( string $c ): array {
+	$n     = 0;
+	$langs = array();
+	$make  = function ( string $inner, bool $block, string $orig ) use ( &$n, &$langs ): string {
+		// Formátovaný text (tučné, odkazy…) v <pre> není kód – nechat beze změny, jinak by se formátování ztratilo.
+		if ( preg_match( '#<(a|strong|b|em|i|span|img)\b#i', $inner ) ) {
+			return $orig;
+		}
+		$code = ek_code_clean( $inner );
+		$lang = ek_code_lang( html_entity_decode( $code, ENT_QUOTES, 'UTF-8' ) );
+		$n++;
+		$langs[ $lang ] = ( $langs[ $lang ] ?? 0 ) + 1;
+		$pre = '<pre class="wp-block-code language-' . $lang . '"><code>' . $code . '</code></pre>';
+		return $block ? '<!-- wp:code {"className":"language-' . $lang . '"} -->' . "\n" . $pre . "\n" . '<!-- /wp:code -->' : $pre;
+	};
+	// 1) blokový editor: <!-- wp:preformatted --> … <!-- /wp:preformatted -->
+	$c = preg_replace_callback(
+		'#<!-- wp:preformatted(?:\s+\{.*?\})?\s*-->\s*<pre\b[^>]*>(.*?)</pre>\s*<!-- /wp:preformatted -->#s',
+		fn( $m ) => $make( $m[1], true, $m[0] ),
+		$c
+	);
+	// 2) klasický obsah: <pre class="wp-block-preformatted"> nebo holé <pre> / <pre><code> bez jazyka
+	$c = preg_replace_callback(
+		'#<pre(?:\s+class="(?:wp-block-preformatted)?\s*")?\s*>(.*?)</pre>#s',
+		fn( $m ) => $make( $m[1], false, $m[0] ),
+		$c
+	);
+	return array( $c, $n, $langs );
+}
+
+function ek_code_candidates(): array {
+	global $wpdb;
+	$rows = $wpdb->get_results(
+		"SELECT ID, post_title, post_content FROM {$wpdb->posts}
+		 WHERE post_type IN ('post','page') AND post_status IN ('publish','draft','private','future')
+		 AND ( post_content LIKE '%wp:preformatted%' OR post_content LIKE '%wp-block-preformatted%' OR post_content LIKE '%<pre>%' )"
+	);
+	$out = array();
+	foreach ( $rows as $r ) {
+		[ $new, $n, $langs ] = ek_code_transform( $r->post_content );
+		if ( $n && $new !== $r->post_content ) {
+			$out[ (int) $r->ID ] = array( $r->post_title, $n, $langs, $new );
+		}
+	}
+	return $out;
+}
+
+/* =========================================================================
  * Výkon
  * ====================================================================== */
 
@@ -446,6 +544,29 @@ function ek_maint_handle( string $do ): string {
 				wp_delete_post( (int) $id, true );
 			}
 			return sprintf( 'Smazáno automatických konceptů a položek z koše: %d.', count( $ids ) );
+		case 'code-apply':
+			$done = 0;
+			foreach ( ek_code_candidates() as $id => [ , , , $new ] ) {
+				$old = get_post_field( 'post_content', $id, 'raw' );
+				if ( ! metadata_exists( 'post', $id, EK_CODE_BACKUP ) ) {
+					add_post_meta( $id, EK_CODE_BACKUP, wp_slash( $old ), true );
+				}
+				$wpdb->update( $wpdb->posts, array( 'post_content' => $new ), array( 'ID' => $id ) ); // bez revize a změny data
+				clean_post_cache( $id );
+				$done++;
+			}
+			return sprintf( 'Převedeno článků: %d. Původní obsah je zálohovaný.', $done );
+		case 'code-undo':
+			$ids = $wpdb->get_col( $wpdb->prepare( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = %s", EK_CODE_BACKUP ) );
+			foreach ( $ids as $id ) {
+				$wpdb->update( $wpdb->posts, array( 'post_content' => get_post_meta( (int) $id, EK_CODE_BACKUP, true ) ), array( 'ID' => (int) $id ) );
+				delete_post_meta( (int) $id, EK_CODE_BACKUP );
+				clean_post_cache( (int) $id );
+			}
+			return sprintf( 'Vráceno článků: %d.', count( $ids ) );
+		case 'code-forget':
+			delete_post_meta_by_key( EK_CODE_BACKUP );
+			return 'Zálohy původního obsahu smazány.';
 		case 'transients':
 			delete_expired_transients( true );
 			return 'Expirované transienty smazány.';
@@ -594,6 +715,31 @@ function ek_maint_page(): void {
 			}
 			echo '</tbody></table>';
 		}
+	}
+
+	/* Bloky kódu */
+	$code_c   = ek_code_candidates();
+	$code_bak = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = %s", EK_CODE_BACKUP ) );
+	echo '<h2>Bloky kódu</h2><p class="description" style="max-width:900px">Převede „Předformátovaný text“ a holé <code>&lt;pre&gt;</code> na blok <strong>Kód</strong> s odhadnutým jazykem – ukázky dostanou barevné zvýraznění, čísla řádků a výběr jazyka v editoru. Nemění datum úpravy ani nevytváří revize, původní obsah se zálohuje.</p>';
+	if ( $code_c ) {
+		$total = array_sum( array_map( fn( $r ) => $r[1], $code_c ) );
+		printf( '<p>Nalezeno <strong>%d</strong> bloků ve <strong>%d</strong> článcích.</p>', $total, count( $code_c ) );
+		echo '<details style="max-width:900px"><summary style="cursor:pointer">Náhled</summary><table class="widefat striped" style="margin-top:8px"><thead><tr><th>Článek</th><th>Bloků</th><th>Odhad jazyka</th></tr></thead><tbody>';
+		foreach ( $code_c as $id => [ $title, $n, $langs ] ) {
+			$l = implode( ', ', array_map( fn( $k, $v ) => $k . ' ×' . $v, array_keys( $langs ), $langs ) );
+			printf( '<tr><td><a href="%s" target="_blank">%s</a></td><td>%d</td><td>%s</td></tr>', esc_url( get_permalink( $id ) ), esc_html( $title ), $n, esc_html( $l ) );
+		}
+		echo '</tbody></table><p class="description">Jazyk jde u každého bloku později změnit v editoru (panel „Jazyk kódu“).</p></details><p>';
+		$btn( 'code-apply', sprintf( 'Převést %d bloků', $total ), 'button button-primary' );
+		echo '</p>';
+	} else {
+		echo '<p>✅ Žádné předformátované bloky k převodu.</p>';
+	}
+	if ( $code_bak ) {
+		printf( '<p>Převedeno se zálohou: %d článků. ', $code_bak );
+		$btn( 'code-undo', 'Vrátit původní obsah' );
+		$btn( 'code-forget', 'Vše v pořádku – smazat zálohy', 'button', true );
+		echo '</p>';
 	}
 
 	/* 5) Úklid obsahu */
