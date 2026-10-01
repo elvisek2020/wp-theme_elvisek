@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7.1 — 2026-10-01
+### Šablona
+- Nadpis „ElvisEK“ v hlavičce titulky je odkaz na úvodní stránku (při najetí se obarví)
+
 ## 0.7.0 — 2026-10-01
 ### ElvisEK Core
 - **Nahrávání obrázků rovnou do WebP**: PNG/JPG nahrané přes Média (i přes API) se uloží jako `.webp` – originál se neukládá, fotky z mobilu se podle EXIF otočí. GIF a SVG beze změny

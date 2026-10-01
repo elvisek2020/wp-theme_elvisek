@@ -29,7 +29,7 @@ $ek_hero_l = $ek_hero ? (int) ek_opt( 'ek_hero_image_light' ) : 0;
 				<?php echo wp_get_attachment_image( $ek_hero, 'ek-hero', false, array( 'class' => 'ek-masthead__bg', 'alt' => '', 'loading' => 'eager', 'fetchpriority' => 'high', 'sizes' => '100vw' ) ); ?>
 			<?php endif; ?>
 			<div class="ek-wrap ek-masthead__inner">
-				<h1 class="ek-masthead__title"><?php bloginfo( 'name' ); ?></h1>
+				<h1 class="ek-masthead__title"><a href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home"><?php bloginfo( 'name' ); ?></a></h1>
 				<?php if ( $ek_motto = ek_opt( 'ek_motto' ) ) : ?>
 					<p class="ek-masthead__motto"><?php echo esc_html( $ek_motto ); ?></p>
 				<?php endif; ?>
