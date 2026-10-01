@@ -26,16 +26,16 @@ $ek_count = (int) get_comments_number();
 	<?php endif; ?>
 
 	<?php if ( comments_open() ) : ?>
-		<div class="ek-comments__form">
+		<div class="ek-comments__form" data-ek-compose>
 			<?php
 			comment_form( array(
 				'title_reply'          => 'Napsat komentář',
-				'title_reply_before'   => '<h2 id="reply-title" class="ek-section__title">',
+				'title_reply_before'   => '<h2 id="reply-title" class="ek-compose__title">',
 				'title_reply_after'    => '</h2>',
 				'label_submit'         => 'Odeslat komentář',
 				'class_submit'         => 'ek-btn',
-				'comment_notes_before' => '<p class="ek-muted">E-mail nebude zveřejněn.</p>',
-				'comment_field'        => '<p class="comment-form-comment"><label for="comment">Komentář</label><textarea id="comment" name="comment" rows="5" required></textarea></p>',
+				'comment_notes_before' => '<p class="comment-notes">E-mail nebude zveřejněn.</p>',
+				'comment_field'        => '<p class="comment-form-comment"><label for="comment" class="screen-reader-text">Komentář</label><textarea id="comment" name="comment" rows="4" placeholder="Napište komentář…" required></textarea></p>',
 			) );
 			?>
 		</div>

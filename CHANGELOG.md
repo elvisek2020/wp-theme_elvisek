@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.6 — 2026-10-01
+### Šablona
+- Kompaktní formulář komentářů: menší box (šířka textu, menší nadpis), sbalený na jedno pole „Napište komentář…“ – jméno, e-mail a tlačítko se ukážou po kliknutí do pole nebo na „Odpovědět“ (bez JS celý formulář)
+- Boční panel se nezobrazí, když by byl prázdný (vypnuté Novinky a článek bez obsahu/TOC) – článek pak zabere celou šířku místo prázdného sloupce
+- Pás s obrázkem na titulce má stejnou šířku jako obsah (max. 1480 px) se zaoblenými rohy – na širokých monitorech už nejde přes celou obrazovku
+
 ## 0.4.5 — 2026-10-01
 ### Šablona
 - Bezpečnost: JSON-LD se kóduje s `JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT` – text z článku (např. „</script>“) už nemůže ukončit blok skriptu (uložené XSS, audit 2026-10-01)

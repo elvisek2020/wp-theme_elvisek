@@ -154,6 +154,18 @@
 		io?.observe(box);
 	}
 
+	/* Komentáře: kompaktní formulář – rozbalí se po kliknutí do pole nebo na „Odpovědět“ */
+	const compose = document.querySelector('[data-ek-compose]');
+	if (compose) {
+		const ta = compose.querySelector('textarea');
+		const open = () => compose.classList.remove('is-collapsed');
+		if (ta && !ta.value && !/#respond|replytocom/.test(location.href) && !compose.querySelector('.comment-form-author input[aria-invalid="true"]')) {
+			compose.classList.add('is-collapsed');
+		}
+		ta?.addEventListener('focus', open);
+		document.addEventListener('click', (e) => { if (e.target.closest('.comment-reply-link')) open(); });
+	}
+
 	/* Obsah článku nad textem (zobrazí se, když není vidět boční panel — řeší CSS) */
 	const tocTpl = document.getElementById('ek-toc-tpl');
 	const content = document.querySelector('[data-ek-content]');

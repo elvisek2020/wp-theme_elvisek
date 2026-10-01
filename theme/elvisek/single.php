@@ -12,7 +12,10 @@ get_header();
 		$ek_mode       = (string) ek_opt( 'ek_sidebar_mode' );
 		$ek_show_toc   = (bool) ek_opt( 'ek_sidebar_toc' );
 		$ek_show_recent = (bool) ek_opt( 'ek_sidebar_recent' );
-		$ek_has_panel  = 'never' !== $ek_mode && ( $ek_show_toc || $ek_show_recent );
+		// Obsah vykreslit předem: až pak víme, jestli má článek obsah (TOC) a jestli boční panel nebude prázdný.
+		$ek_content    = str_replace( ']]>', ']]&gt;', apply_filters( 'the_content', get_the_content() ) );
+		$ek_toc_items  = count( $GLOBALS['ek_toc'] ?? array() );
+		$ek_has_panel  = 'never' !== $ek_mode && ( ( $ek_show_toc && $ek_toc_items >= 2 ) || $ek_show_recent );
 		?>
 		<div class="ek-wrap ek-single ek-single--<?php echo esc_attr( $ek_has_panel ? $ek_mode : 'never' ); ?>">
 			<article <?php post_class( 'ek-article' ); ?>>
@@ -38,7 +41,7 @@ get_header();
 				<?php endif; ?>
 
 				<div class="ek-content entry-content" data-ek-content>
-					<?php the_content(); ?>
+					<?php echo $ek_content; // phpcs:ignore WordPress.Security.EscapeOutput -- výstup filtru the_content ?>
 					<?php wp_link_pages( array( 'before' => '<nav class="ek-pages">Stránky: ', 'after' => '</nav>' ) ); ?>
 				</div>
 
