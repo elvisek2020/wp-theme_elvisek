@@ -18,6 +18,7 @@
 			<button type="button" class="ek-pill" data-ek-wide-toggle aria-pressed="false"><?php echo ek_icon( 'expand', 16 ); ?> Široká stránka</button>
 		</div>
 		<nav class="ek-footer__links" aria-label="Odkazy v patičce">
+			<?php ek_social_profiles(); ?>
 			<?php if ( $ek_contact = get_page_by_path( 'kontakt' ) ) : ?>
 				<a href="<?php echo esc_url( get_permalink( $ek_contact ) ); ?>">Kontakt</a>
 			<?php endif; ?>

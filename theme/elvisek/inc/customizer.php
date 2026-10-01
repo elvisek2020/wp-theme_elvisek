@@ -25,6 +25,10 @@ function ek_defaults(): array {
 		'ek_code_lines'  => true,
 		'ek_postnav'     => false,
 		'ek_cat_image_mode' => 'always',
+		'ek_share'       => true,
+		'ek_social_email'    => 'elvisek@elvisek.cz',
+		'ek_social_github'   => 'https://github.com/elvisek2020',
+		'ek_social_linkedin' => 'https://www.linkedin.com/in/kralzdenek/',
 	);
 }
 
@@ -93,6 +97,7 @@ add_action( 'customize_register', function ( WP_Customize_Manager $wpc ) {
 	$add( 'ek_sidebar_toc', 'ek_article', 'Boční panel: obsah článku', 'checkbox', 'rest_sanitize_boolean' );
 	$add( 'ek_sidebar_recent', 'ek_article', 'Boční panel: novinky', 'checkbox', 'rest_sanitize_boolean' );
 	$add( 'ek_code_lines', 'ek_article', 'Čísla řádků u kódu', 'checkbox', 'rest_sanitize_boolean' );
+	$add( 'ek_share', 'ek_article', 'Pod článkem: sdílení (kopírovat odkaz, LinkedIn, Facebook)', 'checkbox', 'rest_sanitize_boolean' );
 	$add( 'ek_postnav', 'ek_article', 'Pod článkem: odkazy Starší / Novější', 'checkbox', 'rest_sanitize_boolean' );
 	$add( 'ek_cat_image_mode', 'ek_article', 'Obrázek rubriky (Příspěvky → Rubriky)', 'select',
 		fn( $v ) => in_array( $v, array( 'always', 'fallback', 'off' ), true ) ? $v : 'always',
@@ -106,6 +111,9 @@ add_action( 'customize_register', function ( WP_Customize_Manager $wpc ) {
 	// Patička
 	$add( 'ek_about', 'ek_footer', 'Krátký text o webu', 'textarea', 'sanitize_textarea_field' );
 	$add( 'ek_since', 'ek_footer', 'Rok založení (copyright)', 'number', 'absint' );
+	$add( 'ek_social_email', 'ek_footer', 'Profily v patičce: e-mail', 'email', 'sanitize_email', array( 'description' => 'Prázdné pole = ikona se nezobrazí.' ) );
+	$add( 'ek_social_github', 'ek_footer', 'Profily v patičce: GitHub (URL)', 'url', 'esc_url_raw' );
+	$add( 'ek_social_linkedin', 'ek_footer', 'Profily v patičce: LinkedIn (URL)', 'url', 'esc_url_raw' );
 
 	// SEO a analytika
 	$add( 'ek_meta_desc', 'ek_seo', 'Meta description titulky', 'textarea', 'sanitize_textarea_field' );

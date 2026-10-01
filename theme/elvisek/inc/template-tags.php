@@ -17,6 +17,12 @@ function ek_icon( string $name, int $size = 18 ): string {
 		'close'    => '<path d="M6 6l12 12M18 6 6 18"/>',
 		'print'    => '<path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="7"/>',
 		'chevron'  => '<path d="m6 9 6 6 6-6"/>',
+		'github'   => '<path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>',
+		'linkedin' => '<path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/>',
+		'facebook' => '<path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>',
+		'mail'     => '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/>',
+		'link'     => '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+		'check'    => '<path d="M20 6 9 17l-5-5"/>',
 		'arrow-up' => '<path d="M12 19V5M6 11l6-6 6 6"/>',
 		'refresh'  => '<path d="M20 11a8 8 0 0 0-14.6-4.5L4 8M4 4v4h4M4 13a8 8 0 0 0 14.6 4.5L20 16M20 20v-4h-4"/>',
 		'arrow'    => '<path d="M5 12h14M13 6l6 6-6 6"/>',
@@ -259,7 +265,7 @@ function ek_logo( bool $compact = false ): void {
 function ek_header_tools( string $search_id ): void {
 	?>
 	<div class="ek-tools">
-		<div class="ek-qs" data-ek-qs>
+		<div class="ek-qs" data-ek-qs data-ek-search-api="<?php echo esc_url( rest_url( 'ek/v1/search' ) ); ?>">
 			<form role="search" method="get" class="ek-qs__form" id="<?php echo esc_attr( $search_id ); ?>" action="<?php echo esc_url( home_url( '/' ) ); ?>">
 				<label class="screen-reader-text" for="<?php echo esc_attr( $search_id ); ?>-input">Hledat</label>
 				<input id="<?php echo esc_attr( $search_id ); ?>-input" class="ek-qs__input" type="search" name="s" value="<?php echo esc_attr( get_search_query() ); ?>" placeholder="Hledat návody…" autocomplete="off" tabindex="-1">

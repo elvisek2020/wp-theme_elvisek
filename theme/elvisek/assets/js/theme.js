@@ -129,6 +129,112 @@
 		});
 	});
 
+	/* Rychlé hledání během psaní: až 6 výsledků pod polem (REST ek/v1/search) */
+	const escHtml = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+	document.querySelectorAll('[data-ek-qs][data-ek-search-api]').forEach((qs, n) => {
+		const api = qs.dataset.ekSearchApi;
+		const form = qs.querySelector('form');
+		const input = qs.querySelector('input[type="search"]');
+		if (!api || !form || !input) return;
+		const box = document.createElement('div');
+		box.className = 'ek-qs__results';
+		box.id = 'ek-qs-results-' + n;
+		box.hidden = true;
+		box.setAttribute('role', 'listbox');
+		qs.appendChild(box);
+		input.setAttribute('role', 'combobox');
+		input.setAttribute('aria-autocomplete', 'list');
+		input.setAttribute('aria-controls', box.id);
+		input.setAttribute('aria-expanded', 'false');
+		let timer = 0;
+		let ctrl = null;
+		let active = -1;
+		const cache = new Map();
+		const items = () => [...box.querySelectorAll('.ek-qs__item')];
+		const close = () => { box.hidden = true; input.setAttribute('aria-expanded', 'false'); active = -1; };
+		const mark = (text, q) => {
+			const safe = escHtml(text);
+			const words = q.split(/\s+/).filter((w) => w.length > 1).map((w) => escHtml(w).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+			return words.length ? safe.replace(new RegExp('(' + words.join('|') + ')', 'gi'), '<mark>$1</mark>') : safe;
+		};
+		const render = (q, rows) => {
+			const all = `<a class="ek-qs__all" href="${escHtml(form.action)}?s=${encodeURIComponent(q)}">Všechny výsledky pro „${escHtml(q)}“ →</a>`;
+			box.innerHTML = rows.length
+				? rows.map((r, i) => `<a class="ek-qs__item" role="option" id="${box.id}-${i}" href="${escHtml(r.u)}"><span class="ek-qs__title">${mark(r.t, q)}</span><span class="ek-qs__meta">${escHtml([r.c, r.d].filter(Boolean).join(' · '))}</span></a>`).join('') + all
+				: `<p class="ek-qs__empty">Nic jsme nenašli. Zkuste jiné slovo.</p>`;
+			box.hidden = false;
+			// na úzkém displeji nesmí přetéct přes levý okraj (vpravo od lupy může být ještě hamburger)
+			box.style.right = '0px';
+			const left = box.getBoundingClientRect().left;
+			if (left < 16) box.style.right = (left - 16) + 'px';
+			input.setAttribute('aria-expanded', 'true');
+			active = -1;
+		};
+		const search = async (q) => {
+			if (cache.has(q)) { render(q, cache.get(q)); return; }
+			ctrl?.abort();
+			ctrl = new AbortController();
+			try {
+				const res = await fetch(api + (api.includes('?') ? '&' : '?') + 'q=' + encodeURIComponent(q), { signal: ctrl.signal, headers: { Accept: 'application/json' } });
+				if (!res.ok) return;
+				const rows = await res.json();
+				cache.set(q, rows);
+				if (input.value.trim() === q) render(q, rows);
+			} catch (e) { /* zrušeno nebo offline */ }
+		};
+		input.addEventListener('input', () => {
+			clearTimeout(timer);
+			const q = input.value.trim();
+			if (q.length < 2) { close(); return; }
+			timer = setTimeout(() => search(q), 200);
+		});
+		input.addEventListener('keydown', (e) => {
+			const list = items();
+			if (box.hidden || !list.length) return;
+			if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+				e.preventDefault();
+				active = (active + (e.key === 'ArrowDown' ? 1 : -1) + list.length + 1) % (list.length + 1) - 0;
+				if (active === list.length) active = -1;
+				list.forEach((a, i) => a.classList.toggle('is-active', i === active));
+				input.setAttribute('aria-activedescendant', active >= 0 ? list[active].id : '');
+			} else if (e.key === 'Enter' && active >= 0) {
+				e.preventDefault();
+				location.href = list[active].href;
+			} else if (e.key === 'Escape') {
+				close();
+			}
+		});
+		document.addEventListener('click', (e) => { if (!qs.contains(e.target)) close(); });
+		// Když se pole hledání zavře (lupa / Esc), zavřít i výsledky
+		new MutationObserver(() => { if (!qs.classList.contains('is-open')) close(); }).observe(qs, { attributes: true, attributeFilter: ['class'] });
+	});
+
+	/* Sdílení článku: na mobilu systémové sdílení, jinak zkopírovat odkaz */
+	document.querySelectorAll('[data-ek-share]').forEach((btn) => {
+		const label = btn.querySelector('[data-ek-share-label]');
+		const iconWrap = btn.querySelector('.ek-share__icon');
+		const iconLink = iconWrap?.innerHTML || '';
+		const iconOk = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
+		const touch = window.matchMedia('(pointer: coarse)').matches && typeof navigator.share === 'function';
+		if (touch && label) label.textContent = 'Sdílet';
+		btn.addEventListener('click', async () => {
+			const url = btn.dataset.url;
+			if (touch) {
+				try { await navigator.share({ title: btn.dataset.title, url }); } catch (e) { /* zrušeno */ }
+				return;
+			}
+			try {
+				await navigator.clipboard.writeText(url);
+				if (label) label.textContent = 'Zkopírováno';
+				if (iconWrap) iconWrap.innerHTML = iconOk;
+				btn.classList.add('is-done');
+				setTimeout(() => { if (label) label.textContent = 'Kopírovat odkaz'; if (iconWrap) iconWrap.innerHTML = iconLink; btn.classList.remove('is-done'); }, 2000);
+			} catch (e) {
+				window.prompt('Odkaz na článek:', url);
+			}
+		});
+	});
+
 	/* Aktuální téma v liště vyrolovat do viditelné části (mobil) */
 	document.querySelector('.ek-chipsnav .is-current')?.scrollIntoView({ block: 'nearest', inline: 'center' });
 	/* Maska na okraji lišty jen při přetečení */

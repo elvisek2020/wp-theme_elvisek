@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.8.0 — 2026-10-01
+### Šablona
+- **Rychlé hledání během psaní**: po 2 znacích se pod polem hledání rozbalí až 6 článků (název se zvýrazněným slovem, rubrika, datum) a odkaz „Všechny výsledky“. Šipky ↑↓ + Enter, Esc zavře. Data z vlastního REST endpointu `ek/v1/search` (bez externích služeb)
+- **Sdílení článku** pod článkem: Kopírovat odkaz (na mobilu systémové sdílení), LinkedIn, Facebook – obyčejné odkazy bez skriptů a sledování. Vypínatelné v Přizpůsobit → Články
+- **Profily v patičce**: ikony e-mail (chráněný proti robotům), GitHub, LinkedIn – adresy v Přizpůsobit → Patička
+
 ## 0.7.1 — 2026-10-01
 ### Šablona
 - Nadpis „ElvisEK“ v hlavičce titulky je odkaz na úvodní stránku (při najetí se obarví)

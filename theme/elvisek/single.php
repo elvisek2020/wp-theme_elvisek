@@ -47,6 +47,8 @@ get_header();
 					<?php echo wp_kses_post( $ek_tags ); ?>
 				<?php endif; ?>
 
+				<?php ek_share_buttons(); ?>
+
 				<?php
 				$ek_prev = ek_opt( 'ek_postnav' ) ? get_previous_post() : null;
 				$ek_next = ek_opt( 'ek_postnav' ) ? get_next_post() : null;

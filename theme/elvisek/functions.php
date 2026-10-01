@@ -23,6 +23,7 @@ $ek_modules = array(
 	'analytics-consent', // GA4 + cookie lišta (jen když je vyplněné ID)
 	'updater',           // aktualizace z GitHub Releases
 	'updated',           // štítek „Aktualizováno“ u návodů
+	'social',            // sdílení článku, profily v patičce, rychlé hledání (REST)
 );
 
 foreach ( $ek_modules as $ek_module ) {
