@@ -11,7 +11,11 @@ $ek_count = (int) get_comments_number();
 ?>
 <section id="komentare" class="ek-comments">
 	<?php if ( $ek_count ) : ?>
-		<h2 class="ek-section__title"><?php echo esc_html( 'Komentáře (' . $ek_count . ')' ); ?></h2>
+		<details class="ek-comments__box" data-ek-comments>
+		<summary class="ek-comments__summary">
+			<h2 class="ek-compose__title"><?php echo esc_html( 'Komentáře (' . $ek_count . ')' ); ?></h2>
+			<span class="ek-comments__toggle"><span class="ek-comments__show">Zobrazit</span><span class="ek-comments__hide">Skrýt</span><?php echo ek_icon( 'chevron', 18 ); ?></span>
+		</summary>
 		<ol class="ek-comments__list">
 			<?php
 			wp_list_comments( array(
@@ -23,6 +27,7 @@ $ek_count = (int) get_comments_number();
 			?>
 		</ol>
 		<?php the_comments_navigation( array( 'prev_text' => '← Starší komentáře', 'next_text' => 'Novější komentáře →' ) ); ?>
+		</details>
 	<?php endif; ?>
 
 	<?php if ( comments_open() ) : ?>

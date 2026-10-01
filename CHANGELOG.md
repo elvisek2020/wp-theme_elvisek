@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.6.2 — 2026-10-01
+### Šablona
+- Oprava: úvodní obrázek článku zase vede přes celou šířku sloupce (od 0.6.1 se kvůli omezení výšky na 440 px zužoval)
+- **Komentáře ve sbaleném boxu** ve stejném stylu jako „Napsat komentář“: nadpis „Komentáře (N)“ s tlačítkem Zobrazit / Skrýt, uvnitř kompaktní seznam (menší písmo, oddělovače místo karet, odpovědi odsazené s linkou). Odkaz na konkrétní komentář (#comment-…) box sám rozbalí
+- Odpověď na komentář: formulář se v seznamu zobrazí v rámečku a po zrušení se vrátí dolů (dřív po sobě nechával prázdný box)
+
 ## 0.6.1 — 2026-10-01
 ### Šablona
 - Úvodní obrázek článku má nejvýš 440 px na výšku (na širokých monitorech už nezabírá celou obrazovku, ořízne se na střed)

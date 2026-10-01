@@ -163,6 +163,19 @@
 		});
 	}
 
+	/* Komentáře: sbalené; rozbalit při odkazu na komentář (#comment-123, #komentare) */
+	const commentsBox = document.querySelector('[data-ek-comments]');
+	if (commentsBox) {
+		const openForHash = () => {
+			const h = location.hash;
+			if (!/^#(comment-\d+|komentare)$/.test(h)) return;
+			commentsBox.open = true;
+			if (h !== '#komentare') document.querySelector(h)?.scrollIntoView({ block: 'start' });
+		};
+		openForHash();
+		window.addEventListener('hashchange', openForHash);
+	}
+
 	/* Tisk */
 	document.querySelectorAll('[data-ek-print]').forEach((b) => b.addEventListener('click', () => window.print()));
 
