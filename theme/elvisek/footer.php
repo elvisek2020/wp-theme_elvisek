@@ -8,7 +8,6 @@
 				<span class="ek-footer__text"><?php echo esc_html( $ek_about ); ?></span>
 			<?php endif; ?>
 		</p>
-		<div class="ek-footer__right">
 		<div class="ek-footer__prefs" data-ek-prefs>
 			<div class="ek-seg" role="group" aria-label="Vzhled">
 				<button type="button" class="ek-seg__btn" data-ek-theme-set="system" aria-pressed="false"><?php echo ek_icon( 'gear', 16 ); ?> Systém</button>
@@ -29,7 +28,6 @@
 			<?php if ( function_exists( 'ek_consent_link' ) ) { ek_consent_link(); } ?>
 			<a href="<?php echo esc_url( admin_url() ); ?>" aria-label="Administrace" rel="nofollow"><?php echo ek_icon( 'lock', 14 ); ?></a>
 		</nav>
-		</div>
 	</div>
 </footer>
 

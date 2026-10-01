@@ -209,6 +209,41 @@
 		new MutationObserver(() => { if (!qs.classList.contains('is-open')) close(); }).observe(qs, { attributes: true, attributeFilter: ['class'] });
 	});
 
+	/* Kopírovat pro AI: článek jako Markdown do schránky + nabídka Otevřít v Claude / ChatGPT */
+	document.querySelectorAll('[data-ek-ai]').forEach((wrap) => {
+		const copy = wrap.querySelector('[data-ek-ai-copy]');
+		const label = wrap.querySelector('[data-ek-ai-label]');
+		const toggle = wrap.querySelector('[data-ek-ai-toggle]');
+		const menu = wrap.querySelector('[data-ek-ai-menu]');
+		const md = wrap.dataset.md;
+		const getMd = () => fetch(md, { headers: { Accept: 'text/markdown' } }).then((r) => { if (!r.ok) throw new Error(r.status); return r.text(); });
+		const done = (text) => {
+			label.textContent = text;
+			copy.classList.toggle('is-done', text === 'Zkopírováno');
+			setTimeout(() => { label.textContent = 'Kopírovat pro AI'; copy.classList.remove('is-done'); }, 2200);
+		};
+		copy?.addEventListener('click', async () => {
+			label.textContent = 'Kopíruji…';
+			try {
+				// ClipboardItem s Promise: funguje i v Safari, kde by se po await fetch ztratilo oprávnění ke schránce
+				if (window.ClipboardItem && navigator.clipboard?.write) {
+					await navigator.clipboard.write([new ClipboardItem({ 'text/plain': getMd().then((t) => new Blob([t], { type: 'text/plain' })) })]);
+				} else {
+					await navigator.clipboard.writeText(await getMd());
+				}
+				done('Zkopírováno');
+			} catch (e) {
+				try { await navigator.clipboard.writeText(await getMd()); done('Zkopírováno'); }
+				catch (e2) { window.open(md, '_blank', 'noopener'); done('Otevřeno jako Markdown'); }
+			}
+		});
+		const setMenu = (open) => { menu.hidden = !open; toggle.setAttribute('aria-expanded', String(open)); };
+		toggle?.addEventListener('click', () => setMenu(menu.hidden));
+		document.addEventListener('click', (e) => { if (!menu.hidden && !wrap.contains(e.target)) setMenu(false); });
+		wrap.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !menu.hidden) { setMenu(false); toggle.focus(); } });
+		menu?.addEventListener('click', (e) => { if (e.target.closest('a')) setMenu(false); });
+	});
+
 	/* Sdílení článku: na mobilu systémové sdílení, jinak zkopírovat odkaz */
 	document.querySelectorAll('[data-ek-share]').forEach((btn) => {
 		const label = btn.querySelector('[data-ek-share-label]');

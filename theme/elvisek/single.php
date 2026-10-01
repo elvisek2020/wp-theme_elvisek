@@ -28,7 +28,10 @@ get_header();
 						<span aria-hidden="true">·</span>
 						<span><?php echo (int) ek_reading_time(); ?> min čtení</span>
 						<?php echo ek_updated_badge(); ?>
-						<button type="button" class="ek-linkbtn ek-article__print" data-ek-print><?php echo ek_icon( 'print', 16 ); ?> Tisk</button>
+						<span class="ek-article__actions">
+							<?php ek_ai_button(); ?>
+							<button type="button" class="ek-linkbtn ek-article__print" data-ek-print><?php echo ek_icon( 'print', 16 ); ?> Tisk</button>
+						</span>
 					</div>
 				</header>
 
@@ -46,8 +49,6 @@ get_header();
 				<?php if ( $ek_tags = get_the_tag_list( '<ul class="ek-tags"><li>', '</li><li>', '</li></ul>' ) ) : ?>
 					<?php echo wp_kses_post( $ek_tags ); ?>
 				<?php endif; ?>
-
-				<?php ek_share_buttons(); ?>
 
 				<?php
 				$ek_prev = ek_opt( 'ek_postnav' ) ? get_previous_post() : null;
@@ -86,6 +87,8 @@ get_header();
 						</ul>
 					</section>
 				<?php endif; ?>
+
+				<?php ek_share_buttons(); ?>
 
 				<?php
 				if ( comments_open() || get_comments_number() ) {

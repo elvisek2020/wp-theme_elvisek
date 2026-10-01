@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.9.0 — 2026-10-01
+### Šablona
+- **Kopírovat pro AI** v hlavičce článku (vedle Tisk): zkopíruje článek jako Markdown (nadpis, zdroj, obsah, bloky kódu s jazykem, obrázky, tabulky) – stačí vložit do libovolné AI. Šipka vedle nabídne **Otevřít v Claude**, **Otevřít v ChatGPT** (s předvyplněným dotazem a odkazem na článek) a Zobrazit jako Markdown
+- Každý článek a stránka má **Markdown verzi** na adrese `…/nazev-clanku.md` (`text/markdown`, noindex, kanonický odkaz na článek) a v hlavičce `<link rel="alternate" type="text/markdown">`
+- Sdílení článku v boxu (stejný styl jako komentáře) mezi „Mohlo by vás zajímat“ a komentáři
+- Patička ve třech sloupcích: text o webu vlevo, vzhled a šířka stránky uprostřed, odkazy vpravo
+
 ## 0.8.0 — 2026-10-01
 ### Šablona
 - **Rychlé hledání během psaní**: po 2 znacích se pod polem hledání rozbalí až 6 článků (název se zvýrazněným slovem, rubrika, datum) a odkaz „Všechny výsledky“. Šipky ↑↓ + Enter, Esc zavře. Data z vlastního REST endpointu `ek/v1/search` (bez externích služeb)
