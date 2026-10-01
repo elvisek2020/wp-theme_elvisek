@@ -187,8 +187,40 @@ if ( 'local' === wp_get_environment_type() ) {
 }
 
 /* =========================================================================
- * 5b) Nové zmenšeniny obrázků jako WebP (originál zůstává)
+ * 5b) Obrázky jako WebP: nahraný PNG/JPG se rovnou převede na WebP (originál se neukládá),
+ *     zmenšeniny se tvoří jako WebP. GIF a SVG beze změny.
  * ====================================================================== */
+
+add_filter( 'wp_handle_upload', function ( array $upload ) {
+	if ( ! empty( $upload['error'] ) || ! in_array( $upload['type'] ?? '', array( 'image/jpeg', 'image/png' ), true )
+		|| ! wp_image_editor_supports( array( 'mime_type' => 'image/webp' ) ) ) {
+		return $upload;
+	}
+	$file   = $upload['file'];
+	$editor = wp_get_image_editor( $file );
+	if ( is_wp_error( $editor ) ) {
+		return $upload;
+	}
+	$dir  = dirname( $file );
+	$name = preg_replace( '/\.(png|jpe?g)$/i', '.webp', basename( $file ) );
+	// Stejný název s jinou příponou má jen právě nahraný soubor (ten se smaže) → není potřeba „-1“.
+	$same = array_diff( (array) glob( $dir . '/' . preg_replace( '/\.webp$/', '', $name ) . '.*' ), array( $file ) );
+	if ( $same ) {
+		$name = wp_unique_filename( $dir, $name );
+	}
+	$editor->set_quality( 82 );
+	$editor->maybe_exif_rotate(); // fotky z mobilu: WebP nenese EXIF, otočit hned
+	$saved = $editor->save( $dir . '/' . $name, 'image/webp' );
+	if ( is_wp_error( $saved ) || ! is_file( $dir . '/' . $name ) ) {
+		return $upload; // když převod selže, nechá se původní soubor
+	}
+	wp_delete_file( $file );
+	return array(
+		'file' => $dir . '/' . $name,
+		'url'  => trailingslashit( dirname( $upload['url'] ) ) . $name,
+		'type' => 'image/webp',
+	);
+} );
 
 add_filter( 'image_editor_output_format', function ( $formats ) {
 	if ( wp_image_editor_supports( array( 'mime_type' => 'image/webp' ) ) ) {

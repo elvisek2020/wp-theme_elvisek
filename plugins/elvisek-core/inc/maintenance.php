@@ -2,31 +2,36 @@
 /**
  * Údržba webu — Nástroje → Údržba webu.
  *
- *  1) Výkon: náhledy pro šablonu, cache hlavičky v .htaccess
- *  2) WebP pro starší obrázky: vedle PNG/JPG vytvoří soubor.png.webp a web ho posílá místo originálu
- *     (nic se nepřepisuje v databázi, jde vypnout jedním tlačítkem)
- *  3) Databáze: velikost tabulek, autoload, optimalizace
- *  4) Média a odkazy: největší soubory, nepoužité obrázky (hromadné smazání vybraných), rozbité interní odkazy
- *  5) Úklid obsahu: revize, koncepty a koš, transienty
+ *  1) Sjednotit obrázky na WebP: starší PNG/JPG natrvalo převede na .webp (soubory i odkazy v obsahu),
+ *     staré adresy přesměruje. Sekce je vidět jen dokud nějaké PNG/JPG zbývají.
+ *  2) Databáze: velikost tabulek, autoload, optimalizace
+ *  3) Média a odkazy: největší soubory, nepoužité obrázky (hromadné smazání vybraných), rozbité interní odkazy
+ *  4) Úklid obsahu: revize, koncepty a koš, transienty
+ *
+ * Nově nahrané obrázky převádí na WebP rovnou při nahrání inc/core.php.
  */
 
 defined( 'ABSPATH' ) || exit;
 
-const EK_HTACCESS_MARKER = 'ElvisEK cache';
-const EK_WEBP_META       = '_ek_webp';      // [ 'orig' => bytes, 'webp' => bytes, 'n' => files ] nebo 'skip'
-const EK_WEBP_OPTION     = 'ek_webp_serve'; // doručovat WebP kopie
-const EK_MAINT_SLUG      = 'ek-udrzba';
+const EK_MAINT_SLUG = 'ek-udrzba';
 
 /* -------------------------------------------------------------------------
- * Jednorázový úklid po odebraných nástrojích (Přechod ElvisEK)
+ * Jednorázový úklid po odebraných nástrojích
  * ---------------------------------------------------------------------- */
 add_action( 'admin_init', function () {
-	if ( get_option( 'ek_maint_v' ) === '2' ) {
+	$v = get_option( 'ek_maint_v' );
+	if ( '3' === $v ) {
 		return;
 	}
-	delete_option( 'ek_mig_deactivated' );
-	delete_post_meta_by_key( '_ek_premigration' );
-	update_option( 'ek_maint_v', '2', false );
+	if ( '2' !== $v ) {
+		delete_option( 'ek_mig_deactivated' );
+		delete_post_meta_by_key( '_ek_premigration' );
+	}
+	// v3: odebrané nástroje Výkon, Bloky kódu a WebP kopie – jejich nastavení a zálohy už nejsou potřeba.
+	// (Zálohy bloků kódu by po sjednocení editoru vrátily starý obsah, proto pryč.)
+	delete_option( 'ek_webp_serve' );
+	delete_post_meta_by_key( '_ek_code_backup' );
+	update_option( 'ek_maint_v', '3', false );
 } );
 
 // Staré záložky na „Přechod ElvisEK“ → nová stránka (skrytá stránka, jinak WP ohlásí „nemáte oprávnění“).
@@ -43,79 +48,11 @@ add_action( 'admin_menu', function () {
 } );
 
 /* =========================================================================
- * WebP pro starší obrázky — doručování
+ * Soubory přílohy
  * ====================================================================== */
 
-/** Převede URL z uploads na cestu na disku (nebo null, když to není soubor z uploads). */
-function ek_upload_path_from_url( string $url ): ?string {
-	static $up = null;
-	$up  = $up ?? wp_get_upload_dir();
-	$url = preg_replace( '#^https?:#', '', $url );
-	$base = preg_replace( '#^https?:#', '', $up['baseurl'] );
-	if ( ! str_starts_with( $url, $base . '/' ) ) {
-		// stejný web bez/s www
-		$alt = str_replace( '//www.', '//', $base );
-		$url2 = str_replace( '//www.', '//', $url );
-		if ( ! str_starts_with( $url2, $alt . '/' ) ) {
-			return null;
-		}
-		$url = $base . substr( $url2, strlen( $alt ) );
-	}
-	$rel = rawurldecode( substr( strtok( $url, '?#' ), strlen( $base ) ) );
-	return str_contains( $rel, '..' ) ? null : $up['basedir'] . $rel;
-}
-
-/** Vrátí URL WebP kopie, pokud existuje; jinak původní URL. */
-function ek_webp_url( string $url ): string {
-	static $cache = array();
-	if ( isset( $cache[ $url ] ) ) {
-		return $cache[ $url ];
-	}
-	$out = $url;
-	if ( preg_match( '#\.(png|jpe?g)(\?.*)?$#i', $url ) ) {
-		$path = ek_upload_path_from_url( $url );
-		if ( $path && is_file( $path . '.webp' ) ) {
-			$out = preg_replace( '#(\.(png|jpe?g))(\?.*)?$#i', '$1.webp$3', $url );
-		}
-	}
-	return $cache[ $url ] = $out;
-}
-
-function ek_webp_filter_html( string $html ): string {
-	if ( ! str_contains( $html, '/uploads/' ) ) {
-		return $html;
-	}
-	// src, href (lightbox) i všechny položky srcset
-	return preg_replace_callback(
-		'#(https?:)?//[^\s"\'<>,]+/uploads/[^\s"\'<>,]+\.(?:png|jpe?g)(?=[\s"\'<>,])#i',
-		fn( $m ) => ek_webp_url( $m[0] ),
-		$html
-	);
-}
-
-if ( ! is_admin() && get_option( EK_WEBP_OPTION ) ) {
-	add_filter( 'the_content', 'ek_webp_filter_html', 99 );
-	add_filter( 'wp_get_attachment_image', 'ek_webp_filter_html', 99 );
-	add_filter( 'post_thumbnail_html', 'ek_webp_filter_html', 99 );
-	add_filter( 'wp_get_attachment_image_src', function ( $img ) {
-		if ( is_array( $img ) && ! empty( $img[0] ) ) {
-			$img[0] = ek_webp_url( $img[0] );
-		}
-		return $img;
-	}, 99 );
-}
-
-// Při smazání přílohy smazat i její WebP kopie.
-add_action( 'delete_attachment', function ( $id ) {
-	foreach ( ek_webp_files( (int) $id ) as $file ) {
-		if ( is_file( $file . '.webp' ) ) {
-			wp_delete_file( $file . '.webp' );
-		}
-	}
-} );
-
-/** Všechny soubory přílohy (originál, případný nezmenšený originál, zmenšeniny) ve formátu PNG/JPG. */
-function ek_webp_files( int $id ): array {
+/** Všechny soubory přílohy na disku (originál, případný nezmenšený originál, zmenšeniny). */
+function ek_attachment_files( int $id ): array {
 	$main = get_attached_file( $id );
 	if ( ! $main ) {
 		return array();
@@ -131,219 +68,203 @@ function ek_webp_files( int $id ): array {
 			$files[] = $dir . '/' . $size['file'];
 		}
 	}
-	return array_values( array_unique( array_filter( $files, fn( $f ) => preg_match( '#\.(png|jpe?g)$#i', $f ) && is_file( $f ) ) ) );
+	return array_values( array_unique( array_filter( $files, 'is_file' ) ) );
 }
 
-function ek_webp_candidates( bool $only_pending ): array {
-	global $wpdb;
-	$sql = "SELECT p.ID FROM {$wpdb->posts} p
-		LEFT JOIN {$wpdb->postmeta} m ON m.post_id = p.ID AND m.meta_key = %s
-		WHERE p.post_type = 'attachment' AND p.post_mime_type IN ('image/png','image/jpeg')";
-	if ( $only_pending ) {
-		$sql .= ' AND m.meta_id IS NULL';
-	}
-	return array_map( 'intval', $wpdb->get_col( $wpdb->prepare( $sql . ' ORDER BY p.ID DESC', EK_WEBP_META ) ) );
-}
-
-/** Převede jednu přílohu; vrací [ orig, webp, n ] nebo 'skip'. */
-function ek_webp_convert( int $id ) {
-	$orig = 0;
-	$webp = 0;
-	$n    = 0;
-	foreach ( ek_webp_files( $id ) as $file ) {
-		$target = $file . '.webp';
-		if ( ! is_file( $target ) ) {
-			$editor = wp_get_image_editor( $file );
-			if ( is_wp_error( $editor ) ) {
-				continue;
-			}
-			$editor->set_quality( 80 );
-			$saved = $editor->save( $target, 'image/webp' );
-			if ( is_wp_error( $saved ) || ! is_file( $target ) ) {
-				continue;
-			}
+// Při smazání přílohy smazat i případné staré WebP kopie (soubor.png.webp).
+add_action( 'delete_attachment', function ( $id ) {
+	foreach ( ek_attachment_files( (int) $id ) as $file ) {
+		if ( is_file( $file . '.webp' ) ) {
+			wp_delete_file( $file . '.webp' );
 		}
-		$o = (int) filesize( $file );
-		$w = (int) filesize( $target );
-		if ( $w >= $o ) {
-			wp_delete_file( $target ); // WebP by nepomohl (typicky malé ikony)
+	}
+} );
+
+/* =========================================================================
+ * Sjednotit obrázky na WebP (natrvalo)
+ * ====================================================================== */
+
+/** ID příloh, které jsou ještě PNG/JPG. */
+function ek_webp_pending(): array {
+	global $wpdb;
+	return array_map( 'intval', $wpdb->get_col(
+		"SELECT p.ID FROM {$wpdb->posts} p LEFT JOIN {$wpdb->postmeta} m ON m.post_id = p.ID AND m.meta_key = '_ek_webp_fail'
+		 WHERE p.post_type = 'attachment' AND p.post_mime_type IN ('image/png','image/jpeg') AND m.meta_id IS NULL ORDER BY p.ID DESC"
+	) );
+}
+
+/**
+ * Převede jednu přílohu natrvalo na WebP: všechny velikosti, metadata, odkazy v obsahu.
+ * Při chybě nechá přílohu beze změny. Vrací ušetřené bajty nebo WP_Error.
+ */
+function ek_webp_unify( int $id ) {
+	global $wpdb;
+	$main = get_attached_file( $id );
+	$rel  = (string) get_post_meta( $id, '_wp_attached_file', true );
+	if ( ! $main || ! is_file( $main ) || '' === $rel ) {
+		return new WP_Error( 'missing', 'Soubor chybí' );
+	}
+	$dir     = dirname( $main );
+	$subdir  = trim( dirname( $rel ), './' );
+	$meta    = wp_get_attachment_metadata( $id ) ?: array();
+	$names   = array( basename( $main ) );
+	if ( ! empty( $meta['original_image'] ) ) {
+		$names[] = $meta['original_image'];
+	}
+	foreach ( (array) ( $meta['sizes'] ?? array() ) as $size ) {
+		if ( ! empty( $size['file'] ) ) {
+			$names[] = $size['file'];
+		}
+	}
+	// Hlavní soubor už je WebP (nahráno s převodem zmenšenin) a PNG/JPG je jen záložní originál → ten stačí smazat.
+	if ( ! empty( $meta['original_image'] ) && preg_match( '/\.webp$/i', $main ) ) {
+		$orig  = $dir . '/' . $meta['original_image'];
+		$freed = is_file( $orig ) ? (int) filesize( $orig ) : 0;
+		unset( $meta['original_image'] );
+		$names = array_values( array_diff( $names, array( basename( $orig ) ) ) );
+		wp_update_attachment_metadata( $id, $meta );
+		if ( is_file( $orig ) ) {
+			wp_delete_file( $orig );
+		}
+		if ( is_file( $orig . '.webp' ) ) {
+			wp_delete_file( $orig . '.webp' );
+		}
+	}
+	$map     = array(); // starý název => nový název
+	$created = array();
+	$before  = 0;
+	$after   = 0;
+	foreach ( array_unique( $names ) as $name ) {
+		if ( ! preg_match( '/\.(png|jpe?g)$/i', $name ) ) {
+			continue; // zmenšenina už je WebP
+		}
+		$old = $dir . '/' . $name;
+		if ( ! is_file( $old ) ) {
 			continue;
 		}
-		$orig += $o;
-		$webp += $w;
-		$n++;
+		$new_name = preg_replace( '/\.(png|jpe?g)$/i', '.webp', $name );
+		if ( is_file( $dir . '/' . $new_name ) ) {
+			$new_name = wp_unique_filename( $dir, $new_name );
+		}
+		$new = $dir . '/' . $new_name;
+		if ( is_file( $old . '.webp' ) ) {
+			copy( $old . '.webp', $new ); // hotová kopie z dřívějška
+		} else {
+			$editor = wp_get_image_editor( $old );
+			if ( is_wp_error( $editor ) ) {
+				$editor = null;
+			} else {
+				$editor->set_quality( 82 );
+				if ( method_exists( $editor, 'maybe_exif_rotate' ) ) {
+					$editor->maybe_exif_rotate(); // WebP nenese EXIF – otočit podle něj už teď
+				}
+				$saved = $editor->save( $new, 'image/webp' );
+				if ( is_wp_error( $saved ) ) {
+					$editor = null;
+				}
+			}
+			if ( ! $editor || ! is_file( $new ) ) {
+				array_map( 'wp_delete_file', $created );
+				return new WP_Error( 'convert', 'Převod se nepovedl: ' . $name );
+			}
+		}
+		$created[]    = $new;
+		$map[ $name ] = $new_name;
+		$before      += (int) filesize( $old );
+		$after       += (int) filesize( $new );
 	}
-	$result = $n ? array( 'orig' => $orig, 'webp' => $webp, 'n' => $n ) : 'skip';
-	update_post_meta( $id, EK_WEBP_META, $result );
-	return $result;
-}
+	if ( ! $map ) {
+		$wpdb->update( $wpdb->posts, array( 'post_mime_type' => 'image/webp' ), array( 'ID' => $id ) );
+		delete_post_meta( $id, '_ek_webp' );
+		clean_post_cache( $id );
+		return $freed ?? 0;
+	}
 
-function ek_webp_stats(): array {
-	global $wpdb;
-	$all  = count( ek_webp_candidates( false ) );
-	$todo = count( ek_webp_candidates( true ) );
-	$orig = 0;
-	$webp = 0;
-	$conv = 0;
-	foreach ( $wpdb->get_col( $wpdb->prepare( "SELECT meta_value FROM {$wpdb->postmeta} WHERE meta_key = %s", EK_WEBP_META ) ) as $v ) {
-		$v = maybe_unserialize( $v );
-		if ( is_array( $v ) ) {
-			$orig += (int) $v['orig'];
-			$webp += (int) $v['webp'];
-			$conv++;
+	// Metadata přílohy
+	$main_new = $dir . '/' . ( $map[ basename( $main ) ] ?? basename( $main ) );
+	if ( ! empty( $meta['file'] ) ) {
+		$meta['file'] = ( $subdir ? $subdir . '/' : '' ) . basename( $main_new );
+	}
+	if ( ! empty( $meta['original_image'] ) && isset( $map[ $meta['original_image'] ] ) ) {
+		$meta['original_image'] = $map[ $meta['original_image'] ];
+	}
+	foreach ( (array) ( $meta['sizes'] ?? array() ) as $k => $size ) {
+		if ( isset( $map[ $size['file'] ] ) ) {
+			$meta['sizes'][ $k ]['file']      = $map[ $size['file'] ];
+			$meta['sizes'][ $k ]['mime-type'] = 'image/webp';
+			$meta['sizes'][ $k ]['filesize']  = (int) filesize( $dir . '/' . $map[ $size['file'] ] );
 		}
 	}
-	return compact( 'all', 'todo', 'orig', 'webp', 'conv' );
-}
-
-/* =========================================================================
- * Bloky kódu: „Předformátovaný text“ a holé <pre> → blok Kód s jazykem
- * (zvýraznění + čísla řádků). Záloha původního obsahu v meta _ek_code_backup.
- * ====================================================================== */
-
-const EK_CODE_BACKUP = '_ek_code_backup';
-
-/** Odhad jazyka z obsahu ukázky. */
-function ek_code_lang( string $code ): string {
-	$t = trim( $code );
-	if ( preg_match( '/^\s*[\{\[]/', $t ) && preg_match( '/"\s*:/', $t ) ) {
-		return 'json';
-	}
-	if ( preg_match( '/^\s*(import \w|from \S+ import |def \w+\(|print\()/m', $t ) ) {
-		return 'python';
-	}
-	if ( preg_match( '/\b(Get|Set|New|Remove|Import|Install|Connect|Invoke|Write)-[A-Z]\w+|\$env:|\bpwsh\b/', $t ) ) {
-		return 'powershell';
-	}
-	if ( preg_match( '/^\s*<\?php/', $t ) ) {
-		return 'php';
-	}
-	if ( preg_match( '/^\s*<(\?xml|!DOCTYPE|html|[a-z]+[^>]*>)/i', $t ) && ! preg_match( '/^\s*(sudo|cd|cat|echo)\b/m', $t ) ) {
-		return 'markup';
-	}
-	if ( preg_match( '/^\s*(SELECT|INSERT|UPDATE|DELETE|CREATE TABLE)\b/i', $t ) ) {
-		return 'sql';
-	}
-	if ( preg_match( '/^\s*(server|location)\s*[\w\/~^ ]*\{/m', $t ) ) {
-		return 'nginx';
-	}
-	if ( preg_match_all( '/^\s*[\w.-]+:\s+\S/m', $t ) >= 2 && ! preg_match( '/^\s*(sudo|cd|cat|echo|apt|ssh|docker|\$|#!)/m', $t ) ) {
-		return 'yaml';
-	}
-	if ( preg_match( '/^\s*\[[\w .-]+\]\s*$/m', $t ) && preg_match( '/^\s*[\w.-]+\s*=/m', $t ) ) {
-		return 'ini';
-	}
-	return 'bash';
-}
-
-/** Vnitřek <pre> → čistý (escapovaný) text kódu. */
-function ek_code_clean( string $inner ): string {
-	$inner = preg_replace( '#^\s*<code[^>]*>|</code>\s*$#i', '', $inner );
-	$inner = preg_replace( '#<br\s*/?>#i', "\n", $inner );
-	$inner = wp_strip_all_tags( $inner, false );                       // <strong>, <a>… pryč, text zůstane
-	$inner = html_entity_decode( $inner, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
-	$inner = str_replace( array( "\r\n", "\r", "\xC2\xA0" ), array( "\n", "\n", ' ' ), $inner );
-	return htmlspecialchars( trim( $inner, "\n" ), ENT_NOQUOTES, 'UTF-8' ); // jako blok Kód: jen &, <, >
-}
-
-/** Převede obsah; vrací [nový obsah, počet bloků, jazyky]. */
-function ek_code_transform( string $c ): array {
-	$n     = 0;
-	$langs = array();
-	$make  = function ( string $inner, bool $block, string $orig ) use ( &$n, &$langs ): string {
-		// Formátovaný text (tučné, odkazy…) v <pre> není kód – nechat beze změny, jinak by se formátování ztratilo.
-		if ( preg_match( '#<(a|strong|b|em|i|span|img)\b#i', $inner ) ) {
-			return $orig;
-		}
-		$code = ek_code_clean( $inner );
-		$lang = ek_code_lang( html_entity_decode( $code, ENT_QUOTES, 'UTF-8' ) );
-		$n++;
-		$langs[ $lang ] = ( $langs[ $lang ] ?? 0 ) + 1;
-		$pre = '<pre class="wp-block-code language-' . $lang . '"><code>' . $code . '</code></pre>';
-		return $block ? '<!-- wp:code {"className":"language-' . $lang . '"} -->' . "\n" . $pre . "\n" . '<!-- /wp:code -->' : $pre;
-	};
-	// 1) blokový editor: <!-- wp:preformatted --> … <!-- /wp:preformatted -->
-	$c = preg_replace_callback(
-		'#<!-- wp:preformatted(?:\s+\{.*?\})?\s*-->\s*<pre\b[^>]*>(.*?)</pre>\s*<!-- /wp:preformatted -->#s',
-		fn( $m ) => $make( $m[1], true, $m[0] ),
-		$c
+	$meta['filesize'] = (int) filesize( $main_new );
+	update_attached_file( $id, $main_new );
+	wp_update_attachment_metadata( $id, $meta );
+	$wpdb->update(
+		$wpdb->posts,
+		array( 'post_mime_type' => 'image/webp', 'guid' => str_replace( array_keys( $map ), array_values( $map ), (string) get_post_field( 'guid', $id ) ) ),
+		array( 'ID' => $id )
 	);
-	// 2) klasický obsah: <pre class="wp-block-preformatted"> nebo holé <pre> / <pre><code> bez jazyka
-	$c = preg_replace_callback(
-		'#<pre(?:\s+class="(?:wp-block-preformatted)?\s*")?\s*>(.*?)</pre>#s',
-		fn( $m ) => $make( $m[1], false, $m[0] ),
-		$c
-	);
-	return array( $c, $n, $langs );
-}
 
-function ek_code_candidates(): array {
-	global $wpdb;
-	$rows = $wpdb->get_results(
-		"SELECT ID, post_title, post_content FROM {$wpdb->posts}
-		 WHERE post_type IN ('post','page') AND post_status IN ('publish','draft','private','future')
-		 AND ( post_content LIKE '%wp:preformatted%' OR post_content LIKE '%wp-block-preformatted%' OR post_content LIKE '%<pre>%' )"
-	);
-	$out = array();
-	foreach ( $rows as $r ) {
-		[ $new, $n, $langs ] = ek_code_transform( $r->post_content );
-		if ( $n && $new !== $r->post_content ) {
-			$out[ (int) $r->ID ] = array( $r->post_title, $n, $langs, $new );
+	// Odkazy v obsahu (články, stránky, bloky; revize ne – staré adresy stejně přesměrujeme)
+	$prefix = '/' . ( $subdir ? $subdir . '/' : '' );
+	foreach ( $map as $from => $to ) {
+		$wpdb->query( $wpdb->prepare(
+			"UPDATE {$wpdb->posts} SET post_content = REPLACE(post_content, %s, %s) WHERE post_type NOT IN ('revision','attachment') AND post_content LIKE %s",
+			$prefix . $from, $prefix . $to, '%' . $wpdb->esc_like( $prefix . $from ) . '%'
+		) );
+	}
+
+	// Staré soubory pryč (i se starými kopiemi soubor.png.webp)
+	foreach ( array_keys( $map ) as $from ) {
+		wp_delete_file( $dir . '/' . $from );
+		if ( is_file( $dir . '/' . $from . '.webp' ) ) {
+			wp_delete_file( $dir . '/' . $from . '.webp' );
 		}
 	}
-	return $out;
+	delete_post_meta( $id, '_ek_webp' );
+	clean_post_cache( $id );
+	return max( 0, $before - $after ) + ( $freed ?? 0 );
 }
 
-/* =========================================================================
- * Výkon
- * ====================================================================== */
-
-function ek_maint_htaccess_rules(): array {
-	return array(
-		'<IfModule mod_expires.c>',
-		'ExpiresActive On',
-		'ExpiresByType text/css "access plus 1 year"',
-		'ExpiresByType application/javascript "access plus 1 year"',
-		'ExpiresByType text/javascript "access plus 1 year"',
-		'ExpiresByType font/woff2 "access plus 1 year"',
-		'ExpiresByType image/webp "access plus 1 year"',
-		'ExpiresByType image/avif "access plus 1 year"',
-		'ExpiresByType image/jpeg "access plus 1 year"',
-		'ExpiresByType image/png "access plus 1 year"',
-		'ExpiresByType image/gif "access plus 1 year"',
-		'ExpiresByType image/svg+xml "access plus 1 year"',
-		'ExpiresByType image/x-icon "access plus 1 year"',
-		'</IfModule>',
-		'<IfModule mod_headers.c>',
-		'<FilesMatch "\.(css|js|woff2|webp|avif|jpe?g|png|gif|svg|ico)$">',
-		'Header set Cache-Control "public, max-age=31536000"',
-		'</FilesMatch>',
-		'</IfModule>',
-		'<IfModule mod_deflate.c>',
-		'AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml application/javascript application/json application/xml image/svg+xml',
-		'</IfModule>',
-	);
+/** Dávka převodů (časově omezená, aby nespadl PHP limit). */
+function ek_webp_unify_batch(): string {
+	@set_time_limit( 120 );
+	$start = time();
+	$done  = 0;
+	$saved = 0;
+	$fail  = array();
+	foreach ( ek_webp_pending() as $id ) {
+		$r = ek_webp_unify( $id );
+		if ( is_wp_error( $r ) ) {
+			$fail[] = $id;
+			update_post_meta( $id, '_ek_webp_fail', $r->get_error_message() ); // další dávka ji přeskočí
+		} else {
+			$done++;
+			$saved += $r;
+		}
+		if ( time() - $start > 40 ) {
+			break;
+		}
+	}
+	$left = count( ek_webp_pending() );
+	return sprintf( 'Převedeno %d obrázků, ušetřeno %s.%s%s', $done, ek_kb( $saved ), $left ? sprintf( ' Zbývá %d – klikněte znovu.', $left ) : ' Hotovo, všechny obrázky jsou WebP.', $fail ? ' Nepovedlo se: ID ' . implode( ', ', $fail ) . '.' : '' );
 }
 
-function ek_maint_thumb_ids(): array {
-	global $wpdb;
-	$ids = $wpdb->get_col(
-		"SELECT DISTINCT pm.meta_value FROM {$wpdb->postmeta} pm JOIN {$wpdb->posts} p ON p.ID = pm.post_id
-		 WHERE pm.meta_key = '_thumbnail_id' AND p.post_status = 'publish' AND pm.meta_value > 0"
-	);
-	// obrázky rubrik (šablona)
-	$ids = array_merge( $ids, $wpdb->get_col( "SELECT meta_value FROM {$wpdb->termmeta} WHERE meta_key = 'ek_image' AND meta_value > 0" ) );
-	return array_values( array_unique( array_map( 'intval', $ids ) ) );
-}
-
-function ek_maint_missing_sizes( int $id ): array {
-	$meta  = wp_get_attachment_metadata( $id );
-	$sizes = array_keys( (array) ( $meta['sizes'] ?? array() ) );
-	$w     = (int) ( $meta['width'] ?? 0 );
-	$h     = (int) ( $meta['height'] ?? 0 );
-	$dims  = array( 'ek-card' => array( 640, 360 ), 'ek-featured' => array( 1100, 720 ), 'ek-hero' => array( 1520, 640 ) );
-	return array_values( array_filter( array_keys( $dims ), fn( $s ) => ! in_array( $s, $sizes, true ) && ( $w > $dims[ $s ][0] || $h > $dims[ $s ][1] ) ) );
-}
+// Staré adresy PNG/JPG (odkazy zvenku, Google Obrázky) → 301 na WebP verzi.
+add_action( 'template_redirect', function () {
+	if ( ! is_404() ) {
+		return;
+	}
+	$path = (string) wp_parse_url( $_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH );
+	$up   = wp_get_upload_dir();
+	$base = (string) wp_parse_url( $up['baseurl'], PHP_URL_PATH );
+	if ( ! str_starts_with( $path, $base . '/' ) || ! preg_match( '/^(.+)\.(png|jpe?g)$/i', rawurldecode( substr( $path, strlen( $base ) ) ), $m ) || str_contains( $m[1], '..' ) ) {
+		return;
+	}
+	if ( is_file( $up['basedir'] . $m[1] . '.webp' ) ) {
+		wp_redirect( $up['baseurl'] . $m[1] . '.webp', 301 );
+		exit;
+	}
+} );
 
 /* =========================================================================
  * Databáze
@@ -368,8 +289,9 @@ function ek_db_autoload(): array {
 	);
 }
 
+
 /* =========================================================================
- * Média a odkazy (jen přehled)
+ * Média a odkazy
  * ====================================================================== */
 
 function ek_media_largest( int $limit = 15 ): array {
@@ -420,15 +342,11 @@ function ek_media_unused(): array {
 /** Velikost všech souborů přílohy na disku (originál, zmenšeniny, WebP kopie). */
 function ek_media_bytes( int $id ): int {
 	$bytes = 0;
-	foreach ( ek_webp_files( $id ) as $file ) {
+	foreach ( ek_attachment_files( $id ) as $file ) {
 		$bytes += (int) filesize( $file );
 		if ( is_file( $file . '.webp' ) ) {
-			$bytes += (int) filesize( $file . '.webp' );
+			$bytes += (int) filesize( $file . '.webp' ); // stará WebP kopie (soubor.png.webp)
 		}
-	}
-	if ( ! $bytes ) {
-		$file  = get_attached_file( $id );
-		$bytes = $file && is_file( $file ) ? (int) filesize( $file ) : 0;
 	}
 	return $bytes;
 }
@@ -478,6 +396,7 @@ function ek_links_broken(): array {
 	return $out;
 }
 
+
 /* =========================================================================
  * Akce
  * ====================================================================== */
@@ -485,62 +404,8 @@ function ek_links_broken(): array {
 function ek_maint_handle( string $do ): string {
 	global $wpdb;
 	switch ( $do ) {
-		case 'htaccess-on':
-			require_once ABSPATH . 'wp-admin/includes/misc.php';
-			return insert_with_markers( ABSPATH . '.htaccess', EK_HTACCESS_MARKER, ek_maint_htaccess_rules() )
-				? 'Cache hlavičky přidány do .htaccess.' : 'Zápis do .htaccess se nepovedl (práva souboru).';
-		case 'htaccess-off':
-			require_once ABSPATH . 'wp-admin/includes/misc.php';
-			insert_with_markers( ABSPATH . '.htaccess', EK_HTACCESS_MARKER, array() );
-			return 'Cache hlavičky z .htaccess odebrány.';
-		case 'regen':
-			@set_time_limit( 120 );
-			require_once ABSPATH . 'wp-admin/includes/image.php';
-			$done  = 0;
-			$start = time();
-			foreach ( ek_maint_thumb_ids() as $id ) {
-				if ( ! ek_maint_missing_sizes( $id ) ) {
-					continue;
-				}
-				wp_update_image_subsizes( $id );
-				$done++;
-				if ( time() - $start > 40 ) {
-					break;
-				}
-			}
-			return sprintf( 'Náhledy vytvořeny u %d obrázků. Pokud nějaké zbývají, klikněte znovu.', $done );
-		case 'webp-convert':
-			@set_time_limit( 120 );
-			$start = time();
-			$done  = 0;
-			foreach ( ek_webp_candidates( true ) as $id ) {
-				ek_webp_convert( $id );
-				$done++;
-				if ( time() - $start > 25 ) {
-					break;
-				}
-			}
-			$left = count( ek_webp_candidates( true ) );
-			return $left ? sprintf( 'Převedeno %d příloh, zbývá %d – klikněte znovu.', $done, $left ) : sprintf( 'Hotovo, převedeno %d příloh.', $done );
-		case 'webp-on':
-			update_option( EK_WEBP_OPTION, 1 );
-			return 'Web teď posílá WebP kopie starších obrázků.';
-		case 'webp-off':
-			update_option( EK_WEBP_OPTION, 0 );
-			return 'Doručování WebP kopií vypnuto – web posílá původní PNG/JPG.';
-		case 'webp-delete':
-			$n = 0;
-			foreach ( ek_webp_candidates( false ) as $id ) {
-				foreach ( ek_webp_files( $id ) as $file ) {
-					if ( is_file( $file . '.webp' ) ) {
-						wp_delete_file( $file . '.webp' );
-						$n++;
-					}
-				}
-			}
-			delete_post_meta_by_key( EK_WEBP_META );
-			update_option( EK_WEBP_OPTION, 0 );
-			return sprintf( 'Smazáno WebP kopií: %d. Originály zůstaly.', $n );
+		case 'webp-unify':
+			return ek_webp_unify_batch();
 		case 'db-optimize':
 			$n = 0;
 			foreach ( ek_db_tables() as $t ) {
@@ -560,29 +425,6 @@ function ek_maint_handle( string $do ): string {
 				wp_delete_post( (int) $id, true );
 			}
 			return sprintf( 'Smazáno automatických konceptů a položek z koše: %d.', count( $ids ) );
-		case 'code-apply':
-			$done = 0;
-			foreach ( ek_code_candidates() as $id => [ , , , $new ] ) {
-				$old = get_post_field( 'post_content', $id, 'raw' );
-				if ( ! metadata_exists( 'post', $id, EK_CODE_BACKUP ) ) {
-					add_post_meta( $id, EK_CODE_BACKUP, wp_slash( $old ), true );
-				}
-				$wpdb->update( $wpdb->posts, array( 'post_content' => $new ), array( 'ID' => $id ) ); // bez revize a změny data
-				clean_post_cache( $id );
-				$done++;
-			}
-			return sprintf( 'Převedeno článků: %d. Původní obsah je zálohovaný.', $done );
-		case 'code-undo':
-			$ids = $wpdb->get_col( $wpdb->prepare( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = %s", EK_CODE_BACKUP ) );
-			foreach ( $ids as $id ) {
-				$wpdb->update( $wpdb->posts, array( 'post_content' => get_post_meta( (int) $id, EK_CODE_BACKUP, true ) ), array( 'ID' => (int) $id ) );
-				delete_post_meta( (int) $id, EK_CODE_BACKUP );
-				clean_post_cache( (int) $id );
-			}
-			return sprintf( 'Vráceno článků: %d.', count( $ids ) );
-		case 'code-forget':
-			delete_post_meta_by_key( EK_CODE_BACKUP );
-			return 'Zálohy původního obsahu smazány.';
 		case 'transients':
 			delete_expired_transients( true );
 			return 'Expirované transienty smazány.';
@@ -607,6 +449,7 @@ function ek_maint_handle( string $do ): string {
 	}
 	return '';
 }
+
 
 /* =========================================================================
  * Stránka
@@ -650,51 +493,24 @@ function ek_maint_page(): void {
 		printf( '<div class="notice notice-success"><p>%s</p></div>', esc_html( $notice ) );
 	}
 
-	/* 1) Výkon */
-	$ids     = ek_maint_thumb_ids();
-	$missing = count( array_filter( $ids, fn( $id ) => (bool) ek_maint_missing_sizes( $id ) ) );
-	$ht      = file_exists( ABSPATH . '.htaccess' ) ? (string) file_get_contents( ABSPATH . '.htaccess' ) : '';
-	$has_ht  = str_contains( $ht, '# BEGIN ' . EK_HTACCESS_MARKER );
-	$webp_ok = wp_image_editor_supports( array( 'mime_type' => 'image/webp' ) );
-	echo '<h2>Výkon</h2>';
-	$table( array(
-		array( 'Náhledy pro šablonu (karty, hlavní článek, úvodní obrázek)', $missing ? sprintf( '⚠️ chybí u %d z %d obrázků', $missing, count( $ids ) ) : '✅ hotovo' ),
-		array( 'Nové zmenšeniny ve formátu WebP', $webp_ok ? '✅ server podporuje' : '⚪ server WebP neumí' ),
-		array( 'Cache hlavičky v .htaccess', $has_ht ? '✅ nastaveno' : '⚪ nenastaveno' ),
-	) );
-	echo '<p>';
-	if ( $missing ) {
-		$btn( 'regen', 'Vytvořit chybějící náhledy', 'button button-primary' );
+	/* 1) Sjednotit obrázky na WebP – jen dokud nějaké PNG/JPG zbývají */
+	$pending = ek_webp_pending();
+	$failed  = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_ek_webp_fail'" );
+	if ( $pending ) {
+		echo '<h2>Sjednotit obrázky na WebP</h2>';
+		if ( ! wp_image_editor_supports( array( 'mime_type' => 'image/webp' ) ) ) {
+			echo '<p>⚪ Server WebP neumí vytvořit.</p>';
+		} else {
+			printf( '<p style="max-width:900px">Na webu je ještě <strong>%d</strong> obrázků ve formátu PNG/JPG. Převod je natrvalo: vytvoří <code>.webp</code> (všechny velikosti), přepíše odkazy v článcích a stránkách a původní soubory smaže. Staré adresy obrázků se automaticky přesměrují na WebP. <strong>Před převodem si udělejte zálohu</strong> – nejde vrátit.</p><p>', count( $pending ) );
+			$btn( 'webp-unify', sprintf( 'Převést na WebP (%d)', count( $pending ) ), 'button button-primary', true );
+			echo '</p>';
+		}
 	}
-	$has_ht ? $btn( 'htaccess-off', 'Odebrat cache hlavičky' ) : $btn( 'htaccess-on', 'Přidat cache hlavičky', 'button button-primary' );
-	echo '</p>';
-
-	/* 2) WebP pro starší obrázky */
-	$ws    = ek_webp_stats();
-	$serve = (bool) get_option( EK_WEBP_OPTION );
-	echo '<h2>WebP pro starší obrázky</h2>';
-	echo '<p class="description" style="max-width:900px">Ke starším PNG/JPG vytvoří vedle originálu soubor <code>.webp</code> a web ho posílá místo originálu (v článcích, náhledech i v lightboxu). V databázi se nic nemění, originály zůstávají a doručování jde kdykoli vypnout.</p>';
-	if ( ! $webp_ok ) {
-		echo '<p>⚪ Server WebP neumí vytvořit.</p>';
-	} else {
-		$table( array(
-			array( 'Příloh PNG/JPG', (string) $ws['all'] ),
-			array( 'Převedeno', sprintf( '%d%s', $ws['conv'], $ws['todo'] ? sprintf( ' (zbývá %d)', $ws['todo'] ) : ' ✅' ) ),
-			array( 'Úspora', $ws['orig'] ? sprintf( '%s → %s (−%d %%)', ek_kb( $ws['orig'] ), ek_kb( $ws['webp'] ), round( 100 - 100 * $ws['webp'] / $ws['orig'] ) ) : '–' ),
-			array( 'Doručování WebP na webu', $serve ? '✅ zapnuto' : '⚪ vypnuto' ),
-		) );
-		echo '<p>';
-		if ( $ws['todo'] ) {
-			$btn( 'webp-convert', sprintf( 'Převést (%d zbývá)', $ws['todo'] ), 'button button-primary' );
-		}
-		if ( $ws['conv'] ) {
-			$serve ? $btn( 'webp-off', 'Vypnout doručování WebP' ) : $btn( 'webp-on', 'Zapnout doručování WebP', 'button button-primary' );
-			$btn( 'webp-delete', 'Smazat WebP kopie', 'button', true );
-		}
-		echo '</p>';
+	if ( $failed ) {
+		printf( '<p>⚠️ %d obrázků se nepodařilo převést (poškozený nebo chybějící soubor) – zkontrolujte je v Médiích.</p>', $failed );
 	}
 
-	/* 3) Databáze */
+	/* 2) Databáze */
 	$tables = ek_db_tables();
 	$al     = ek_db_autoload();
 	$sum    = array_sum( array_map( fn( $t ) => $t->d + $t->i, $tables ) );
@@ -715,17 +531,16 @@ function ek_maint_page(): void {
 	$btn( 'db-optimize', 'Optimalizovat tabulky' );
 	echo '</p>';
 
-	/* 4) Média a odkazy */
+	/* 3) Média a odkazy */
 	echo '<h2>Média a odkazy</h2><p class="description">Kontrola projde celý web, může chvíli trvat. Smazat jde jen to, co v přehledu nepoužitých obrázků sami vyberete.</p><p>';
 	$btn( 'largest', 'Největší soubory', 'button', false, 'ek_report' );
 	$btn( 'unused', 'Nepoužité obrázky', 'button', false, 'ek_report' );
 	$btn( 'links', 'Rozbité interní odkazy', 'button', false, 'ek_report' );
 	echo '</p>';
 	if ( 'largest' === $report ) {
-		echo '<table class="widefat striped" style="max-width:900px"><thead><tr><th>Soubor</th><th>Velikost</th><th>WebP</th></tr></thead><tbody>';
+		echo '<table class="widefat striped" style="max-width:900px"><thead><tr><th>Soubor</th><th>Velikost</th></tr></thead><tbody>';
 		foreach ( ek_media_largest() as [ $id, $size, $name ] ) {
-			$w = get_post_meta( $id, EK_WEBP_META, true );
-			printf( '<tr><td><a href="%s">%s</a></td><td>%s</td><td>%s</td></tr>', esc_url( get_edit_post_link( $id ) ), esc_html( $name ), esc_html( ek_kb( $size ) ), is_array( $w ) && $w['orig'] ? sprintf( '✅ −%d %%', round( 100 - 100 * $w['webp'] / $w['orig'] ) ) : ( 'skip' === $w ? '⚪ nevyplatí se' : '–' ) );
+			printf( '<tr><td><a href="%s">%s</a></td><td>%s</td></tr>', esc_url( get_edit_post_link( $id ) ), esc_html( $name ), esc_html( ek_kb( $size ) ) );
 		}
 		echo '</tbody></table>';
 	} elseif ( 'unused' === $report ) {
@@ -767,32 +582,7 @@ function ek_maint_page(): void {
 		}
 	}
 
-	/* Bloky kódu */
-	$code_c   = ek_code_candidates();
-	$code_bak = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = %s", EK_CODE_BACKUP ) );
-	echo '<h2>Bloky kódu</h2><p class="description" style="max-width:900px">Převede „Předformátovaný text“ a holé <code>&lt;pre&gt;</code> na blok <strong>Kód</strong> s odhadnutým jazykem – ukázky dostanou barevné zvýraznění, čísla řádků a výběr jazyka v editoru. Nemění datum úpravy ani nevytváří revize, původní obsah se zálohuje.</p>';
-	if ( $code_c ) {
-		$total = array_sum( array_map( fn( $r ) => $r[1], $code_c ) );
-		printf( '<p>Nalezeno <strong>%d</strong> bloků ve <strong>%d</strong> článcích.</p>', $total, count( $code_c ) );
-		echo '<details style="max-width:900px"><summary style="cursor:pointer">Náhled</summary><table class="widefat striped" style="margin-top:8px"><thead><tr><th>Článek</th><th>Bloků</th><th>Odhad jazyka</th></tr></thead><tbody>';
-		foreach ( $code_c as $id => [ $title, $n, $langs ] ) {
-			$l = implode( ', ', array_map( fn( $k, $v ) => $k . ' ×' . $v, array_keys( $langs ), $langs ) );
-			printf( '<tr><td><a href="%s" target="_blank">%s</a></td><td>%d</td><td>%s</td></tr>', esc_url( get_permalink( $id ) ), esc_html( $title ), $n, esc_html( $l ) );
-		}
-		echo '</tbody></table><p class="description">Jazyk jde u každého bloku později změnit v editoru (panel „Jazyk kódu“).</p></details><p>';
-		$btn( 'code-apply', sprintf( 'Převést %d bloků', $total ), 'button button-primary' );
-		echo '</p>';
-	} else {
-		echo '<p>✅ Žádné předformátované bloky k převodu.</p>';
-	}
-	if ( $code_bak ) {
-		printf( '<p>Převedeno se zálohou: %d článků. ', $code_bak );
-		$btn( 'code-undo', 'Vrátit původní obsah' );
-		$btn( 'code-forget', 'Vše v pořádku – smazat zálohy', 'button', true );
-		echo '</p>';
-	}
-
-	/* 5) Úklid obsahu */
+	/* 4) Úklid obsahu */
 	$revisions = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'revision'" );
 	$drafts    = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_status IN ('auto-draft','trash')" );
 	echo '<h2>Úklid obsahu</h2>';

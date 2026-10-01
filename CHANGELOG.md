@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.7.0 — 2026-10-01
+### ElvisEK Core
+- **Nahrávání obrázků rovnou do WebP**: PNG/JPG nahrané přes Média (i přes API) se uloží jako `.webp` – originál se neukládá, fotky z mobilu se podle EXIF otočí. GIF a SVG beze změny
+- Údržba webu → **Sjednotit obrázky na WebP** (natrvalo): starší PNG/JPG převede na `.webp` ve všech velikostech, přepíše odkazy v článcích a stránkách a původní soubory smaže; staré adresy obrázků (odkazy zvenku, Google Obrázky) se přesměrují 301 na WebP. Běží po dávkách (~40 s), sekce zmizí, až nic nezbývá
+- Odebrány nepotřebné sekce Údržby: **Výkon** (náhledy, cache hlavičky – už nastavené v .htaccess zůstávají), **Bloky kódu** a **WebP kopie** (soubor.png.webp + přepisování adres při výpisu stránky)
+- Jednorázový úklid: smazány zálohy z „Bloků kódu“ (po sjednocení editoru by vrátily starý obsah) a volba doručování WebP kopií
+
 ## 0.6.3 — 2026-10-01
 ### ElvisEK Core
 - Údržba webu → Média a odkazy → **Nepoužité obrázky: hromadné mazání** – zaškrtávátka u náhledů, Vybrat vše / Zrušit výběr, počítadlo a tlačítko Smazat vybrané (s potvrzením). U každého obrázku velikost na disku, nahoře součet. Server před smazáním znovu ověří, že obrázek opravdu nikde není použitý; maže se i se všemi zmenšeninami a WebP kopiemi
