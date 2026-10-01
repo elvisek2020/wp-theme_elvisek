@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.0 — 2026-10-01
+### Šablona
+- Kompaktní lišta: **hamburger menu** – když se témata do lišty nevejdou (menší monitor, tablet, mobil), schovají se za tlačítko ☰ a rozbalí se jako přehledný seznam s ikonami a počtem článků (zavře Esc / klik mimo)
+- Kompaktní lišta: celé logo (monogram + „ElvisEK“), na mobilu jen monogram
+- Oprava: při malém počtu vybraných témat se dlaždice neroztahují přes celou šířku – drží běžnou velikost (mřížka min. 8 / 4 / 4 sloupce) a řadí se zleva
+
 ## 0.4.9 — 2026-10-01
 ### Šablona
 - Přizpůsobit → Úvodní stránka → **Témata v hlavičce**: výběr rubrik zaškrtnutím a pořadí přetažením (dlaždice i lišta); bez výběru automaticky podle počtu článků

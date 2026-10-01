@@ -245,11 +245,9 @@ function ek_logo( bool $compact = false ): void {
 	} else {
 		echo '<span class="ek-logo__mark" aria-hidden="true">EK<span class="ek-logo__cursor"></span></span>';
 	}
-	if ( ! $compact ) {
-		// „ElvisEK“ → Elvis + EK v akcentu (když název webu končí na EK).
-		$html = str_ends_with( $name, 'EK' ) ? esc_html( substr( $name, 0, -2 ) ) . '<span>EK</span>' : esc_html( $name );
-		echo '<span class="ek-logo__name">' . $html . '</span>';
-	}
+	// „ElvisEK“ → Elvis + EK v akcentu (když název webu končí na EK). V kompaktní liště menší, na mobilu skrytý (CSS).
+	$html = str_ends_with( $name, 'EK' ) ? esc_html( substr( $name, 0, -2 ) ) . '<span>EK</span>' : esc_html( $name );
+	echo '<span class="ek-logo__name">' . $html . '</span>';
 	echo '</a>';
 }
 
@@ -299,7 +297,11 @@ function ek_tile_cols( int $n, int $max ): int {
  * Inline CSS proměnné pro mřížku dlaždic (desktop / tablet / mobil).
  */
 function ek_tiles_style( int $n ): string {
-	return sprintf( '--ek-cols-d:%d;--ek-cols-t:%d;--ek-cols-m:%d', ek_tile_cols( $n, 10 ), ek_tile_cols( $n, 6 ), ek_tile_cols( $n, 5 ) );
+	// Málo témat: dlaždice si drží běžnou šířku (mřížka má aspoň 8 / 4 / 4 sloupce) a řadí se zleva, neroztahují se přes celou šířku.
+	$d = $n < 8 ? 8 : ek_tile_cols( $n, 10 );
+	$t = $n < 4 ? 4 : ek_tile_cols( $n, 6 );
+	$m = $n < 4 ? 4 : ek_tile_cols( $n, 5 );
+	return sprintf( '--ek-cols-d:%d;--ek-cols-t:%d;--ek-cols-m:%d', $d, $t, $m );
 }
 
 /**

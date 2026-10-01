@@ -53,5 +53,29 @@ $ek_topics  = ek_nav_topics();
 			</ul>
 		</<?php echo $ek_is_hero ? 'div' : 'nav'; ?>>
 		<?php ek_header_tools( 'ek-search' ); ?>
+		<?php if ( $ek_topics ) : ?>
+			<button type="button" class="ek-iconbtn ek-menubtn" data-ek-menu-toggle aria-expanded="false" aria-controls="ek-menu" aria-label="Témata">
+				<span class="ek-menubtn__open"><?php echo ek_icon( 'menu' ); ?></span><span class="ek-menubtn__close"><?php echo ek_icon( 'close' ); ?></span>
+			</button>
+		<?php endif; ?>
 	</div>
+	<?php if ( $ek_topics ) : ?>
+		<div class="ek-menu" id="ek-menu" data-ek-menu hidden>
+			<div class="ek-wrap">
+				<ul class="ek-menu__list">
+					<?php foreach ( $ek_topics as $cat ) : ?>
+						<li>
+							<a class="ek-menu__item<?php echo ek_is_current_topic( $cat ) ? ' is-current' : ''; ?>" href="<?php echo esc_url( get_category_link( $cat ) ); ?>"<?php echo is_category( $cat->term_id ) ? ' aria-current="page"' : ''; ?>>
+								<span class="ek-menu__icon"><?php echo ek_icon( ek_category_icon_name( $cat->slug ), 18 ); ?></span>
+								<span class="ek-menu__text">
+									<span class="ek-menu__name"><?php echo esc_html( $cat->name ); ?></span>
+									<span class="ek-menu__count"><?php echo esc_html( ek_plural( (int) $cat->count, 'článek', 'články', 'článků' ) ); ?></span>
+								</span>
+							</a>
+						</li>
+					<?php endforeach; ?>
+				</ul>
+			</div>
+		</div>
+	<?php endif; ?>
 </<?php echo $ek_is_hero ? 'div' : 'header'; ?>>

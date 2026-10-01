@@ -37,6 +37,41 @@
 		syncWide();
 	}
 
+	/* Hamburger: když se témata do lišty nevejdou, schovají se a nabídnou se v rozbalovacím menu */
+	let closeMenu = () => {};
+	const menuBar = document.querySelector('[data-ek-bar]');
+	const menuBtn = menuBar?.querySelector('[data-ek-menu-toggle]');
+	const menu = menuBar?.querySelector('[data-ek-menu]');
+	const menuNav = menuBar?.querySelector('[data-ek-chipsnav]');
+	if (menuBar && menuBtn && menu && menuNav) {
+		const setMenu = (open) => {
+			menu.hidden = !open;
+			menuBar.classList.toggle('is-menu-open', open);
+			menuBtn.setAttribute('aria-expanded', String(open));
+			menuBtn.setAttribute('aria-label', open ? 'Zavřít témata' : 'Témata');
+		};
+		closeMenu = () => { if (!menu.hidden) setMenu(false); };
+		const syncMode = () => {
+			const compact = menuBar.classList.contains('is-menu');
+			// V režimu menu zabírá hamburger místo navíc – přičíst ho, ať se lišta nepřepíná tam a zpět.
+			const extra = compact ? menuBtn.offsetWidth + 20 : 0;
+			const fits = menuNav.scrollWidth <= menuNav.clientWidth + extra + 1;
+			if (fits === !compact) return;
+			menuBar.classList.toggle('is-menu', !fits);
+			if (fits) closeMenu();
+		};
+		syncMode();
+		if ('ResizeObserver' in window) { const ro = new ResizeObserver(syncMode); ro.observe(menuBar); if (menuNav.firstElementChild) ro.observe(menuNav.firstElementChild); }
+		else window.addEventListener('resize', syncMode);
+		menuBtn.addEventListener('click', () => setMenu(menu.hidden));
+		document.addEventListener('keydown', (e) => {
+			if (e.key === 'Escape' && !menu.hidden) { setMenu(false); menuBtn.focus(); }
+		});
+		document.addEventListener('click', (e) => {
+			if (!menu.hidden && !menu.contains(e.target) && !menuBtn.contains(e.target)) setMenu(false);
+		});
+	}
+
 	/* Titulka: plynulý přechod dlaždice → lišta řízený rolováním.
 	   --ek-p (0–1) = jak moc je velká hlavička odrolovaná; dlaždice podle něj blednou a zmenšují se,
 	   lišta současně sjíždí shora. Nahoře p = 0 (jen dlaždice), po odrolování hlavičky p = 1 (jen lišta). */
@@ -58,6 +93,7 @@
 				bar.classList.toggle('is-shown', show);
 				bar.toggleAttribute('inert', !show);
 				bar.setAttribute('aria-hidden', String(!show));
+				if (!show) closeMenu();
 			}
 		};
 		window.addEventListener('scroll', () => {

@@ -145,6 +145,9 @@ a.ek-chip:hover { color: var(--ek-accent-hover); }
 .ek-logo__name span { color: var(--ek-accent); }
 .ek-logo--compact .ek-logo__mark { width: 36px; height: 36px; border-radius: 10px; font-size: 14px; }
 .ek-logo--compact .ek-logo__cursor { height: 15px; }
+.ek-logo--compact { gap: 10px; }
+.ek-logo--compact .ek-logo__name { font-size: 19px; }
+@media (max-width: 640px) { .ek-logo--compact .ek-logo__name { display: none; } }
 .ek-tools { display: flex; gap: 8px; flex-shrink: 0; }
 
 /* Velká hlavička (titulka) */
@@ -219,6 +222,38 @@ a.ek-chip:hover { color: var(--ek-accent-hover); }
 	.ek-chipsnav a .ek-icon { display: none; }
 	.ek-bar .ek-tools .ek-iconbtn { width: 40px; height: 40px; }
 }
+/* Hamburger: theme.js přidá liště .is-menu, když se témata nevejdou */
+.ek-menubtn { display: none; flex-shrink: 0; }
+.ek-bar.is-menu .ek-menubtn { display: inline-flex; }
+.ek-bar.is-menu .ek-chipsnav { visibility: hidden; }
+.ek-menubtn__close, .ek-bar.is-menu-open .ek-menubtn__open { display: none; }
+.ek-bar.is-menu-open .ek-menubtn__close { display: contents; }
+.ek-menubtn__open { display: contents; }
+.ek-bar.is-menu-open .ek-menubtn { background: var(--ek-chip); color: var(--ek-accent); }
+.ek-menu {
+	position: absolute; left: 0; right: 0; top: 100%;
+	background: var(--ek-surface); border-bottom: 1px solid var(--ek-line); box-shadow: 0 16px 32px rgb(15 26 42 / .12);
+	max-height: calc(100vh - 80px); max-height: calc(100dvh - 80px); overflow-y: auto; overscroll-behavior: contain;
+}
+.ek-menu[hidden] { display: none; }
+.ek-menu__list { list-style: none; margin: 0; padding: 14px 0 18px; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 6px; }
+.ek-menu__item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; color: var(--ek-text); text-decoration: none; }
+.ek-menu__item:hover { background: var(--ek-chip); color: var(--ek-text); }
+.ek-menu__item.is-current { background: var(--ek-chip); }
+.ek-menu__item.is-current .ek-menu__name { color: var(--ek-accent); }
+.ek-menu__icon { width: 36px; height: 36px; flex-shrink: 0; border-radius: 10px; background: var(--ek-chip); color: var(--ek-accent); display: flex; align-items: center; justify-content: center; }
+.ek-menu__item.is-current .ek-menu__icon, .ek-menu__item:hover .ek-menu__icon { background: var(--ek-surface); }
+.ek-menu__text { display: flex; flex-direction: column; min-width: 0; }
+.ek-menu__name { font-weight: 700; font-size: 15px; line-height: 1.25; }
+.ek-menu__count { font-size: 12.5px; color: var(--ek-muted); }
+@media (max-width: 640px) {
+	.ek-bar .ek-menubtn { width: 40px; height: 40px; }
+	.ek-menu__list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; padding: 10px 0 14px; }
+	.ek-menu__item { gap: 10px; padding: 9px 8px; }
+	.ek-menu__icon { width: 32px; height: 32px; }
+	.ek-menu__name { font-size: 14px; }
+}
+@media (max-width: 360px) { .ek-menu__list { grid-template-columns: 1fr; } }
 /* Rychlé hledání: pole vyjede doleva od lupy, překryje to, co je vedle */
 .ek-qs { position: relative; display: flex; }
 .ek-qs__form {
