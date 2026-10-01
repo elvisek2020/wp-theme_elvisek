@@ -6,7 +6,7 @@
  *  2) WebP pro starší obrázky: vedle PNG/JPG vytvoří soubor.png.webp a web ho posílá místo originálu
  *     (nic se nepřepisuje v databázi, jde vypnout jedním tlačítkem)
  *  3) Databáze: velikost tabulek, autoload, optimalizace
- *  4) Média a odkazy: největší soubory, nepoužité obrázky, rozbité interní odkazy (jen přehled, nic nemaže)
+ *  4) Média a odkazy: největší soubory, nepoužité obrázky (hromadné smazání vybraných), rozbité interní odkazy
  *  5) Úklid obsahu: revize, koncepty a koš, transienty
  */
 
@@ -417,6 +417,22 @@ function ek_media_unused(): array {
 	return $out;
 }
 
+/** Velikost všech souborů přílohy na disku (originál, zmenšeniny, WebP kopie). */
+function ek_media_bytes( int $id ): int {
+	$bytes = 0;
+	foreach ( ek_webp_files( $id ) as $file ) {
+		$bytes += (int) filesize( $file );
+		if ( is_file( $file . '.webp' ) ) {
+			$bytes += (int) filesize( $file . '.webp' );
+		}
+	}
+	if ( ! $bytes ) {
+		$file  = get_attached_file( $id );
+		$bytes = $file && is_file( $file ) ? (int) filesize( $file ) : 0;
+	}
+	return $bytes;
+}
+
 /** Interní odkazy a obrázky v obsahu, které nikam nevedou. */
 function ek_links_broken(): array {
 	global $wpdb;
@@ -570,6 +586,24 @@ function ek_maint_handle( string $do ): string {
 		case 'transients':
 			delete_expired_transients( true );
 			return 'Expirované transienty smazány.';
+		case 'media-delete':
+			// Maže jen to, co je i teď opravdu nepoužité (kontrola znovu na serveru).
+			$want   = array_map( 'intval', (array) ( $_POST['ek_ids'] ?? array() ) );
+			$unused = array_flip( array_map( fn( $r ) => $r[0], ek_media_unused() ) );
+			$done   = 0;
+			$bytes  = 0;
+			@set_time_limit( 120 );
+			foreach ( array_unique( $want ) as $id ) {
+				if ( ! isset( $unused[ $id ] ) || ! current_user_can( 'delete_post', $id ) ) {
+					continue;
+				}
+				$size = ek_media_bytes( $id );
+				if ( wp_delete_attachment( $id, true ) ) {
+					$done++;
+					$bytes += $size;
+				}
+			}
+			return $done ? sprintf( 'Smazáno %d obrázků, uvolněno %s.', $done, ek_kb( $bytes ) ) : 'Nic nebylo smazáno.';
 	}
 	return '';
 }
@@ -682,7 +716,7 @@ function ek_maint_page(): void {
 	echo '</p>';
 
 	/* 4) Média a odkazy */
-	echo '<h2>Média a odkazy</h2><p class="description">Jen přehled – nic se nemaže. Kontrola projde celý web, může chvíli trvat.</p><p>';
+	echo '<h2>Média a odkazy</h2><p class="description">Kontrola projde celý web, může chvíli trvat. Smazat jde jen to, co v přehledu nepoužitých obrázků sami vyberete.</p><p>';
 	$btn( 'largest', 'Největší soubory', 'button', false, 'ek_report' );
 	$btn( 'unused', 'Nepoužité obrázky', 'button', false, 'ek_report' );
 	$btn( 'links', 'Rozbité interní odkazy', 'button', false, 'ek_report' );
@@ -696,13 +730,29 @@ function ek_maint_page(): void {
 		echo '</tbody></table>';
 	} elseif ( 'unused' === $report ) {
 		$list = ek_media_unused();
-		printf( '<p>Nalezeno <strong>%d</strong> obrázků, které nejsou použité v žádném článku, stránce, náhledu, rubrice ani nastavení šablony. Před smazáním je zkontrolujte (mohou být odkazované zvenku).</p>', count( $list ) );
+		$sizes = array();
+		foreach ( $list as [ $id ] ) {
+			$sizes[ $id ] = ek_media_bytes( $id );
+		}
+		printf( '<p>Nalezeno <strong>%d</strong> obrázků (%s), které nejsou použité v žádném článku, stránce, náhledu, rubrice ani nastavení šablony. Před smazáním je zkontrolujte – mohou být odkazované zvenku.</p>', count( $list ), esc_html( ek_kb( array_sum( $sizes ) ) ) );
 		if ( $list ) {
-			echo '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;max-width:1100px">';
+			echo '<form method="post" id="ek-unused" onsubmit="var n=this.querySelectorAll(\'input[name=&quot;ek_ids[]&quot;]:checked\').length;return n>0&&confirm(\'Trvale smazat \'+n+\' obrázků i se všemi velikostmi? Nejde vrátit bez zálohy.\');">';
+			wp_nonce_field( 'ek_maint' );
+			echo '<input type="hidden" name="ek_do" value="media-delete"><input type="hidden" name="ek_report" value="unused">';
+			echo '<p style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button type="button" class="button" data-ek-all="1">Vybrat vše</button><button type="button" class="button" data-ek-all="0">Zrušit výběr</button><span data-ek-count style="color:#646970">Vybráno 0</span><button class="button button-primary" style="background:#b32d2e;border-color:#b32d2e">Smazat vybrané</button></p>';
+			echo '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;max-width:1100px">';
 			foreach ( $list as [ $id, $rel ] ) {
-				printf( '<a href="%s" style="text-decoration:none;font-size:11px;word-break:break-all">%s<br>%s</a>', esc_url( get_edit_post_link( $id ) ), wp_get_attachment_image( $id, 'thumbnail', false, array( 'style' => 'width:100%;height:90px;object-fit:cover;border-radius:4px' ) ), esc_html( $rel ) );
+				printf(
+					'<label style="display:block;font-size:11px;word-break:break-all;border:1px solid #dcdcde;border-radius:6px;padding:6px;background:#fff;cursor:pointer"><span style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><input type="checkbox" name="ek_ids[]" value="%1$d"> <span style="color:#646970">%4$s</span></span>%2$s<br>%3$s <a href="%5$s" target="_blank">upravit</a></label>',
+					$id,
+					wp_get_attachment_image( $id, 'thumbnail', false, array( 'style' => 'width:100%;height:90px;object-fit:cover;border-radius:4px' ) ),
+					esc_html( $rel ),
+					esc_html( ek_kb( $sizes[ $id ] ) ),
+					esc_url( get_edit_post_link( $id ) )
+				);
 			}
-			echo '</div>';
+			echo '</div></form>';
+			echo "<script>(()=>{const f=document.getElementById('ek-unused');if(!f)return;const boxes=[...f.querySelectorAll('input[type=checkbox]')];const c=f.querySelector('[data-ek-count]');const sync=()=>{c.textContent='Vybráno '+boxes.filter(b=>b.checked).length+' z '+boxes.length;};f.addEventListener('change',sync);f.querySelectorAll('[data-ek-all]').forEach(b=>b.addEventListener('click',()=>{boxes.forEach(x=>x.checked=b.dataset.ekAll==='1');sync();}));sync();})();</script>";
 		}
 	} elseif ( 'links' === $report ) {
 		$list = ek_links_broken();

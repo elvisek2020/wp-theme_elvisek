@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.3 — 2026-10-01
+### ElvisEK Core
+- Údržba webu → Média a odkazy → **Nepoužité obrázky: hromadné mazání** – zaškrtávátka u náhledů, Vybrat vše / Zrušit výběr, počítadlo a tlačítko Smazat vybrané (s potvrzením). U každého obrázku velikost na disku, nahoře součet. Server před smazáním znovu ověří, že obrázek opravdu nikde není použitý; maže se i se všemi zmenšeninami a WebP kopiemi
+
 ## 0.6.2 — 2026-10-01
 ### Šablona
 - Oprava: úvodní obrázek článku zase vede přes celou šířku sloupce (od 0.6.1 se kvůli omezení výšky na 440 px zužoval)
