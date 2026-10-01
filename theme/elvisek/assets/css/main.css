@@ -448,6 +448,16 @@ a.ek-chip:hover { color: var(--ek-accent-hover); }
 .ek-content .alignleft { float: left; margin: .3em 1.4em 1em 0; }
 .ek-content .alignright { float: right; margin: .3em 0 1em 1.4em; }
 .ek-content .wp-caption { max-width: 100%; }
+/* Obrázky v článku: jednotně max. 800 px, zarovnané vlevo s textem (třídu ek-img přidává inc/content.php) */
+.ek-content img.ek-img { display: block; width: 800px !important; max-width: 100%; height: auto !important; margin: 0; float: none; }
+.ek-content img.ek-img--tall { width: auto !important; max-height: 640px; }
+.ek-content figure:has(img.ek-img), .ek-content .wp-caption:has(img.ek-img) { display: block; width: auto !important; max-width: 800px; margin: 1.6em 0; float: none; }
+.ek-content figure:has(img.ek-img--tall) { width: fit-content !important; }
+.ek-content figure:has(img.ek-img) figcaption, .ek-content .wp-caption:has(img.ek-img) .wp-caption-text { display: block; text-align: left; }
+.ek-content p:has(> img.ek-img, > a > img.ek-img) { margin: 1.6em 0; }
+.ek-content a:has(> img.ek-img) { display: block; width: fit-content; max-width: 100%; }
+.ek-content .wp-block-gallery img.ek-img, .ek-content .wp-block-columns img.ek-img, .ek-content table img.ek-img { width: auto !important; display: inline; }
+.ek-content img.ek-img[data-ek-zoom] { cursor: zoom-in; }
 .ek-content::after { content: ""; display: table; clear: both; }
 @media (max-width: 640px) { .ek-content .alignleft, .ek-content .alignright { float: none; margin: 1em auto; display: block; } }
 .ek-content blockquote, .ek-content .wp-block-quote {

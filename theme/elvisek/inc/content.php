@@ -131,3 +131,30 @@ function ek_the_toc(): void {
 add_filter( 'the_content', function ( string $html ): string {
 	return preg_replace( '#\sstyle="font-family:\s*arial,\s*helvetica,\s*sans-serif;?"#i', '', $html );
 }, 5 );
+
+/**
+ * Obrázky v článku: jednotná šířka (max. 800 px, zarovnané vlevo s textem).
+ * Malé ikonky a obrázky v galeriích nechává být. Prohlížeči řekne, že se obrázek
+ * zobrazí až v 800 px, aby si ze srcset vzal dost velkou verzi (ne rozmazaný náhled 300 px).
+ */
+add_filter( 'wp_content_img_tag', function ( string $img, string $context ): string {
+	if ( 'the_content' !== $context || ! is_singular() || str_contains( $img, 'wp-smiley' ) ) {
+		return $img;
+	}
+	$w = preg_match( '/\swidth="(\d+)"/', $img, $m ) ? (int) $m[1] : 0;
+	$h = preg_match( '/\sheight="(\d+)"/', $img, $m ) ? (int) $m[1] : 0;
+	if ( $w && $w < 160 ) {
+		return $img; // ikonka / logo – necháme v původní velikosti
+	}
+	$class = 'ek-img' . ( $w && $h > $w * 1.15 ? ' ek-img--tall' : '' );
+	$img   = preg_match( '/\sclass="/', $img )
+		? preg_replace( '/\sclass="/', ' class="' . $class . ' ', $img, 1 )
+		: preg_replace( '/^<img/', '<img class="' . $class . '"', $img );
+	if ( str_contains( $img, ' srcset=' ) ) {
+		$sizes = '(max-width: 860px) 100vw, 800px';
+		$img   = preg_match( '/\ssizes="[^"]*"/', $img )
+			? preg_replace( '/\ssizes="[^"]*"/', ' sizes="' . $sizes . '"', $img, 1 )
+			: str_replace( ' srcset=', ' sizes="' . $sizes . '" srcset=', $img );
+	}
+	return $img;
+}, 10, 2 );

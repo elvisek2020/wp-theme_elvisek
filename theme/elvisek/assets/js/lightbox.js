@@ -2,9 +2,29 @@
 (() => {
 	'use strict';
 	const IMG_RE = /\.(jpe?g|png|gif|webp|avif)(\?.*)?$/i;
-	const links = [...document.querySelectorAll('.ek-content a')].filter(
-		(a) => IMG_RE.test(a.getAttribute('href') || '') && a.querySelector('img')
-	);
+	// Obrázky s odkazem na soubor + obrázky bez odkazu (ty se zvětší z největší verze v srcset).
+	const largest = (im) => {
+		const set = (im.getAttribute('srcset') || '').split(',').map((s) => s.trim().split(/\s+/)).filter((p) => p[0]);
+		set.sort((a, b) => (parseInt(b[1], 10) || 0) - (parseInt(a[1], 10) || 0));
+		return set[0]?.[0] || im.currentSrc || im.src;
+	};
+	const links = [];
+	document.querySelectorAll('.ek-content img').forEach((im) => {
+		const a = im.closest('a');
+		if (a && a.closest('.ek-content')) {
+			if (IMG_RE.test(a.getAttribute('href') || '') && !links.includes(a)) links.push(a);
+			return;
+		}
+		if (!im.classList.contains('ek-img') || im.closest('.wp-block-gallery')) return;
+		// obrázek bez odkazu: chová se jako odkaz na plnou verzi
+		im.href = largest(im);
+		im.dataset.ekZoom = '';
+		im.tabIndex = 0;
+		im.setAttribute('role', 'button');
+		im.setAttribute('aria-label', 'Zvětšit obrázek' + (im.alt ? ': ' + im.alt : ''));
+		im.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); im.click(); } });
+		links.push(im);
+	});
 	if (!links.length || typeof HTMLDialogElement !== 'function') return;
 
 	const icon = (d) => `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg>`;
@@ -28,7 +48,7 @@
 	const show = (i) => {
 		index = (i + links.length) % links.length;
 		const a = links[index];
-		const thumb = a.querySelector('img');
+		const thumb = a.tagName === 'IMG' ? a : a.querySelector('img');
 		img.src = a.href;
 		img.alt = thumb.alt || '';
 		const figcap = a.closest('figure')?.querySelector('figcaption')?.textContent;

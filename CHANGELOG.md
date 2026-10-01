@@ -1,10 +1,16 @@
 # Changelog
 
+## 0.6.1 — 2026-10-01
+### Šablona
+- Úvodní obrázek článku má nejvýš 440 px na výšku (na širokých monitorech už nezabírá celou obrazovku, ořízne se na střed)
+- **Obrázky v článcích jednotně**: šířka 800 px, zarovnané vlevo s textem (dřív každý jinak velký a na středu); vysoké screenshoty (mobil) max. 640 px na výšku; malé ikonky (< 160 px) a galerie beze změny
+- Obrázky se načítají v dostatečném rozlišení pro 800 px (ne rozmazaný náhled 300 px)
+- Kliknutím se **každý obrázek otevře v prohlížeči obrázků** (lightbox) – i ty, které neměly odkaz na plnou velikost; šipkami mezi obrázky, Esc zavře
+
 ## 0.6.0 — 2026-10-01
 ### Šablona
 - **Štítek „Aktualizováno“** u zrevidovaných návodů: v editoru článku je box **Aktualizace návodu** (datum + tlačítko Dnes); zelený štítek s datem v detailu článku a malý štítek na kartách. Prázdné datum = bez štítku
 - Zrušeno automatické „(aktualizováno …)“ podle data změny ve WordPressu – svítilo u skoro všech článků kvůli hromadným úpravám
-- Úvodní obrázek článku má nejvýš 440 px na výšku (na širokých monitorech už nezabírá celou obrazovku, ořízne se na střed)
 - **Tlačítko Nahoru** vpravo dole: objeví se po odrolování zhruba jedné obrazovky, plynule vyroluje nahoru (bez animace při „omezit pohyb“), v tisku skryté
 
 ## 0.5.1 — 2026-10-01
