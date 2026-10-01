@@ -424,7 +424,7 @@ a.ek-chip:hover { color: var(--ek-accent-hover); }
 .ek-article__title { margin: 14px 0 0; font-size: clamp(32px, 4.4vw, 48px); line-height: 1.1; letter-spacing: -0.015em; }
 .ek-article__meta { margin-top: 18px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; font-size: 15px; color: var(--ek-muted); }
 .ek-article__print { margin-left: auto; font-weight: 600; }
-.ek-article__hero { margin: 28px 0 0; border-radius: 18px; aspect-ratio: 16 / 7; }
+.ek-article__hero { margin: 28px 0 0; border-radius: 18px; aspect-ratio: 16 / 7; max-height: 440px; }
 .ek-article__hero--logo { aspect-ratio: auto; max-height: 280px; display: flex; justify-content: center; padding: 28px; }
 .ek-article__hero--logo .ek-thumb__img { width: auto; max-height: 224px; object-fit: contain; }
 
