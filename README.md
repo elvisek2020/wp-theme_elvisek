@@ -102,7 +102,6 @@ plugins/elvisek-core/     plugin
 mu-plugins/               pomůcky jen pro lokální vývoj — nenasazovat
 dev/                      lokální WordPress v Dockeru (dev/README.md)
 tools/                    wp.py (REST API klient), img.py (příprava obrázků)
-docs/                     plán a wishlist
 .github/workflows/        sestavení vydání
 ```
 

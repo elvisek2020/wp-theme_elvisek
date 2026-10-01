@@ -10,4 +10,8 @@ dev/_disabled-plugins/
 dev/wp-content-uploads/
 *.log
 obrazky/
-_docs/sec-audit/ # audit do veřejného repa nepatří
+# interní dokumenty (plán, wishlist, bezpečnostní audit) – do veřejného repa nepatří
+# (pozor: komentář v .gitignore musí být na samostatném řádku, za vzorem nefunguje)
+_docs/
+docs/
+mu-plugins/
