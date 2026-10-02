@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.9.1 — 2026-10-02
+### Šablona
+- Video v článku (blok Video): přes celý sloupec se zaoblenými rohy; v editoru styl **Úzké (800 px)** pro video stejně široké jako obrázky
+- **Obsah článku** jde vypnout/zapnout: globálně v Přizpůsobit → Články („Obsah článku (z nadpisů)“ – platí pro boční panel i pro obsah nad textem na užších obrazovkách) a u každého článku zvlášť v editoru v boxu **Nastavení článku** (Podle šablony / Zobrazit / Skrýt)
+- Box v editoru „Aktualizace návodu“ přejmenován na „Nastavení článku“
+
+### Nástroje
+- `tools/wp.py draft --slug` – adresa článku rovnou při vytvoření konceptu
+
 ## 0.9.0 — 2026-10-01
 ### Šablona
 - **Kopírovat pro AI** v hlavičce článku (vedle Tisk): zkopíruje článek jako Markdown (nadpis, zdroj, obsah, bloky kódu s jazykem, obrázky, tabulky) – stačí vložit do libovolné AI. Šipka vedle nabídne **Otevřít v Claude**, **Otevřít v ChatGPT** (s předvyplněným dotazem a odkazem na článek) a Zobrazit jako Markdown

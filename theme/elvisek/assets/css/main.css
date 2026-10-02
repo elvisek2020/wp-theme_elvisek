@@ -497,6 +497,10 @@ a.ek-chip:hover { color: var(--ek-accent-hover); }
 .ek-content a:has(> img.ek-img) { display: block; width: fit-content; max-width: 100%; }
 .ek-content .wp-block-gallery img.ek-img, .ek-content .wp-block-columns img.ek-img, .ek-content table img.ek-img { width: auto !important; display: inline; }
 .ek-content img.ek-img[data-ek-zoom] { cursor: zoom-in; }
+.ek-content .wp-block-video { margin: 1.6em 0; }
+.ek-content .wp-block-video.is-style-ek-narrow { max-width: 800px; }
+.ek-content .wp-block-video video { display: block; width: 100%; height: auto; border-radius: 10px; background: #000; }
+.ek-content .wp-block-video figcaption { text-align: left; }
 .ek-content::after { content: ""; display: table; clear: both; }
 @media (max-width: 640px) { .ek-content .alignleft, .ek-content .alignright { float: none; margin: 1em auto; display: block; } }
 .ek-content blockquote, .ek-content .wp-block-quote {

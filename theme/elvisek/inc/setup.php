@@ -15,6 +15,10 @@ add_action( 'after_setup_theme', function () {
 	add_theme_support( 'wp-block-styles' );
 	add_theme_support( 'editor-styles' );
 	add_theme_support( 'custom-logo', array( 'height' => 80, 'width' => 80, 'flex-width' => true ) );
+	// Blok Video: styl „Úzké (800 px)“ – výchozí je přes celý sloupec
+	if ( function_exists( 'register_block_style' ) ) {
+		register_block_style( 'core/video', array( 'name' => 'ek-narrow', 'label' => 'Úzké (800 px)' ) );
+	}
 	add_theme_support( 'html5', array( 'search-form', 'comment-form', 'comment-list', 'gallery', 'caption', 'style', 'script', 'navigation-widgets' ) );
 
 	add_editor_style( 'assets/css/editor.css' );

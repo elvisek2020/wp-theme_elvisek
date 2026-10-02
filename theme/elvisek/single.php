@@ -10,7 +10,7 @@ get_header();
 	<?php while ( have_posts() ) : the_post(); ?>
 		<?php
 		$ek_mode       = (string) ek_opt( 'ek_sidebar_mode' );
-		$ek_show_toc   = (bool) ek_opt( 'ek_sidebar_toc' );
+		$ek_show_toc   = ek_show_toc();
 		$ek_show_recent = (bool) ek_opt( 'ek_sidebar_recent' );
 		// Obsah vykreslit předem: až pak víme, jestli má článek obsah (TOC) a jestli boční panel nebude prázdný.
 		$ek_content    = str_replace( ']]>', ']]&gt;', apply_filters( 'the_content', get_the_content() ) );
@@ -111,7 +111,9 @@ get_header();
 					</div>
 				</aside>
 			<?php endif; ?>
-			<template id="ek-toc-tpl"><?php ek_the_toc(); ?></template>
+			<?php if ( $ek_show_toc ) : ?>
+				<template id="ek-toc-tpl"><?php ek_the_toc(); ?></template>
+			<?php endif; ?>
 		</div>
 	<?php endwhile; ?>
 </main>

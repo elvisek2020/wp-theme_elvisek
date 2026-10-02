@@ -7,7 +7,7 @@ Usage:
   wp.py whoami
   wp.py categories
   wp.py drafts
-  wp.py draft --title "..." --content file.html [--categories 3,5] [--tags "a,b"] [--excerpt "..."] [--featured image.jpg] [--id 123]
+  wp.py draft --title "..." --content file.html [--categories 3,5] [--tags "a,b"] [--excerpt "..."] [--slug x] [--featured image.webp] [--id 123]
   wp.py upload image.jpg [--alt "..."]
   wp.py get 123            # post content (raw) to stdout
   wp.py posts [--search X] [--category ID]   # published posts
@@ -83,6 +83,7 @@ def main():
     d.add_argument('--title', required=True); d.add_argument('--content', required=True)
     d.add_argument('--categories', default=''); d.add_argument('--tags', default='')
     d.add_argument('--excerpt', default=''); d.add_argument('--featured'); d.add_argument('--id', type=int)
+    d.add_argument('--slug', default='')
     a = ap.parse_args()
 
     if a.cmd == 'whoami':
@@ -122,6 +123,7 @@ def main():
         if a.categories: post['categories'] = [int(x) for x in a.categories.split(',')]
         if a.tags: post['tags'] = tag_ids(a.tags)
         if a.excerpt: post['excerpt'] = a.excerpt
+        if a.slug: post['slug'] = a.slug
         if a.featured: post['featured_media'] = upload(a.featured, a.title)['id']
         if a.id:
             cur = api('GET', f'/posts/{a.id}?context=edit')

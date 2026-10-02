@@ -94,7 +94,8 @@ add_action( 'customize_register', function ( WP_Customize_Manager $wpc ) {
 			'never'  => 'Nikdy — jen článek',
 		) )
 	);
-	$add( 'ek_sidebar_toc', 'ek_article', 'Boční panel: obsah článku', 'checkbox', 'rest_sanitize_boolean' );
+	$add( 'ek_sidebar_toc', 'ek_article', 'Obsah článku (z nadpisů)', 'checkbox', 'rest_sanitize_boolean',
+		array( 'description' => 'V bočním panelu, na užších obrazovkách nad textem. U jednotlivého článku jde přepnout v editoru (box Nastavení článku).' ) );
 	$add( 'ek_sidebar_recent', 'ek_article', 'Boční panel: novinky', 'checkbox', 'rest_sanitize_boolean' );
 	$add( 'ek_code_lines', 'ek_article', 'Čísla řádků u kódu', 'checkbox', 'rest_sanitize_boolean' );
 	$add( 'ek_share', 'ek_article', 'Pod článkem: sdílení (kopírovat odkaz, LinkedIn, Facebook)', 'checkbox', 'rest_sanitize_boolean' );
