@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.9.2 — 2026-10-03
+### Šablona
+- Obrázek v článku jde zarovnat **na střed** (v editoru blok Obrázek → Zarovnat na střed); výchozí zůstává 800 px zarovnaných vlevo s textem, popisek se u vycentrovaného obrázku také vycentruje
+
 ## 0.9.1 — 2026-10-02
 ### Šablona
 - Video v článku (blok Video): přes celý sloupec se zaoblenými rohy; v editoru styl **Úzké (800 px)** pro video stejně široké jako obrázky
