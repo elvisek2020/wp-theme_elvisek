@@ -25,7 +25,7 @@ $ek_topics  = ek_nav_topics();
 				<ul style="<?php echo esc_attr( ek_tiles_style( count( $ek_topics ) ) ); ?>">
 					<?php foreach ( $ek_topics as $cat ) : ?>
 						<li>
-							<a class="ek-tile" href="<?php echo esc_url( get_category_link( $cat ) ); ?>">
+							<a class="ek-tile" href="<?php echo esc_url( get_category_link( $cat ) ); ?>"<?php echo ek_cat_style( $cat ); ?>>
 								<span class="ek-tile__icon"><?php echo ek_icon( ek_category_icon_name( $cat->slug ), 19 ); ?></span>
 								<span class="ek-tile__name"><?php echo esc_html( $cat->name ); ?></span>
 								<span class="ek-tile__count"><?php echo esc_html( ek_plural( (int) $cat->count, 'článek', 'články', 'článků' ) ); ?></span>

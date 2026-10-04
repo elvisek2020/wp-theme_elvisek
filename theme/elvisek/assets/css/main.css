@@ -841,12 +841,19 @@ h2, h3 { break-after: avoid; }
  * 0.11.0
  * ====================================================================== */
 
-/* Barva rubriky – jen jemný podtón u štítků rubrik a proužku na kartě (menu a dlaždice zůstávají neutrální) */
+/* Barva rubriky – jemný podtón u štítků rubrik, proužek na kartě, okraj a ikona dlaždic témat (lišta a menu neutrální) */
 .ek-chip--cat[style*="--ek-cat"] {
 	background: color-mix(in srgb, var(--ek-cat) 13%, var(--ek-surface));
 	color: color-mix(in srgb, var(--ek-cat) 55%, var(--ek-text));
 }
 a.ek-chip--cat[style*="--ek-cat"]:hover { color: var(--ek-text); background: color-mix(in srgb, var(--ek-cat) 20%, var(--ek-surface)); }
+/* Dlaždice témat: barva rubriky jen v okraji a ikoně, plocha zůstává neutrální */
+.ek-tile[style*="--ek-cat"], .ek-topic[style*="--ek-cat"] { border-color: color-mix(in srgb, var(--ek-cat) 70%, var(--ek-line)); }
+.ek-tile[style*="--ek-cat"]:hover, .ek-topic[style*="--ek-cat"]:hover { border-color: var(--ek-cat); }
+.ek-tile[style*="--ek-cat"] .ek-tile__icon, .ek-topic[style*="--ek-cat"] .ek-topic__icon {
+	color: color-mix(in srgb, var(--ek-cat) 80%, var(--ek-text)); background: color-mix(in srgb, var(--ek-cat) 12%, var(--ek-surface));
+}
+@media (max-width: 1080px) { .ek-hero-head .ek-tile[style*="--ek-cat"] .ek-tile__icon { background: none; } }
 /* Proužek nahoře na kartě: barvy všech rubrik článku (víc rubrik = úseky) */
 .ek-card[style*="--ek-stripe"], .ek-featured[style*="--ek-stripe"] { position: relative; }
 .ek-card[style*="--ek-stripe"]::before, .ek-featured[style*="--ek-stripe"]::before {

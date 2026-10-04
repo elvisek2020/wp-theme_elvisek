@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.11.4 — 2026-10-05
+### Šablona
+- Dlaždice témat (hlavička titulky, sekce Témata): barva rubriky v okraji a ikoně, plocha dlaždice zůstává neutrální; lišta a menu beze změny
+
 ## 0.11.3 — 2026-10-05
 ### Šablona
 - Patička na mobilu: odkazy se zalomí do více řádků, stránka už nejde posouvat do strany (přetékala o 13 px)
