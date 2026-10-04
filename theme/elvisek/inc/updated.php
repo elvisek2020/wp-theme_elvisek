@@ -42,7 +42,8 @@ add_action( 'init', function () {
  */
 function ek_summary_sanitize( $value ): string {
 	$lines = preg_split( '/\r\n|\r|\n/', (string) $value );
-	$lines = array_map( fn( $l ) => trim( preg_replace( '/^\s*(?:[-*•–]|\d+[.)])\s+/u', '', sanitize_text_field( $l ) ) ), $lines );
+	// Bez sanitize_text_field: ten by smazal i text jako `<16>` v kódu. Ukládá se prostý text, při výpisu se escapuje.
+	$lines = array_map( fn( $l ) => trim( preg_replace( '/^\s*(?:[-*•–]|\d+[.)])\s+/u', '', preg_replace( '/[\x00-\x1F\x7F]+/u', ' ', wp_check_invalid_utf8( (string) $l ) ) ) ), $lines );
 	return implode( "\n", array_slice( array_values( array_filter( $lines, 'strlen' ) ), 0, 8 ) );
 }
 
