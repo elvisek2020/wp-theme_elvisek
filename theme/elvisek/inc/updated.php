@@ -11,6 +11,7 @@ defined( 'ABSPATH' ) || exit;
 
 const EK_UPDATED_META = 'ek_updated';
 const EK_TOC_META     = 'ek_toc';    // '' = podle nastavení šablony, 'show', 'hide'
+const EK_SUMMARY_META = 'ek_summary'; // shrnutí „Ve zkratce“, jeden bod na řádek
 
 add_action( 'init', function () {
 	register_post_meta( 'post', EK_UPDATED_META, array(
@@ -27,7 +28,43 @@ add_action( 'init', function () {
 		'sanitize_callback' => fn( $v ) => in_array( $v, array( 'show', 'hide' ), true ) ? $v : '',
 		'auth_callback'     => fn() => current_user_can( 'edit_posts' ),
 	) );
+	register_post_meta( 'post', EK_SUMMARY_META, array(
+		'type'              => 'string',
+		'single'            => true,
+		'show_in_rest'      => true,
+		'sanitize_callback' => 'ek_summary_sanitize',
+		'auth_callback'     => fn() => current_user_can( 'edit_posts' ),
+	) );
 } );
+
+/**
+ * Shrnutí: řádky bez prázdných, bez odrážek na začátku, max. 8 bodů.
+ */
+function ek_summary_sanitize( $value ): string {
+	$lines = preg_split( '/\r\n|\r|\n/', (string) $value );
+	$lines = array_map( fn( $l ) => trim( preg_replace( '/^\s*(?:[-*•–]|\d+[.)])\s+/u', '', sanitize_text_field( $l ) ) ), $lines );
+	return implode( "\n", array_slice( array_values( array_filter( $lines, 'strlen' ) ), 0, 8 ) );
+}
+
+/** Body shrnutí článku (pole řetězců). */
+function ek_summary_items( $post = null ): array {
+	$post = get_post( $post );
+	$raw  = $post ? (string) get_post_meta( $post->ID, EK_SUMMARY_META, true ) : '';
+	return '' === $raw ? array() : explode( "\n", $raw );
+}
+
+/** Box „Ve zkratce“ nad obsahem článku. Ve shrnutí jde použít `kód`. */
+function ek_summary_box( $post = null ): string {
+	$items = ek_summary_items( $post );
+	if ( ! $items ) {
+		return '';
+	}
+	$li = '';
+	foreach ( $items as $item ) {
+		$li .= '<li>' . preg_replace( '/`([^`]+)`/', '<code>$1</code>', esc_html( $item ) ) . '</li>';
+	}
+	return '<aside class="ek-summary" aria-label="Ve zkratce"><p class="ek-summary__title">' . ek_icon( 'check', 16 ) . 'Ve zkratce</p><ul>' . $li . '</ul></aside>';
+}
 
 /**
  * Zobrazit u aktuálního článku obsah (TOC)? Nastavení článku má přednost před šablonou.
@@ -111,6 +148,9 @@ function ek_updated_metabox( WP_Post $post ): void {
 		<option value="show" <?php selected( $toc, 'show' ); ?>>Zobrazit</option>
 		<option value="hide" <?php selected( $toc, 'hide' ); ?>>Skrýt</option>
 	</select>
+	<p style="margin:14px 0 4px"><label for="ek-summary-input"><strong>Ve zkratce</strong></label></p>
+	<textarea name="ek_summary" id="ek-summary-input" rows="5" style="width:100%" placeholder="Jeden bod na řádek"><?php echo esc_textarea( (string) get_post_meta( $post->ID, EK_SUMMARY_META, true ) ); ?></textarea>
+	<p class="description" style="margin-top:2px">Zobrazí se jako box nad textem článku. Jeden bod na řádek (max. 8), `kód` v obrácených apostrofech.</p>
 	<p style="margin:14px 0 4px"><strong>Aktualizace návodu</strong></p>
 	<p style="margin-top:0">Když návod zrevidujete, zadejte datum – u článku se zobrazí štítek „Aktualizováno“. Prázdné = bez štítku.</p>
 	<p style="display:flex;gap:6px;align-items:center">
@@ -132,6 +172,12 @@ add_action( 'save_post_post', function ( int $post_id ) {
 		update_post_meta( $post_id, EK_TOC_META, $toc );
 	} else {
 		delete_post_meta( $post_id, EK_TOC_META );
+	}
+	$summary = ek_summary_sanitize( wp_unslash( $_POST['ek_summary'] ?? '' ) );
+	if ( '' !== $summary ) {
+		update_post_meta( $post_id, EK_SUMMARY_META, $summary );
+	} else {
+		delete_post_meta( $post_id, EK_SUMMARY_META );
 	}
 	$value = ek_updated_sanitize( wp_unslash( $_POST['ek_updated'] ?? '' ) );
 	if ( $value ) {

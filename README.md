@@ -25,10 +25,15 @@ Obojí se vydává společně se stejným číslem verze a aktualizuje se přím
 - Titulka v magazínovém stylu: nadpis s mottem a obrázkem (zvlášť pro světlý a tmavý režim), hlavní článek a mřížka karet
 - Dlaždice témat v hlavičce, které se při rolování změní v kompaktní lištu; když se témata nevejdou, nabídnou se v hamburger menu
 - Rychlé hledání v hlavičce a „Načíst další“ místo stránkování
+- Jemný barevný podtón podle rubriky (štítky, dlaždice, proužek na kartě)
+- Instalovatelný web (PWA): přečtené články jdou otevřít i offline
+- Vlastní stránka 404 s hledáním a nejnovějšími články
 
 **Články**
 - Obsah článku (TOC) z nadpisů a volitelný boční panel s novinkami
-- Bloky kódu se zvýrazněním syntaxe (PrismJS), čísly řádků, tlačítkem Kopírovat a volitelným názvem souboru nad kódem; dvě šířky podle délky kódu
+- Bloky kódu se zvýrazněním syntaxe (PrismJS), čísly řádků, tlačítkem Kopírovat a volitelným názvem souboru nad kódem; styl „Výstup“ pro výstup z terminálu, sbalení kódu nad 30 řádků a klávesy (`<kbd>`); dvě šířky podle délky kódu
+- Box „Ve zkratce“ z pole v nastavení článku
+- Blok GitHub repozitář (karta s posledním vydáním, data z API s cache na serveru)
 - Obrázky jednotně na 800 px a prohlížeč obrázků (lightbox) se šipkami
 - Štítek „Aktualizováno“ u zrevidovaných návodů (datum se zadává v editoru)
 - Obrázek rubriky jako náhled u článků bez vlastního obrázku
@@ -68,6 +73,7 @@ Nahrazuje sedm dřívějších pluginů a funguje nezávisle na šabloně.
 | Média | další povolené typy souborů ke stažení |
 | Aktualizace | automatické aktualizace WordPressu a pluginů, aktualizace šablony i pluginu z GitHubu |
 | Admin | informace o serveru v patičce administrace |
+| Nástěnka | widget Zdraví webu: verze a aktualizace, velikost DB / autoload / uploads, koncepty, komentáře, poslední údržba |
 
 **Údržba webu** — *Nástroje → Údržba webu*
 - Sjednocení starších obrázků na WebP: převede soubory i odkazy v obsahu, staré adresy přesměruje (301)

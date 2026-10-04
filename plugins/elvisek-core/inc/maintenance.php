@@ -472,6 +472,9 @@ function ek_maint_page(): void {
 		$do     = sanitize_key( $_POST['ek_do'] ?? '' );
 		if ( $do ) {
 			$notice = ek_maint_handle( $do );
+			if ( function_exists( 'ek_health_mark_maintenance' ) ) {
+				ek_health_mark_maintenance();
+			}
 		}
 	}
 	$confirm = "return confirm('Opravdu? Tohle nejde vrátit bez zálohy.');";

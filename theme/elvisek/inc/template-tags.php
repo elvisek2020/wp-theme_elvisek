@@ -33,6 +33,11 @@ function ek_icon( string $name, int $size = 18 ): string {
 		'lock'     => '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
 		'rss'      => '<path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/>',
 		'folder'   => '<path d="M3 6a1 1 0 0 1 1-1h5l2 2h9a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/>',
+		'star'     => '<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3l-5.6 2.9 1.1-6.2L3 9.6l6.2-.9z"/>',
+		'tag'      => '<path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.2"/>',
+		'code'     => '<path d="m8 7-5 5 5 5M16 7l5 5-5 5"/>',
+		'scale'    => '<path d="M12 3v18M7 21h10M5 7h14M5 7l-3 7a3.5 3.5 0 0 0 6 0zM19 7l-3 7a3.5 3.5 0 0 0 6 0z"/>',
+		'offline'  => '<path d="M2 2l20 20M8.5 16.5a5 5 0 0 1 7 0M5 13a10 10 0 0 1 5.2-2.8M19 13a10 10 0 0 0-2.4-1.7M2 9.5a15 15 0 0 1 4.4-2.9M22 9.5A15 15 0 0 0 11 5.1M12 20h.01"/>',
 		// Ikony kategorií.
 		'chip'     => '<path d="M9 3v2M15 3v2M9 19v2M15 19v2M3 9h2M3 15h2M19 9h2M19 15h2"/><rect x="5" y="5" width="14" height="14" rx="1"/><path d="M9 9h6v6H9z"/>',
 		'laptop'   => '<path d="M4 5h16a1 1 0 0 1 1 1v10H3V6a1 1 0 0 1 1-1zM1 19h22"/>',
@@ -108,7 +113,7 @@ function ek_category_chip( $post = null, string $class = 'ek-chip' ): string {
 	if ( ! $cat ) {
 		return '';
 	}
-	return sprintf( '<a class="%s" href="%s">%s</a>', esc_attr( $class ), esc_url( get_category_link( $cat ) ), esc_html( $cat->name ) );
+	return sprintf( '<a class="%s" href="%s"%s>%s</a>', esc_attr( $class . ' ek-chip--cat' ), esc_url( get_category_link( $cat ) ), ek_cat_style( $cat ), esc_html( $cat->name ) );
 }
 
 /**
@@ -126,7 +131,7 @@ function ek_category_chips( $post = null, string $class = 'ek-chip' ): string {
 	}
 	$out = '';
 	foreach ( $cats as $cat ) {
-		$out .= sprintf( '<a class="%s" href="%s">%s</a>', esc_attr( $class ), esc_url( get_category_link( $cat ) ), esc_html( $cat->name ) );
+		$out .= sprintf( '<a class="%s" href="%s"%s>%s</a>', esc_attr( $class . ' ek-chip--cat' ), esc_url( get_category_link( $cat ) ), ek_cat_style( $cat ), esc_html( $cat->name ) );
 	}
 	return '<span class="ek-chips">' . $out . '</span>';
 }

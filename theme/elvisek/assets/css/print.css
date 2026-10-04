@@ -17,3 +17,7 @@ html, body { background: #fff !important; color: #000 !important; font-size: 11.
 .ek-content a:has(img)::after { content: none; }
 img { break-inside: avoid; }
 h2, h3 { break-after: avoid; }
+.ek-code-wrap.is-collapsed > pre { max-height: none !important; -webkit-mask-image: none !important; mask-image: none !important; }
+.ek-code-more { display: none !important; }
+.ek-summary { border: 1px solid #ccc; background: #fff; }
+kbd { border: 1px solid #999; }

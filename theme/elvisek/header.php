@@ -25,7 +25,7 @@ $ek_topics  = ek_nav_topics();
 				<ul style="<?php echo esc_attr( ek_tiles_style( count( $ek_topics ) ) ); ?>">
 					<?php foreach ( $ek_topics as $cat ) : ?>
 						<li>
-							<a class="ek-tile" href="<?php echo esc_url( get_category_link( $cat ) ); ?>">
+							<a class="ek-tile" href="<?php echo esc_url( get_category_link( $cat ) ); ?>"<?php echo ek_cat_style( $cat ); ?>>
 								<span class="ek-tile__icon"><?php echo ek_icon( ek_category_icon_name( $cat->slug ), 19 ); ?></span>
 								<span class="ek-tile__name"><?php echo esc_html( $cat->name ); ?></span>
 								<span class="ek-tile__count"><?php echo esc_html( ek_plural( (int) $cat->count, 'článek', 'články', 'článků' ) ); ?></span>
@@ -44,7 +44,7 @@ $ek_topics  = ek_nav_topics();
 		<<?php echo $ek_is_hero ? 'div' : 'nav'; ?> class="ek-chipsnav<?php echo count( $ek_topics ) > 8 ? ' ek-chipsnav--many' : ''; ?>" aria-label="Témata" data-ek-chipsnav>
 			<ul>
 				<?php foreach ( $ek_topics as $cat ) : ?>
-					<li class="<?php echo ek_is_current_topic( $cat ) ? 'is-current' : ''; ?>">
+					<li class="<?php echo ek_is_current_topic( $cat ) ? 'is-current' : ''; ?>"<?php echo ek_cat_style( $cat ); ?>>
 						<a href="<?php echo esc_url( get_category_link( $cat ) ); ?>"<?php echo is_category( $cat->term_id ) ? ' aria-current="page"' : ''; ?>>
 							<?php echo ek_icon( ek_category_icon_name( $cat->slug ), 16 ); ?><span><?php echo esc_html( $cat->name ); ?></span>
 						</a>
@@ -65,7 +65,7 @@ $ek_topics  = ek_nav_topics();
 				<ul class="ek-menu__list">
 					<?php foreach ( $ek_topics as $cat ) : ?>
 						<li>
-							<a class="ek-menu__item<?php echo ek_is_current_topic( $cat ) ? ' is-current' : ''; ?>" href="<?php echo esc_url( get_category_link( $cat ) ); ?>"<?php echo is_category( $cat->term_id ) ? ' aria-current="page"' : ''; ?>>
+							<a class="ek-menu__item<?php echo ek_is_current_topic( $cat ) ? ' is-current' : ''; ?>" href="<?php echo esc_url( get_category_link( $cat ) ); ?>"<?php echo is_category( $cat->term_id ) ? ' aria-current="page"' : ''; ?><?php echo ek_cat_style( $cat ); ?>>
 								<span class="ek-menu__icon"><?php echo ek_icon( ek_category_icon_name( $cat->slug ), 18 ); ?></span>
 								<span class="ek-menu__text">
 									<span class="ek-menu__name"><?php echo esc_html( $cat->name ); ?></span>

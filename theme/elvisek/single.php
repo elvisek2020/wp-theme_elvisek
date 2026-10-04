@@ -41,6 +41,8 @@ get_header();
 					</figure>
 				<?php endif; ?>
 
+				<?php echo ek_summary_box(); ?>
+
 				<div class="ek-content entry-content" data-ek-content>
 					<?php echo $ek_content; // phpcs:ignore WordPress.Security.EscapeOutput -- výstup filtru the_content ?>
 					<?php wp_link_pages( array( 'before' => '<nav class="ek-pages">Stránky: ', 'after' => '</nav>' ) ); ?>

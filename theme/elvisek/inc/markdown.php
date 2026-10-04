@@ -78,6 +78,7 @@ function ek_md_node( DOMNode $n, int $depth ): string {
 			$t = ek_md_inline( $n );
 			return '' === $t ? '' : '*' . $t . '*';
 		case 'code':
+		case 'kbd':
 			return '`' . str_replace( '`', '\\`', $n->textContent ) . '`';
 		case 'mark':
 		case 'span':
@@ -115,6 +116,9 @@ function ek_md_node( DOMNode $n, int $depth ): string {
 			$fence = str_contains( $text, '```' ) ? '````' : '```';
 			$file  = trim( (string) $n->getAttribute( 'data-ek-file' ) );
 			$head  = '' === $file ? '' : 'Soubor `' . str_replace( '`', '', $file ) . "`:\n\n";
+			if ( $n->hasAttribute( 'data-ek-output' ) ) {
+				$head = '' === $file ? "Výstup:\n\n" : 'Výstup (`' . str_replace( '`', '', $file ) . "`):\n\n";
+			}
 			return "\n\n" . $head . $fence . $lang . "\n" . $text . "\n" . $fence . "\n\n";
 		case 'blockquote':
 			$t = trim( ek_md_children( $n, $depth ) );
@@ -198,8 +202,12 @@ function ek_post_markdown( WP_Post $post ): string {
 	if ( 'post' === $post->post_type && ( $cat = ek_primary_category( $post ) ) ) {
 		$meta[] = 'Rubrika: ' . $cat->name;
 	}
+	$summary = '';
+	if ( function_exists( 'ek_summary_items' ) && ( $items = ek_summary_items( $post ) ) ) {
+		$summary = "**Ve zkratce:**\n\n- " . implode( "\n- ", $items ) . "\n\n";
+	}
 	wp_reset_postdata();
-	return '# ' . $title . "\n\n> " . implode( ' · ', $meta ) . "\n\n" . ek_html_to_md( $html );
+	return '# ' . $title . "\n\n> " . implode( ' · ', $meta ) . "\n\n" . $summary . ek_html_to_md( $html );
 }
 
 // /clanek.md → Markdown (WordPress takovou adresu nezná → 404 → tady ji obsloužíme)

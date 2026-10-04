@@ -17,6 +17,7 @@ $ek_modules = array(
 	'assets',            // CSS/JS, podmíněné načítání
 	'template-tags',     // pomocné funkce pro šablony (meta, ikony, karty)
 	'category-image',    // obrázek rubriky (náhled článků bez vlastního / místo vlastního)
+	'category-color',    // barva rubriky: jemný podtón štítků, dlaždic a karet
 	'content',           // externí odkazy, kotvy nadpisů, obsah článku (TOC)
 	'seo',               // meta description, Open Graph, JSON-LD
 	'comments-antispam', // honeypot + časová kontrola
@@ -25,6 +26,8 @@ $ek_modules = array(
 	'updated',           // štítek „Aktualizováno“ u návodů
 	'markdown',          // článek jako Markdown (.md) a tlačítko Kopírovat pro AI
 	'social',            // sdílení článku, profily v patičce, rychlé hledání (REST)
+	'github',            // blok GitHub repozitář (karta, data z API s cache)
+	'pwa',               // instalovatelný web: manifest, service worker, stránka offline
 );
 
 foreach ( $ek_modules as $ek_module ) {

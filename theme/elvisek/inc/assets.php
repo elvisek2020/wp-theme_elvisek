@@ -60,6 +60,19 @@ add_action( 'wp_head', function () {
 	echo '<meta name="color-scheme" content="light dark">' . "\n";
 }, 0 );
 
+// Editor: formát Klávesa a blok GitHub repozitář (skript se načte v editoru jako editor_script bloku).
+add_action( 'init', function () {
+	wp_register_script(
+		'ek-editor-extras',
+		EK_URI . '/assets/js/editor-extras.js',
+		array( 'wp-blocks', 'wp-data', 'wp-element', 'wp-rich-text', 'wp-block-editor', 'wp-components', 'wp-server-side-render' ),
+		ek_asset_ver( 'assets/js/editor-extras.js' ),
+		true
+	);
+	// Blok Kód → styl „Výstup“ (výstup z terminálu: světlejší, bez Kopírovat a čísel řádků).
+	register_block_style( 'core/code', array( 'name' => 'ek-output', 'label' => 'Výstup' ) );
+}, 5 );
+
 // Editor: výběr jazyka v bloku Kód.
 add_action( 'enqueue_block_editor_assets', function () {
 	wp_enqueue_script(

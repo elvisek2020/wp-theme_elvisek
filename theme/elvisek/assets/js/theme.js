@@ -329,7 +329,8 @@
 		pre.parentNode.insertBefore(wrap, label || pre);
 		if (label) { wrap.classList.add('has-file'); wrap.appendChild(label); }
 		wrap.appendChild(pre);
-		if (!navigator.clipboard) return;
+		if (pre.dataset.ekOutput) wrap.classList.add('is-output');
+		if (pre.dataset.ekOutput || !navigator.clipboard) return;
 		const btn = document.createElement('button');
 		btn.type = 'button';
 		btn.className = 'ek-copy';
@@ -348,6 +349,53 @@
 		});
 		wrap.appendChild(btn);
 	});
+
+	/* Dlouhý kód (víc než 30 řádků): zobrazit začátek a tlačítko „Zobrazit celé“. Kopírovat bere vždy celý kód. */
+	document.querySelectorAll('.ek-content .ek-code-wrap > pre').forEach((pre) => {
+		const lines = pre.textContent.replace(/\n$/, '').split('\n').length;
+		if (lines <= 30) return;
+		const wrap = pre.parentElement;
+		wrap.classList.add('is-collapsible', 'is-collapsed');
+		const more = document.createElement('button');
+		more.type = 'button';
+		more.className = 'ek-code-more';
+		const sync = () => {
+			const closed = wrap.classList.contains('is-collapsed');
+			more.textContent = closed ? `Zobrazit celé (${lines} řádků)` : 'Sbalit';
+			more.setAttribute('aria-expanded', String(!closed));
+		};
+		more.addEventListener('click', () => {
+			wrap.classList.toggle('is-collapsed');
+			if (wrap.classList.contains('is-collapsed')) wrap.scrollIntoView({ block: 'nearest' });
+			sync();
+		});
+		sync();
+		wrap.appendChild(more);
+	});
+
+	/* Instalovatelný web: service worker (jen pro nepřihlášené – přihlášený vidí stránky s lištou administrace). */
+	if ('serviceWorker' in navigator && !document.body.classList.contains('logged-in') && window.isSecureContext) {
+		window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js').catch(() => {}); });
+	}
+
+	/* Stránka „Jsi offline“: seznam uložených článků. */
+	const offlineBox = document.querySelector('[data-ek-offline]');
+	if (offlineBox && navigator.serviceWorker?.controller) {
+		fetch('/__ek_index').then((r) => r.json()).then((idx) => {
+			const items = Object.entries(idx).sort((a, b) => b[1].d - a[1].d).slice(0, 30);
+			if (!items.length) return;
+			const list = offlineBox.querySelector('[data-ek-offline-list]');
+			items.forEach(([url, it]) => {
+				const li = document.createElement('li');
+				const a = document.createElement('a');
+				a.href = url;
+				a.textContent = it.t || url;
+				li.appendChild(a);
+				list.appendChild(li);
+			});
+			offlineBox.hidden = false;
+		}).catch(() => {});
+	}
 
 	/* Další články: načítají se samy při dorolování (max. 3×, pak tlačítko, ať jde dojet k patičce).
 	   Dávky jsou po 12 = plné řádky při 1, 2, 3 i 4 sloupcích. Bez JS funguje jako odkaz. */

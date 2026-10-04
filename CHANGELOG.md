@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.11.0 — 2026-10-05
+### Šablona
+- **Blok Kód → styl „Výstup“** pro výstup z terminálu: světlejší přerušovaný rámeček, štítek „Výstup“, bez tlačítka Kopírovat a čísel řádků. V Markdownu řádek „Výstup:“
+- **Dlouhý kód se sbalí**: blok nad 30 řádků ukáže prvních 15 a tlačítko „Zobrazit celé (N řádků)“; Kopírovat, tisk i Markdown mají vždy celý kód
+- **Klávesy**: v liště formátování nové tlačítko **Klávesa** (`<kbd>`), na webu vypadá jako klávesa, v Markdownu jako `kód`
+- **Ve zkratce**: nové pole v boxu **Nastavení článku** (jeden bod na řádek, max. 8) → box nad textem článku, i v Markdown verzi a „Kopírovat pro AI“
+- **Stránka 404**: hláška ve stylu terminálu, hledání, 6 nejnovějších článků a témata
+- **Barva rubriky**: jemný podtón u štítků rubrik, dlaždic a ikon témat a tenký proužek nahoře na kartě článku (víc rubrik = víc úseků). Barva se nastavuje u rubriky (Příspěvky → Rubriky), bez nastavení výchozí z palety
+- **Instalovatelný web (PWA)**: manifest s ikonami, service worker ukládá přečtené články a soubory šablony – offline jdou otevřít, jinak stránka „Jsi offline“ se seznamem uložených článků. Administrace, přihlášení, REST, hledání a náhledy se neukládají; nová verze šablony starou mezipaměť smaže
+- **Blok GitHub repozitář**: karta s popisem, hvězdičkami, posledním vydáním, jazykem a licencí. Data stahuje server (cache 12 h, při výpadku poslední úspěšná), návštěvník se GitHubu nedotkne
+
+### ElvisEK Core
+- **Zdraví webu** na Nástěnce: verze (a dostupné aktualizace) šablony, pluginu, WordPressu, PHP; velikost databáze, autoload, uploads; koncepty, komentáře ke schválení, články bez náhledu; čas poslední údržby. Tlačítko do Údržby webu
+
 ## 0.10.0 — 2026-10-04
 ### Šablona
 - **Název souboru nad blokem kódu**: v editoru v bloku Kód (panel **Kód**) nové pole „Název souboru“, např. `docker-compose.yml` nebo `/etc/fstab`. Na webu se zobrazí jako štítek (záložka s ikonou souboru) nad kódem, v editoru taky. V Markdown verzi článku a v „Kopírovat pro AI“ je před blokem řádek „Soubor `…`:“

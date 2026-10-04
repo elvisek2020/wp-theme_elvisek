@@ -4,7 +4,7 @@
  */
 defined( 'ABSPATH' ) || exit;
 ?>
-<article <?php post_class( 'ek-card' ); ?>>
+<article <?php post_class( 'ek-card' ); ?><?php echo ek_cat_stripe_style(); ?>>
 	<a class="ek-card__thumb ek-thumb" href="<?php the_permalink(); ?>" tabindex="-1" aria-hidden="true">
 		<?php ek_thumbnail( 'ek-card', array( 'loading' => 'lazy', 'sizes' => '(max-width: 700px) 100vw, 400px' ) ); ?>
 	</a>

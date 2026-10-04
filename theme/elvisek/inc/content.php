@@ -16,17 +16,25 @@ add_filter( 'the_content', 'ek_process_content', 20 );
  * a data-ek-file na <pre> (pro Markdown verzi článku).
  */
 add_filter( 'render_block_core/code', function ( string $html, array $block ): string {
-	$file = trim( (string) ( $block['attrs']['ekFile'] ?? '' ) );
-	if ( '' === $file ) {
+	$file   = trim( (string) ( $block['attrs']['ekFile'] ?? '' ) );
+	$output = str_contains( ' ' . ( $block['attrs']['className'] ?? '' ) . ' ', ' is-style-ek-output ' );
+	if ( '' === $file && ! $output ) {
 		return $html;
 	}
 	$p = new WP_HTML_Tag_Processor( $html );
 	if ( $p->next_tag( 'pre' ) ) {
-		$p->set_attribute( 'data-ek-file', $file );
-		$p->add_class( 'has-ek-file' );
+		if ( '' !== $file ) {
+			$p->set_attribute( 'data-ek-file', $file );
+			$p->add_class( 'has-ek-file' );
+		}
+		if ( $output ) {
+			$p->set_attribute( 'data-ek-output', '1' );
+		}
 		$html = $p->get_updated_html();
 	}
-	return '<div class="ek-code-file"><span>' . esc_html( $file ) . '</span></div>' . $html;
+	// Štítek: název souboru, u výstupu „Výstup“ (případně „Výstup · soubor“).
+	$label = $output ? ( '' !== $file ? 'Výstup · ' . $file : 'Výstup' ) : $file;
+	return '<div class="ek-code-file' . ( $output ? ' ek-code-file--output' : '' ) . '"><span>' . esc_html( $label ) . '</span></div>' . $html;
 }, 10, 2 );
 
 function ek_process_content( string $html ): string {
@@ -57,7 +65,7 @@ function ek_process_content( string $html ): string {
 		// Kódové bloky: jednotná třída, aby šly stylovat a kopírovat.
 		if ( 'PRE' === $tag ) {
 			$p->add_class( 'ek-code' );
-			if ( $lines && str_contains( (string) $p->get_attribute( 'class' ), 'language-' ) ) {
+			if ( $lines && str_contains( (string) $p->get_attribute( 'class' ), 'language-' ) && ! str_contains( (string) $p->get_attribute( 'class' ), 'is-style-ek-output' ) ) {
 				$p->add_class( 'line-numbers' );
 			}
 		}
