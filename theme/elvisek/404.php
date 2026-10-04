@@ -15,12 +15,10 @@ $ek_recent = new WP_Query( array(
 <main id="obsah" class="ek-main">
 	<div class="ek-wrap ek-stack">
 		<section class="ek-404">
-			<p class="ek-404__code" aria-hidden="true">404</p>
+			<p class="ek-404__code"><a href="<?php echo esc_url( home_url( '/' ) ); ?>" title="Zpět na úvod" aria-label="404 – zpět na úvod">404</a></p>
 			<h1 class="ek-pagehead__title">Tahle stránka neexistuje</h1>
 			<p class="ek-404__shell" aria-hidden="true"><span>$</span> sudo make it work<br><span class="ek-404__err">make: *** No rule to make target „tahle-stránka“. Stop.</span></p>
-			<p class="ek-muted">Ani <code>sudo</code> tady nepomohl. Možná se článek přesunul, nebo je v adrese překlep. Zkuste hledání, nebo něco z nejnovějšího:</p>
-			<div class="ek-404__search"><?php get_search_form(); ?></div>
-			<p><a class="ek-btn" href="<?php echo esc_url( home_url( '/' ) ); ?>">Zpět na úvod</a></p>
+			<p class="ek-muted">Ani <code>sudo</code> tady nepomohl. Možná se článek přesunul, nebo je v adrese překlep. Zkuste něco z nejnovějšího:</p>
 		</section>
 
 		<?php if ( $ek_recent->have_posts() ) : ?>

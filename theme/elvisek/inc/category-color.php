@@ -1,6 +1,6 @@
 <?php
 /**
- * Barva rubriky: jemný podtón u štítků rubrik, dlaždic témat a proužek nahoře na kartě článku.
+ * Barva rubriky: jemný podtón u štítků rubrik a proužek nahoře na kartě článku.
  * Barva se nastavuje u rubriky (Příspěvky → Rubriky), bez nastavení se použije výchozí z palety.
  * Článek může mít víc rubrik: každý štítek má svou barvu, proužek na kartě se rozdělí na úseky.
  */
@@ -117,7 +117,7 @@ function ek_cat_color_field( ?WP_Term $term = null ): void {
 	?>
 	<input type="color" name="ek_cat_color" value="<?php echo esc_attr( $own ?: $def ); ?>" data-default="<?php echo esc_attr( $def ); ?>">
 	<label style="margin-left:10px"><input type="checkbox" name="ek_cat_color_default" value="1" <?php checked( '' === $own ); ?>> výchozí barva</label>
-	<p class="description">Jemný podtón štítku rubriky, dlaždice tématu a proužku na kartě článku. Text zůstává neutrální, takže stačí výrazná barva – na webu se použije jen slabě.</p>
+	<p class="description">Jemný podtón štítku rubriky a proužku na kartě článku. Text zůstává neutrální, takže stačí výrazná barva – na webu se použije jen slabě.</p>
 	<?php
 }
 

@@ -25,7 +25,7 @@ Obojí se vydává společně se stejným číslem verze a aktualizuje se přím
 - Titulka v magazínovém stylu: nadpis s mottem a obrázkem (zvlášť pro světlý a tmavý režim), hlavní článek a mřížka karet
 - Dlaždice témat v hlavičce, které se při rolování změní v kompaktní lištu; když se témata nevejdou, nabídnou se v hamburger menu
 - Rychlé hledání v hlavičce a „Načíst další“ místo stránkování
-- Jemný barevný podtón podle rubriky (štítky, dlaždice, proužek na kartě)
+- Jemný barevný podtón podle rubriky (štítky rubrik, proužek na kartě)
 - Instalovatelný web (PWA): přečtené články jdou otevřít i offline
 - Vlastní stránka 404 s hledáním a nejnovějšími články
 

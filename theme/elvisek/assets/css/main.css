@@ -840,19 +840,12 @@ h2, h3 { break-after: avoid; }
  * 0.11.0
  * ====================================================================== */
 
-/* Barva rubriky – jen jemný podtón (--ek-cat nastavuje šablona u štítku, dlaždice, položky menu) */
+/* Barva rubriky – jen jemný podtón u štítků rubrik a proužku na kartě (menu a dlaždice zůstávají neutrální) */
 .ek-chip--cat[style*="--ek-cat"] {
 	background: color-mix(in srgb, var(--ek-cat) 13%, var(--ek-surface));
 	color: color-mix(in srgb, var(--ek-cat) 55%, var(--ek-text));
 }
 a.ek-chip--cat[style*="--ek-cat"]:hover { color: var(--ek-text); background: color-mix(in srgb, var(--ek-cat) 20%, var(--ek-surface)); }
-.ek-tile[style*="--ek-cat"], .ek-topic[style*="--ek-cat"] { background: color-mix(in srgb, var(--ek-cat) 5%, var(--ek-surface)); }
-.ek-tile[style*="--ek-cat"]:hover, .ek-topic[style*="--ek-cat"]:hover { border-color: color-mix(in srgb, var(--ek-cat) 45%, var(--ek-line)); }
-.ek-tile[style*="--ek-cat"] .ek-tile__icon, .ek-topic[style*="--ek-cat"] .ek-topic__icon, .ek-menu__item[style*="--ek-cat"] .ek-menu__icon {
-	background: color-mix(in srgb, var(--ek-cat) 14%, var(--ek-surface)); color: color-mix(in srgb, var(--ek-cat) 70%, var(--ek-text));
-}
-.ek-chipsnav li[style*="--ek-cat"] a .ek-icon { color: color-mix(in srgb, var(--ek-cat) 70%, var(--ek-text)); }
-@media (max-width: 1080px) { .ek-hero-head .ek-tile[style*="--ek-cat"] .ek-tile__icon { background: none; } }
 /* Proužek nahoře na kartě: barvy všech rubrik článku (víc rubrik = úseky) */
 .ek-card[style*="--ek-stripe"], .ek-featured[style*="--ek-stripe"] { position: relative; }
 .ek-card[style*="--ek-stripe"]::before, .ek-featured[style*="--ek-stripe"]::before {
@@ -902,6 +895,8 @@ kbd {
 .ek-404 { padding: 40px 0 8px; max-width: 760px; }
 .ek-404__code { margin: 0; font: 700 clamp(72px, 12vw, 140px)/1 var(--ek-font-head); letter-spacing: -0.04em; color: color-mix(in srgb, var(--ek-accent) 70%, var(--ek-text)); }
 .ek-404__code .ek-icon { width: 72px; height: 72px; color: var(--ek-muted); }
+.ek-404__code a { color: inherit; text-decoration: none; transition: color .15s; }
+.ek-404__code a:hover { color: var(--ek-accent); }
 .ek-404 .ek-pagehead__title { margin: 8px 0 14px; }
 .ek-404__shell {
 	margin: 0 0 16px; padding: 14px 18px; border-radius: 12px; background: var(--ek-code-bg); color: #c5cedb;
@@ -909,7 +904,6 @@ kbd {
 }
 .ek-404__shell span { color: #6ee7a8; }
 .ek-404__shell .ek-404__err { color: #ff8f87; }
-.ek-404__search { margin: 18px 0; max-width: 520px; }
 .ek-offline__saved { margin: 28px 0; }
 .ek-offline__list { margin: 10px 0 0; padding-left: 20px; }
 .ek-offline__list li { margin: 6px 0; }

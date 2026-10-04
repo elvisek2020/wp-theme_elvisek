@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.11.1 — 2026-10-05
+### Šablona
+- Barva rubriky jen u štítků rubrik a proužku na kartách článků; dlaždice témat, lišta a menu zase v původní neutrální podobě
+- Stránka 404: velké „404“ je odkaz na úvod; bez pole hledání a tlačítka Zpět (hledání je v hlavičce)
+
 ## 0.11.0 — 2026-10-05
 ### Šablona
 - **Blok Kód → styl „Výstup“** pro výstup z terminálu: světlejší přerušovaný rámeček, štítek „Výstup“, bez tlačítka Kopírovat a čísel řádků. V Markdownu řádek „Výstup:“
@@ -7,7 +12,7 @@
 - **Klávesy**: v liště formátování nové tlačítko **Klávesa** (`<kbd>`), na webu vypadá jako klávesa, v Markdownu jako `kód`
 - **Ve zkratce**: nové pole v boxu **Nastavení článku** (jeden bod na řádek, max. 8) → box nad textem článku, i v Markdown verzi a „Kopírovat pro AI“
 - **Stránka 404**: hláška ve stylu terminálu, hledání, 6 nejnovějších článků a témata
-- **Barva rubriky**: jemný podtón u štítků rubrik, dlaždic a ikon témat a tenký proužek nahoře na kartě článku (víc rubrik = víc úseků). Barva se nastavuje u rubriky (Příspěvky → Rubriky), bez nastavení výchozí z palety
+- **Barva rubriky**: jemný podtón u štítků rubrik a tenký proužek nahoře na kartě článku (víc rubrik = víc úseků). Barva se nastavuje u rubriky (Příspěvky → Rubriky), bez nastavení výchozí z palety
 - **Instalovatelný web (PWA)**: manifest s ikonami, service worker ukládá přečtené články a soubory šablony – offline jdou otevřít, jinak stránka „Jsi offline“ se seznamem uložených článků. Administrace, přihlášení, REST, hledání a náhledy se neukládají; nová verze šablony starou mezipaměť smaže
 - **Blok GitHub repozitář**: karta s popisem, hvězdičkami, posledním vydáním, jazykem a licencí. Data stahuje server (cache 12 h, při výpadku poslední úspěšná), návštěvník se GitHubu nedotkne
 
