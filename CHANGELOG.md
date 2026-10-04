@@ -1,8 +1,12 @@
 # Changelog
 
-## 0.11.4 — 2026-10-05
+## 0.11.5 — 2026-10-05
+*(obsahuje i 0.11.4 – její vydání se nepodařilo kvůli tagu na špatném commitu)*
 ### Šablona
 - Dlaždice témat (hlavička titulky, sekce Témata): barva rubriky v okraji a ikoně, plocha dlaždice zůstává neutrální; lišta a menu beze změny
+
+### Vydání
+- GitHub Action na Node 24: `actions/checkout@v5`, `softprops/action-gh-release@v3` (konec varování o Node 20)
 
 ## 0.11.3 — 2026-10-05
 ### Šablona

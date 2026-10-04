@@ -13,7 +13,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Kontrola verze (tag = Version šablony i pluginu)
         run: |
@@ -35,7 +35,7 @@ jobs:
           unzip -l elvisek.zip | tail -1; unzip -l elvisek-core.zip | tail -1
 
       - name: GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: |
             elvisek.zip
