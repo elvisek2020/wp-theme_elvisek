@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   release:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # pevně: ubuntu-latest se od 19. 10. 2026 přepne na Ubuntu 26 (jiné PHP); přechod udělat vědomě
     steps:
       - uses: actions/checkout@v5
 

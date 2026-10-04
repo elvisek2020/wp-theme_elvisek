@@ -1,5 +1,9 @@
 # Changelog
 
+## Nevydáno
+### Vydání
+- Runner pevně `ubuntu-24.04` místo `ubuntu-latest` (to se od 19. 10. 2026 přepíná na Ubuntu 26)
+
 ## 0.11.5 — 2026-10-05
 *(obsahuje i 0.11.4 – její vydání se nepodařilo kvůli tagu na špatném commitu)*
 ### Šablona
