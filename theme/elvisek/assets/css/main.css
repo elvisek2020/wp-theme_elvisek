@@ -712,7 +712,8 @@ pre.ek-code--narrow { max-width: 800px; }
 }
 .ek-footer__about { margin: 0; display: flex; gap: 6px 12px; flex-wrap: wrap; align-items: baseline; }
 .ek-footer__copy { font-weight: 700; color: var(--ek-text); }
-.ek-footer__links { display: flex; align-items: center; gap: 18px; }
+.ek-footer__links { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px 18px; max-width: 100%; }
+.ek-footer__links a, .ek-footer__links .ek-linkbtn { white-space: nowrap; }
 .ek-footer__links a, .ek-footer__links .ek-linkbtn { display: inline-flex; align-items: center; gap: 6px; color: var(--ek-muted); text-decoration: none; font-size: 14px; }
 .ek-footer__links a:hover, .ek-footer__links .ek-linkbtn:hover { color: var(--ek-accent); }
 /* Předvolby v patičce: vzhled + široká stránka */

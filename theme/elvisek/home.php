@@ -22,11 +22,11 @@ $ek_hero_l = $ek_hero ? (int) ek_opt( 'ek_hero_image_light' ) : 0;
 					<source media="(prefers-color-scheme: light)" data-ek-hero-light
 						srcset="<?php echo esc_attr( wp_get_attachment_image_srcset( $ek_hero_l, 'ek-hero' ) ?: wp_get_attachment_image_url( $ek_hero_l, 'ek-hero' ) ); ?>"
 						sizes="100vw">
-					<?php echo wp_get_attachment_image( $ek_hero, 'ek-hero', false, array( 'class' => 'ek-masthead__bg', 'alt' => '', 'loading' => 'eager', 'fetchpriority' => 'high', 'sizes' => '100vw' ) ); ?>
+					<?php echo wp_get_attachment_image( $ek_hero, 'ek-hero', false, array( 'class' => 'ek-masthead__bg', 'alt' => (string) get_post_meta( $ek_hero, '_wp_attachment_image_alt', true ), 'loading' => 'eager', 'fetchpriority' => 'high', 'sizes' => '100vw' ) ); ?>
 				</picture>
 				<script>(function(){var t=document.documentElement.dataset.theme,s=document.querySelector('[data-ek-hero-light]');if(s&&t){s.media=t==='light'?'all':'not all';}})();</script>
 			<?php elseif ( $ek_hero ) : ?>
-				<?php echo wp_get_attachment_image( $ek_hero, 'ek-hero', false, array( 'class' => 'ek-masthead__bg', 'alt' => '', 'loading' => 'eager', 'fetchpriority' => 'high', 'sizes' => '100vw' ) ); ?>
+				<?php echo wp_get_attachment_image( $ek_hero, 'ek-hero', false, array( 'class' => 'ek-masthead__bg', 'alt' => (string) get_post_meta( $ek_hero, '_wp_attachment_image_alt', true ), 'loading' => 'eager', 'fetchpriority' => 'high', 'sizes' => '100vw' ) ); ?>
 			<?php endif; ?>
 			<div class="ek-wrap ek-masthead__inner">
 				<h1 class="ek-masthead__title"><a href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home"><?php bloginfo( 'name' ); ?></a></h1>
