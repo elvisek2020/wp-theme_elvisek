@@ -1,9 +1,12 @@
 # Changelog
 
-## 0.11.2 — 2026-10-05
+## 0.11.3 — 2026-10-05
 ### Šablona
 - Patička na mobilu: odkazy se zalomí do více řádků, stránka už nejde posouvat do strany (přetékala o 13 px)
 - Obrázek v hlavičce titulky přebírá alternativní text z knihovny médií (prázdný = dekorativní obrázek)
+
+## 0.11.2 — 2026-10-05
+### Šablona
 - Ve zkratce: text v obrácených apostrofech jako `<16>` se už při uložení neztratí (dřív ho mazala sanitizace jako HTML značku)
 
 ## 0.11.1 — 2026-10-05
