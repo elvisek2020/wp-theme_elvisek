@@ -28,7 +28,7 @@ Obojí se vydává společně se stejným číslem verze a aktualizuje se přím
 
 **Články**
 - Obsah článku (TOC) z nadpisů a volitelný boční panel s novinkami
-- Bloky kódu se zvýrazněním syntaxe (PrismJS), čísly řádků a tlačítkem Kopírovat; dvě šířky podle délky kódu
+- Bloky kódu se zvýrazněním syntaxe (PrismJS), čísly řádků, tlačítkem Kopírovat a volitelným názvem souboru nad kódem; dvě šířky podle délky kódu
 - Obrázky jednotně na 800 px a prohlížeč obrázků (lightbox) se šipkami
 - Štítek „Aktualizováno“ u zrevidovaných návodů (datum se zadává v editoru)
 - Obrázek rubriky jako náhled u článků bez vlastního obrázku

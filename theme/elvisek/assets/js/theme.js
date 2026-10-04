@@ -325,7 +325,9 @@
 		if (pre.closest('.ek-code-wrap')) return;
 		const wrap = document.createElement('div');
 		wrap.className = 'ek-code-wrap';
-		pre.parentNode.insertBefore(wrap, pre);
+		const label = pre.previousElementSibling?.classList.contains('ek-code-file') ? pre.previousElementSibling : null;
+		pre.parentNode.insertBefore(wrap, label || pre);
+		if (label) { wrap.classList.add('has-file'); wrap.appendChild(label); }
 		wrap.appendChild(pre);
 		if (!navigator.clipboard) return;
 		const btn = document.createElement('button');

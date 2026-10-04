@@ -113,7 +113,9 @@ function ek_md_node( DOMNode $n, int $depth ): string {
 			$lang = preg_match( '/language-([\w+-]+)/', $cls, $m ) ? $m[1] : '';
 			$text = rtrim( str_replace( "\r", '', $n->textContent ) );
 			$fence = str_contains( $text, '```' ) ? '````' : '```';
-			return "\n\n" . $fence . $lang . "\n" . $text . "\n" . $fence . "\n\n";
+			$file  = trim( (string) $n->getAttribute( 'data-ek-file' ) );
+			$head  = '' === $file ? '' : 'Soubor `' . str_replace( '`', '', $file ) . "`:\n\n";
+			return "\n\n" . $head . $fence . $lang . "\n" . $text . "\n" . $fence . "\n\n";
 		case 'blockquote':
 			$t = trim( ek_md_children( $n, $depth ) );
 			return "\n\n" . preg_replace( '/^/m', '> ', $t ) . "\n\n";
@@ -163,6 +165,12 @@ function ek_md_node( DOMNode $n, int $depth ): string {
 				$out .= $line( $r ) . "\n";
 			}
 			return "\n\n" . $out . "\n";
+		case 'div':
+			// štítek s názvem souboru nad kódem – v Markdownu ho vypíše blok pre
+			if ( str_contains( ' ' . $n->getAttribute( 'class' ) . ' ', ' ek-code-file ' ) ) {
+				return '';
+			}
+			return ek_md_children( $n, $depth );
 		case 'details':
 			$out = '';
 			foreach ( $n->childNodes as $c ) {

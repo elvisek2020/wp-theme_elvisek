@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.10.0 — 2026-10-04
+### Šablona
+- **Název souboru nad blokem kódu**: v editoru v bloku Kód (panel **Kód**) nové pole „Název souboru“, např. `docker-compose.yml` nebo `/etc/fstab`. Na webu se zobrazí jako štítek (záložka s ikonou souboru) nad kódem, v editoru taky. V Markdown verzi článku a v „Kopírovat pro AI“ je před blokem řádek „Soubor `…`:“
+- Panel v editoru „Jazyk kódu“ přejmenován na „Kód“
+
 ## 0.9.2 — 2026-10-03
 ### Šablona
 - Obrázek v článku jde zarovnat **na střed** (v editoru blok Obrázek → Zarovnat na střed); výchozí zůstává 800 px zarovnaných vlevo s textem, popisek se u vycentrovaného obrázku také vycentruje

@@ -11,6 +11,24 @@ $GLOBALS['ek_toc'] = array();
 
 add_filter( 'the_content', 'ek_process_content', 20 );
 
+/**
+ * Blok Kód s názvem souboru (atribut ekFile z editoru): štítek nad kódem
+ * a data-ek-file na <pre> (pro Markdown verzi článku).
+ */
+add_filter( 'render_block_core/code', function ( string $html, array $block ): string {
+	$file = trim( (string) ( $block['attrs']['ekFile'] ?? '' ) );
+	if ( '' === $file ) {
+		return $html;
+	}
+	$p = new WP_HTML_Tag_Processor( $html );
+	if ( $p->next_tag( 'pre' ) ) {
+		$p->set_attribute( 'data-ek-file', $file );
+		$p->add_class( 'has-ek-file' );
+		$html = $p->get_updated_html();
+	}
+	return '<div class="ek-code-file"><span>' . esc_html( $file ) . '</span></div>' . $html;
+}, 10, 2 );
+
 function ek_process_content( string $html ): string {
 	if ( is_admin() || ! in_the_loop() || ! is_main_query() || '' === trim( $html ) ) {
 		return $html;

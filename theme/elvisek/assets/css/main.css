@@ -543,6 +543,22 @@ pre.ek-code--narrow { max-width: 800px; }
 }
 .ek-copy:hover { opacity: 1; background: #24324a; }
 .ek-copy.is-done { background: #1f5130; }
+/* Název souboru nad blokem kódu (štítek jako záložka) */
+.ek-code-file { display: flex; margin: 0; }
+.ek-code-file span {
+	display: inline-flex; align-items: center; gap: 8px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+	padding: 7px 14px 6px; border: 1px solid var(--ek-code-line); border-bottom: 0; border-radius: 10px 10px 0 0;
+	background: #131c2b; color: #c7d2e1; font: 500 13px/1.3 var(--ek-font-mono);
+}
+.ek-code-file span::before {
+	content: ""; width: 12px; height: 14px; flex: none; opacity: .75; background: currentColor;
+	-webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 14'%3E%3Cpath d='M1 0h6.5L12 4.5V13a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V1a1 1 0 0 1 1-1zm6 1.2V5h3.8L7 1.2z'/%3E%3C/svg%3E") no-repeat center / contain;
+	        mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 14'%3E%3Cpath d='M1 0h6.5L12 4.5V13a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V1a1 1 0 0 1 1-1zm6 1.2V5h3.8L7 1.2z'/%3E%3C/svg%3E") no-repeat center / contain;
+}
+.ek-code-file + pre, .ek-code-wrap.has-file pre { border-top-left-radius: 0; }
+.ek-code-file:has(+ pre) { margin-top: 1.2em; }
+.ek-code-wrap.has-file .ek-copy { top: calc(10px + 31px); }
+.ek-code-wrap.has-file:has(> pre.ek-code--narrow) { max-width: 800px; }
 /* Čísla řádků (Prism line-numbers) */
 .ek-content pre.line-numbers { position: relative; padding-left: 3.9em; counter-reset: linenumber; }
 .ek-content pre.line-numbers > code { position: relative; white-space: inherit; }

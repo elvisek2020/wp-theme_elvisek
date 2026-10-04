@@ -13,3 +13,11 @@ details { border: 1px solid var(--ek-line); border-radius: 14px; padding: 0 22px
 details > summary { padding: 16px 0 8px; font: 600 19px var(--wp--preset--font-family--heading); cursor: pointer; }
 :not(pre) > code { background: var(--ek-chip); padding: 2px 6px; border-radius: 6px; font-family: var(--wp--preset--font-family--mono); font-size: .86em; }
 blockquote { border-left: 3px solid var(--ek-accent); padding-left: 20px; margin-left: 0; font-style: italic; color: var(--ek-muted); }
+
+/* Blok Kód s názvem souboru — štítek nad kódem jako na webu */
+.wp-block-code[data-ek-file] { border-top-left-radius: 0; margin-top: 2.4em; position: relative; overflow: visible; }
+.wp-block-code[data-ek-file]::before {
+	content: attr(data-ek-file); position: absolute; left: 0; bottom: 100%;
+	padding: 6px 14px 5px; border-radius: 10px 10px 0 0; background: #131c2b; color: #c7d2e1;
+	font: 500 13px/1.3 var(--wp--preset--font-family--mono); white-space: nowrap;
+}
