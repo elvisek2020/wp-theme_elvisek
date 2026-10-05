@@ -15,3 +15,4 @@ obrazky/
 _docs/
 docs/
 mu-plugins/
+__pycache__/
