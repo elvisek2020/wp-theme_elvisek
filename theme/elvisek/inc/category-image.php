@@ -2,6 +2,7 @@
 /**
  * Obrázek rubriky: pole u rubriky (Příspěvky → Rubriky) a jeho použití jako náhledového obrázku článků.
  * Režim v Přizpůsobit → Články: vždy / jen bez vlastního obrázku / nepoužívat.
+ * Článek s volbou „Použít vlastní náhled“ (box Nastavení článku) má vždy svůj náhledový obrázek.
  * Na webu se podstrčí přes filtr post_thumbnail_id, takže funguje v kartách, detailu i Open Graph.
  * V administraci a REST API zůstává skutečný náhledový obrázek článku (data se nemění).
  */
@@ -37,6 +38,9 @@ add_filter( 'post_thumbnail_id', function ( $thumbnail_id, $post ) {
 	}
 	$mode = ek_opt( 'ek_cat_image_mode' );
 	if ( 'off' === $mode || ( 'fallback' === $mode && $thumbnail_id ) ) {
+		return $thumbnail_id;
+	}
+	if ( $thumbnail_id && defined( 'EK_OWN_THUMB_META' ) && get_post_meta( $post->ID, EK_OWN_THUMB_META, true ) ) {
 		return $thumbnail_id;
 	}
 	$cat_img = ek_category_image_id( ek_primary_category( $post ) );

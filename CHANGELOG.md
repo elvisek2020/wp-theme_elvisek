@@ -1,6 +1,9 @@
 # Changelog
 
-## Nevydáno
+## 0.11.6 — 2026-10-19
+### Šablona
+- **Vlastní náhled u článku**: v boxu **Nastavení článku** volba „Použít vlastní náhled místo obrázku rubriky“. Článek s nastaveným náhledovým obrázkem ho pak ukazuje v kartách, v detailu i v Open Graph, i když je v Přizpůsobit → Články obrázek rubriky nastavený na „Vždy“. Hodí se pro portfolio a podobné články
+
 ### Vydání
 - Runner pevně `ubuntu-24.04` místo `ubuntu-latest` (to se od 19. 10. 2026 přepíná na Ubuntu 26)
 
