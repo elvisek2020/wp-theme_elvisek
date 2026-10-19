@@ -35,7 +35,7 @@ get_header();
 					</div>
 				</header>
 
-				<?php if ( has_post_thumbnail() ) : ?>
+				<?php if ( has_post_thumbnail() && ! ( function_exists( 'ek_hide_hero' ) && ek_hide_hero() ) ) : ?>
 					<figure class="ek-article__hero ek-thumb<?php echo ek_thumb_is_logo( get_post_thumbnail_id() ) ? ' ek-article__hero--logo' : ''; ?>">
 						<?php the_post_thumbnail( 'ek-hero', array( 'alt' => ek_plain_title(), 'class' => 'ek-thumb__img', 'loading' => 'eager', 'fetchpriority' => 'high', 'sizes' => '(max-width: 900px) 100vw, 860px' ) ); ?>
 					</figure>

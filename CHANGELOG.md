@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.11.7 — 2026-10-19
+### Šablona
+- **Skrýt úvodní obrázek v článku**: nová volba v boxu **Nastavení článku** → Náhledový obrázek. Detail článku začne rovnou textem, karty na webu a náhled při sdílení zůstanou (hodí se pro portfolio, kde je obrázek v textu)
+
 ## 0.11.6 — 2026-10-19
 ### Šablona
 - **Vlastní náhled u článku**: v boxu **Nastavení článku** volba „Použít vlastní náhled místo obrázku rubriky“. Článek s nastaveným náhledovým obrázkem ho pak ukazuje v kartách, v detailu i v Open Graph, i když je v Přizpůsobit → Články obrázek rubriky nastavený na „Vždy“. Hodí se pro portfolio a podobné články

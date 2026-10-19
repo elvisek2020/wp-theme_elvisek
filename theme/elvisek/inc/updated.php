@@ -13,6 +13,7 @@ const EK_UPDATED_META = 'ek_updated';
 const EK_TOC_META     = 'ek_toc';    // '' = podle nastavení šablony, 'show', 'hide'
 const EK_SUMMARY_META = 'ek_summary'; // shrnutí „Ve zkratce“, jeden bod na řádek
 const EK_OWN_THUMB_META = 'ek_own_thumb'; // true = vlastní náhledový obrázek i při režimu „Obrázek rubriky: vždy“
+const EK_HIDE_HERO_META = 'ek_hide_hero'; // true = v detailu článku bez úvodního obrázku (karty a Open Graph beze změny)
 
 add_action( 'init', function () {
 	register_post_meta( 'post', EK_UPDATED_META, array(
@@ -36,13 +37,15 @@ add_action( 'init', function () {
 		'sanitize_callback' => 'ek_summary_sanitize',
 		'auth_callback'     => fn() => current_user_can( 'edit_posts' ),
 	) );
-	register_post_meta( 'post', EK_OWN_THUMB_META, array(
-		'type'          => 'boolean',
-		'single'        => true,
-		'default'       => false,
-		'show_in_rest'  => true,
-		'auth_callback' => fn() => current_user_can( 'edit_posts' ),
-	) );
+	foreach ( array( EK_OWN_THUMB_META, EK_HIDE_HERO_META ) as $ek_meta ) {
+		register_post_meta( 'post', $ek_meta, array(
+			'type'          => 'boolean',
+			'single'        => true,
+			'default'       => false,
+			'show_in_rest'  => true,
+			'auth_callback' => fn() => current_user_can( 'edit_posts' ),
+		) );
+	}
 } );
 
 /**
@@ -142,6 +145,12 @@ function ek_updated_chip(): string {
 
 /* ---------- Box v editoru ---------- */
 
+/** Detail článku bez úvodního obrázku (volba v boxu Nastavení článku). */
+function ek_hide_hero( $post = null ): bool {
+	$post = get_post( $post );
+	return $post ? (bool) get_post_meta( $post->ID, EK_HIDE_HERO_META, true ) : false;
+}
+
 add_action( 'add_meta_boxes_post', function () {
 	add_meta_box( 'ek-updated', 'Nastavení článku', 'ek_updated_metabox', 'post', 'side' );
 } );
@@ -160,11 +169,13 @@ function ek_updated_metabox( WP_Post $post ): void {
 	<p style="margin:14px 0 4px"><label for="ek-summary-input"><strong>Ve zkratce</strong></label></p>
 	<textarea name="ek_summary" id="ek-summary-input" rows="5" style="width:100%" placeholder="Jeden bod na řádek"><?php echo esc_textarea( (string) get_post_meta( $post->ID, EK_SUMMARY_META, true ) ); ?></textarea>
 	<p class="description" style="margin-top:2px">Zobrazí se jako box nad textem článku. Jeden bod na řádek (max. 8), `kód` v obrácených apostrofech.</p>
-	<?php if ( function_exists( 'ek_category_image_id' ) && 'off' !== ek_opt( 'ek_cat_image_mode' ) ) : ?>
 	<p style="margin:14px 0 4px"><strong>Náhledový obrázek</strong></p>
+	<?php if ( function_exists( 'ek_category_image_id' ) && 'off' !== ek_opt( 'ek_cat_image_mode' ) ) : ?>
 	<label style="display:flex;gap:6px;align-items:flex-start"><input type="checkbox" name="ek_own_thumb" value="1" <?php checked( (bool) get_post_meta( $post->ID, EK_OWN_THUMB_META, true ) ); ?> style="margin-top:2px"> Použít vlastní náhled místo obrázku rubriky</label>
-	<p class="description" style="margin-top:2px">Platí, jen když má článek nastavený náhledový obrázek. Jinak rozhoduje Přizpůsobit → Články → Obrázek rubriky.</p>
+	<p class="description" style="margin:2px 0 8px">Platí, jen když má článek nastavený náhledový obrázek. Jinak rozhoduje Přizpůsobit → Články → Obrázek rubriky.</p>
 	<?php endif; ?>
+	<label style="display:flex;gap:6px;align-items:flex-start"><input type="checkbox" name="ek_hide_hero" value="1" <?php checked( ek_hide_hero( $post ) ); ?> style="margin-top:2px"> Skrýt úvodní obrázek v článku</label>
+	<p class="description" style="margin-top:2px">Článek začne rovnou textem. Karty na webu a náhled při sdílení zůstanou.</p>
 	<p style="margin:14px 0 4px"><strong>Aktualizace návodu</strong></p>
 	<p style="margin-top:0">Když návod zrevidujete, zadejte datum – u článku se zobrazí štítek „Aktualizováno“. Prázdné = bez štítku.</p>
 	<p style="display:flex;gap:6px;align-items:center">
@@ -193,10 +204,12 @@ add_action( 'save_post_post', function ( int $post_id ) {
 	} else {
 		delete_post_meta( $post_id, EK_SUMMARY_META );
 	}
-	if ( ! empty( $_POST['ek_own_thumb'] ) ) {
-		update_post_meta( $post_id, EK_OWN_THUMB_META, true );
-	} else {
-		delete_post_meta( $post_id, EK_OWN_THUMB_META );
+	foreach ( array( 'ek_own_thumb' => EK_OWN_THUMB_META, 'ek_hide_hero' => EK_HIDE_HERO_META ) as $field => $meta ) {
+		if ( ! empty( $_POST[ $field ] ) ) {
+			update_post_meta( $post_id, $meta, true );
+		} else {
+			delete_post_meta( $post_id, $meta );
+		}
 	}
 	$value = ek_updated_sanitize( wp_unslash( $_POST['ek_updated'] ?? '' ) );
 	if ( $value ) {
