@@ -1,19 +1,33 @@
-# zálohy a lokální prostředí neverzujeme
-backup-*/
+# Do repa jako .gitignore. Komentáře vždy na samostatném řádku – inline komentář změní vzor.
+
+# macOS
+.DS_Store
+
+# Tajné údaje – commituje se jen .env.example
+.env
+
+# Přístupové údaje k webu (aplikační heslo REST, FTP/SSH)
+ctime.txt
+
+# Lokální pomocné složky – nikdy necommitovat
+# _docs/ = PLAN.md, WISHLIST.md, pracovní podklady; _backup/ = zálohy webu (_backup/RRRR-MM-DD/)
+_docs/
+_backup/
+.cursor/
+
+# Lokální WordPress v Dockeru (kopie webrootu, dump, karanténa pluginů)
 dev/wp/
 dev/db/
-_to_delete/
-ctime.txt
-.DS_Store
 dev/_incoming/
 dev/_disabled-plugins/
 dev/wp-content-uploads/
-*.log
-obrazky/
-# interní dokumenty (plán, wishlist, bezpečnostní audit) – do veřejného repa nepatří
-# (pozor: komentář v .gitignore musí být na samostatném řádku, za vzorem nefunguje)
-_docs/
-docs/
+
+# Vývojové pomůcky a pracovní soubory – do repa nepatří
 mu-plugins/
+_to_delete/
+obrazky/
+*.log
 __pycache__/
+
+# Instrukce pro Claude Code – lokální, do repa nepatří
 CLAUDE.md

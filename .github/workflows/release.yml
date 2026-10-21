@@ -1,43 +1,83 @@
-# Po pushnutí tagu vX.Y.Z sestaví elvisek.zip (šablona) + elvisek-core.zip (plugin) a vytvoří GitHub Release.
-# WordPress (inc/updater.php) si pak aktualizaci najde sám.
-name: Release šablony
+# Vydání pluginu (a šablony) z tagu vX.Y.Z.
+# Ze šablony skillu wp-custom-theme (templates/release.yml); slug elvisek, PHP_VERSION podle produkce.
+# Bez vlastní šablony smaž řádky, které končí komentářem THEME.
+#
+# Plugin napřed, šablona později: řádky s komentářem THEME nemaž ani nevyjímej. Dokud v repu není
+# theme/elvisek/style.css, přeskočí se samy (kontrola verze i ZIP šablony) a Release má jen
+# elvisek-core.zip. Jakmile šablona přibude, kontroluje se a balí bez úprav workflow.
+# Chceš-li šablonu vynutit (chybějící style.css = chyba vydání), nastav REQUIRE_THEME: "1".
+name: Release
 
 on:
   push:
-    tags: ['v*']
+    tags:
+      - "v*"
 
 permissions:
   contents: write
 
+env:
+  PHP_VERSION: "8.5"   # = verze PHP na produkci (WEDOS: 8.5.12, ověřeno 21. 10. 2026); při změně na hostingu změň i tady
+  REQUIRE_THEME: "1"   # THEME — "1" = šablona musí být v repu
+
 jobs:
   release:
-    runs-on: ubuntu-24.04  # pevně: ubuntu-latest se od 19. 10. 2026 přepne na Ubuntu 26 (jiné PHP); přechod udělat vědomě
+    name: Build & publish release ZIPs
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
-      - name: Kontrola verze (tag = Version šablony i pluginu)
+      - name: Kontrola verze (tag = Version pluginu i šablony)
         run: |
+          case "$PHP_VERSION" in *x*) echo "::error::PHP_VERSION nahoře ve workflow nastav na verzi PHP produkce"; exit 1;; esac
           TAG="${GITHUB_REF_NAME#v}"
-          THEME=$(grep -m1 -E '^Version:' theme/elvisek/style.css | awk '{print $2}')
           CORE=$(grep -m1 -E '^ \* Version:' plugins/elvisek-core/elvisek-core.php | awk '{print $3}')
-          echo "tag=$TAG theme=$THEME core=$CORE"
-          if [ "$TAG" != "$THEME" ] || [ "$TAG" != "$CORE" ]; then
-            echo "::error::Tag v$TAG musí odpovídat Version ve style.css ($THEME) i v elvisek-core.php ($CORE)"; exit 1
-          fi
+          [ "$TAG" = "$CORE" ] || { echo "::error::Tag v$TAG ≠ Version pluginu $CORE"; exit 1; }
+          if [ -f theme/elvisek/style.css ]; then   # THEME
+            THEME=$(grep -m1 -E '^Version:' theme/elvisek/style.css | awk '{print $2}')   # THEME
+            [ "$TAG" = "$THEME" ] || { echo "::error::Tag v$TAG ≠ Version šablony $THEME"; exit 1; }   # THEME
+          elif [ "$REQUIRE_THEME" = "1" ]; then echo "::error::Chybí theme/elvisek/style.css"; exit 1;   # THEME
+          else echo "::notice::Šablona v repu zatím není, vydává se jen plugin."; fi   # THEME
 
-      - name: Kontrola syntaxe PHP
-        run: find theme/elvisek plugins/elvisek-core -name '*.php' -print0 | xargs -0 -n1 php -l
+      # PHP připnuté podle produkce: ubuntu-latest se posouvá a s ním i předinstalované PHP.
+      - name: PHP ${{ env.PHP_VERSION }} (jako na produkci)
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          coverage: none
+          tools: none
+
+      - name: Kontrola syntaxe PHP ${{ env.PHP_VERSION }}
+        run: |
+          php -v | head -n1
+          for d in plugins theme; do
+            if [ -d "$d" ]; then find "$d" -name '*.php' -print0; fi
+          done | xargs -0 -n1 php -l
 
       - name: Sestavení ZIPů
         run: |
-          (cd theme && zip -rq ../elvisek.zip elvisek -x 'elvisek/.gitkeep' -x '*/.DS_Store' -x 'elvisek/README.md')
           (cd plugins && zip -rq ../elvisek-core.zip elvisek-core -x '*/.DS_Store')
-          unzip -l elvisek.zip | tail -1; unzip -l elvisek-core.zip | tail -1
+          if [ -f theme/elvisek/style.css ]; then   # THEME
+            (cd theme && zip -rq ../elvisek.zip elvisek -x '*/.DS_Store' -x 'elvisek/README.md' -x 'elvisek/.gitkeep')   # THEME
+          fi   # THEME
 
-      - name: GitHub Release
+      # Text vydání = sekce „## vX.Y.Z — RRRR-MM-DD“ z CHANGELOG.md.
+      # Bez sekce zůstanou jen automaticky generované poznámky.
+      - name: Release notes from CHANGELOG.md
+        run: |
+          awk -v tag="$GITHUB_REF_NAME" '
+            $1 == "##" { if (found) exit; if ($2 == tag) { found = 1; next } }
+            found
+          ' CHANGELOG.md > release-notes.md
+          if [ -s release-notes.md ]; then
+            echo "Release notes for $GITHUB_REF_NAME:"; cat release-notes.md
+          else
+            echo "::warning::CHANGELOG.md nemá sekci ## $GITHUB_REF_NAME"
+          fi
+
+      - name: GitHub Release s ZIPy
         uses: softprops/action-gh-release@v3
         with:
-          files: |
-            elvisek.zip
-            elvisek-core.zip
+          files: "*.zip"
+          body_path: release-notes.md
           generate_release_notes: true
