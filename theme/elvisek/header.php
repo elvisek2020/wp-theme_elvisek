@@ -25,10 +25,10 @@ $ek_topics  = ek_nav_topics();
 				<ul style="<?php echo esc_attr( ek_tiles_style( count( $ek_topics ) ) ); ?>">
 					<?php foreach ( $ek_topics as $cat ) : ?>
 						<li>
-							<a class="ek-tile" href="<?php echo esc_url( get_category_link( $cat ) ); ?>"<?php echo ek_cat_style( $cat ); ?>>
-								<span class="ek-tile__icon"><?php echo ek_icon( ek_category_icon_name( $cat->slug ), 19 ); ?></span>
+							<a class="ek-tile" href="<?php echo esc_url( get_category_link( $cat ) ); ?>"<?php echo ekt_term_color_style( $cat ); ?>>
+								<span class="ek-tile__icon"><?php echo ekt_icon( ek_category_icon_name( $cat->slug ), 19 ); ?></span>
 								<span class="ek-tile__name"><?php echo esc_html( $cat->name ); ?></span>
-								<span class="ek-tile__count"><?php echo esc_html( ek_plural( (int) $cat->count, 'článek', 'články', 'článků' ) ); ?></span>
+								<span class="ek-tile__count"><?php echo esc_html( ekt_plural( (int) $cat->count, '%d článek', '%d články', '%d článků' ) ); ?></span>
 							</a>
 						</li>
 					<?php endforeach; ?>
@@ -46,7 +46,7 @@ $ek_topics  = ek_nav_topics();
 				<?php foreach ( $ek_topics as $cat ) : ?>
 					<li class="<?php echo ek_is_current_topic( $cat ) ? 'is-current' : ''; ?>">
 						<a href="<?php echo esc_url( get_category_link( $cat ) ); ?>"<?php echo is_category( $cat->term_id ) ? ' aria-current="page"' : ''; ?>>
-							<?php echo ek_icon( ek_category_icon_name( $cat->slug ), 16 ); ?><span><?php echo esc_html( $cat->name ); ?></span>
+							<?php echo ekt_icon( ek_category_icon_name( $cat->slug ), 16 ); ?><span><?php echo esc_html( $cat->name ); ?></span>
 						</a>
 					</li>
 				<?php endforeach; ?>
@@ -55,7 +55,7 @@ $ek_topics  = ek_nav_topics();
 		<?php ek_header_tools( 'ek-search' ); ?>
 		<?php if ( $ek_topics ) : ?>
 			<button type="button" class="ek-iconbtn ek-menubtn" data-ek-menu-toggle aria-expanded="false" aria-controls="ek-menu" aria-label="Témata">
-				<span class="ek-menubtn__open"><?php echo ek_icon( 'menu' ); ?></span><span class="ek-menubtn__close"><?php echo ek_icon( 'close' ); ?></span>
+				<span class="ek-menubtn__open"><?php echo ekt_icon( 'menu', 18 ); ?></span><span class="ek-menubtn__close"><?php echo ekt_icon( 'close', 18 ); ?></span>
 			</button>
 		<?php endif; ?>
 	</div>
@@ -66,10 +66,10 @@ $ek_topics  = ek_nav_topics();
 					<?php foreach ( $ek_topics as $cat ) : ?>
 						<li>
 							<a class="ek-menu__item<?php echo ek_is_current_topic( $cat ) ? ' is-current' : ''; ?>" href="<?php echo esc_url( get_category_link( $cat ) ); ?>"<?php echo is_category( $cat->term_id ) ? ' aria-current="page"' : ''; ?>>
-								<span class="ek-menu__icon"><?php echo ek_icon( ek_category_icon_name( $cat->slug ), 18 ); ?></span>
+								<span class="ek-menu__icon"><?php echo ekt_icon( ek_category_icon_name( $cat->slug ), 18 ); ?></span>
 								<span class="ek-menu__text">
 									<span class="ek-menu__name"><?php echo esc_html( $cat->name ); ?></span>
-									<span class="ek-menu__count"><?php echo esc_html( ek_plural( (int) $cat->count, 'článek', 'články', 'článků' ) ); ?></span>
+									<span class="ek-menu__count"><?php echo esc_html( ekt_plural( (int) $cat->count, '%d článek', '%d články', '%d článků' ) ); ?></span>
 								</span>
 							</a>
 						</li>

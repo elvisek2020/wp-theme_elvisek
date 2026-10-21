@@ -14,7 +14,7 @@ $ek_count = (int) get_comments_number();
 		<details class="ek-comments__box" data-ek-comments>
 		<summary class="ek-comments__summary">
 			<h2 class="ek-compose__title"><?php echo esc_html( 'Komentáře (' . $ek_count . ')' ); ?></h2>
-			<span class="ek-comments__toggle"><span class="ek-comments__show">Zobrazit</span><span class="ek-comments__hide">Skrýt</span><?php echo ek_icon( 'chevron', 18 ); ?></span>
+			<span class="ek-comments__toggle"><span class="ek-comments__show">Zobrazit</span><span class="ek-comments__hide">Skrýt</span><?php echo ekt_icon( 'chevron', 18 ); ?></span>
 		</summary>
 		<ol class="ek-comments__list">
 			<?php

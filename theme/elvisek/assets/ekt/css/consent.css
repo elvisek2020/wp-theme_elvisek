@@ -1,0 +1,53 @@
+/*
+ * EKT analytics — funkční styl cookie lišty (rozložení, ne vzhled).
+ * Barvy, písmo a mezery dodá šablona (main.css) přes --ekt-* nebo vlastní pravidla pro .ekt-consent.
+ */
+.ekt-consent[hidden] { display: none; }
+
+:where(.ekt-consent) {
+	position: fixed;
+	inset: auto 0 0 0;
+	z-index: 9990;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: 8px 16px;
+	padding: 12px 16px;
+	background: var(--ekt-bg, #fff);
+	color: var(--ekt-fg, #1d2127);
+	border-top: 1px solid var(--ekt-border, #dde1e6);
+}
+
+:where(.ekt-consent__text) { margin: 0; max-width: 60ch; }
+:where(.ekt-consent__actions) { display: flex; flex-wrap: wrap; gap: 8px; }
+
+:where(.ekt-consent__btn) {
+	font: inherit;
+	cursor: pointer;
+	padding: 6px 14px;
+	border: 1px solid var(--ekt-border, #dde1e6);
+	border-radius: var(--ekt-radius, 6px);
+	background: transparent;
+	color: inherit;
+}
+
+:where(.ekt-consent__btn--accept) {
+	border-color: var(--ekt-accent, #0b63ce);
+	background: var(--ekt-accent, #0b63ce);
+	color: var(--ekt-bg, #fff);
+}
+
+:where(.ekt-consent-link) {
+	font: inherit;
+	padding: 0;
+	border: 0;
+	background: none;
+	color: inherit;
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+@media print {
+	:where(.ekt-consent) { display: none; }
+}

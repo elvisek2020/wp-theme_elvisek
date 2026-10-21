@@ -1,6 +1,19 @@
 # Changelog
 
-## Nevydáno
+## v0.13.0 — 2026-10-21
+
+### Šablona
+- **Převod na kanonické moduly** ze skillu `wp-custom-theme`: funkce šablony (SEO, GA4 s cookie lištou, lightbox, blok Kód, obsah článku, Ve zkratce, Aktualizováno, Markdown pro AI, GitHub repozitář, PWA, světlý/tmavý režim, rychlé hledání, Načíst další, barva a obrázek rubriky, sdílení, Nahoru, antispam) jsou teď moduly stejné na všech spravovaných webech (`inc/ekt/`, `assets/ekt/`). Vzhled webu se nemění. Nastavení se převede samo při první návštěvě administrace: Přizpůsobit (GA, motto, témata, obrázky hlavičky, patička, sítě), Nastavení článku (Ve zkratce, Aktualizováno, obsah článku, vlastní náhled, skrytý úvodní obrázek), barvy a obrázky rubrik, volby v prohlížeči (režim, šířka, souhlas s cookies)
+- **SEO**: datové archivy (`/2026/10/`) mají `noindex, follow`, feedy hlavičku `X-Robots-Tag: noindex, follow`, Markdown verze článku (`.md`) jen canonical na článek (bez `noindex`)
+- Nová sekce **Přizpůsobit → Sociální sítě**; projektová nastavení jsou v sekcích Úvodní stránka a Články jako dosud
+- Kopírovat pro AI, sdílení, kód, lightbox a hledání beze změny pro návštěvníka; obsah článků se nepřepisuje (starý blok GitHub, styl Výstup a název souboru u kódu fungují dál)
+
+Změny chování:
+- Meta článku přes REST mají nové názvy: `ekt_summary`, `ekt_updated`, `ekt_toc`, `ekt_site_own_thumb`, `ekt_site_hide_hero` (dřív `ek_…`)
+- Rychlé hledání má adresu `/wp-json/ekt/v1/search` (dřív `ek/v1`)
+
+### ElvisEK Core
+- Obrázky rubrik pro Údržbu (nepoužité obrázky) teď dodává šablona; projektový filtr v pluginu odstraněn
 
 ### Vydání
 - Workflow vydání podle šablony skillu `wp-custom-theme`: `actions/checkout@v7`, runner `ubuntu-latest`, PHP pevně 8.5 jako na produkci (`shivammathur/setup-php`), text vydání z tohoto CHANGELOGu

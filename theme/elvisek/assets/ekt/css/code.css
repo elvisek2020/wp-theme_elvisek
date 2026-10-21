@@ -1,0 +1,46 @@
+/* EKT code — jen funkční CSS: obal, pozice tlačítek, sbalení, úzký kód, čísla řádků (Prism).
+ * Barvy kódu a tokenů (.token.*), písmo a mezery patří do CSS šablony. */
+:where(.ekt-code-wrap) { position: relative; }
+:where(.ekt-code-wrap > pre) { margin-top: 0; margin-bottom: 0; }
+:where(.ekt-code-file) { display: flex; margin: 0; }
+:where(.ekt-code-file__name) { display: inline-block; max-width: 100%; overflow-wrap: anywhere; }
+
+:where(.ekt-code-copy) {
+	position: absolute; top: .5rem; right: .5rem; z-index: 2;
+	cursor: pointer; font: inherit; font-size: .8125rem; line-height: 1.4;
+	padding: .25em .7em; border: 1px solid var(--ekt-border, rgba(127, 127, 127, .4));
+	border-radius: var(--ekt-radius, 6px); background: var(--ekt-bg, #fff); color: var(--ekt-fg, #111);
+	opacity: .85;
+}
+:where(.ekt-code-copy:hover), :where(.ekt-code-copy:focus-visible) { opacity: 1; }
+:where(.ekt-code-wrap.has-file .ekt-code-copy) { top: calc(.5rem + var(--ekt-code-file-height, 2em)); }
+
+/* Úzký kód: krátké řádky nepřetahovat přes celý sloupec. */
+:where(pre.ekt-code--narrow),
+:where(.ekt-code-wrap:has(> pre.ekt-code--narrow)) { max-width: var(--ekt-code-narrow, 800px); }
+
+/* Sbalení dlouhého kódu (Kopírovat bere vždy celý kód). */
+:where(.ekt-code-wrap.is-collapsed > pre) {
+	max-height: var(--ekt-code-collapsed, 26em); overflow: hidden;
+	-webkit-mask-image: linear-gradient(#000 75%, transparent);
+	mask-image: linear-gradient(#000 75%, transparent);
+}
+:where(.ekt-code-more) {
+	display: block; margin: .5em auto 0; cursor: pointer; font: inherit; font-size: .875rem;
+	padding: .3em 1em; border: 1px solid var(--ekt-border, rgba(127, 127, 127, .4));
+	border-radius: var(--ekt-radius, 6px); background: transparent; color: var(--ekt-accent, #0b63ce);
+}
+
+/* Čísla řádků (plugin line-numbers v prism.js). */
+:where(pre.line-numbers) { position: relative; padding-left: 3.8em; counter-reset: linenumber; }
+:where(pre.line-numbers > code) { position: relative; white-space: inherit; }
+:where(.line-numbers .line-numbers-rows) {
+	position: absolute; pointer-events: none; top: 0; left: -3.8em; width: 3em;
+	font-size: 100%; letter-spacing: -1px; user-select: none; -webkit-user-select: none;
+	border-right: 1px solid var(--ekt-border, rgba(127, 127, 127, .4));
+}
+:where(.line-numbers-rows > span) { display: block; counter-increment: linenumber; }
+:where(.line-numbers-rows > span)::before {
+	content: counter(linenumber); display: block; padding-right: .8em; text-align: right;
+	color: var(--ekt-muted, #888);
+}

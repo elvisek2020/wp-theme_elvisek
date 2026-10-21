@@ -6,16 +6,6 @@
 defined( 'ABSPATH' ) || exit;
 
 /* =========================================================================
- * Média: obrázek rubriky ze šablony (term meta ek_image) se počítá jako použitý.
- * ====================================================================== */
-
-add_filter( 'ekc_media_used_ids', function ( array $ids ): array {
-	global $wpdb;
-	$terms = $wpdb->get_col( "SELECT meta_value FROM {$wpdb->termmeta} WHERE meta_key = 'ek_image'" );
-	return array_merge( $ids, array_filter( array_map( 'intval', $terms ) ) );
-} );
-
-/* =========================================================================
  * /llms.txt: úvodní věta ze starého pluginu (jednorázově do nastavení) a odkaz na Kontakt.
  * ====================================================================== */
 

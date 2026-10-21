@@ -8,11 +8,11 @@ defined( 'ABSPATH' ) || exit;
 get_header();
 
 $ek_paged = max( 1, (int) get_query_var( 'paged' ) );
-$ek_hero  = (int) ek_opt( 'ek_hero_image' );
-$ek_hero_l = $ek_hero ? (int) ek_opt( 'ek_hero_image_light' ) : 0;
+$ek_hero  = (int) ekt_opt( 'site_hero_image' );
+$ek_hero_l = $ek_hero ? (int) ekt_opt( 'site_hero_image_light' ) : 0;
 ?>
 <main id="obsah" class="ek-main">
-	<?php if ( 1 === $ek_paged && ! ek_opt( 'ek_show_masthead' ) ) : ?>
+	<?php if ( 1 === $ek_paged && ! ekt_opt( 'site_show_masthead' ) ) : ?>
 		<h1 class="screen-reader-text"><?php bloginfo( 'name' ); ?></h1>
 		<div class="ek-home-gap"></div>
 	<?php elseif ( 1 === $ek_paged ) : ?>
@@ -30,7 +30,7 @@ $ek_hero_l = $ek_hero ? (int) ek_opt( 'ek_hero_image_light' ) : 0;
 			<?php endif; ?>
 			<div class="ek-wrap ek-masthead__inner">
 				<h1 class="ek-masthead__title"><a href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home"><?php bloginfo( 'name' ); ?></a></h1>
-				<?php if ( $ek_motto = ek_opt( 'ek_motto' ) ) : ?>
+				<?php if ( $ek_motto = ekt_opt( 'site_motto' ) ) : ?>
 					<p class="ek-masthead__motto"><?php echo esc_html( $ek_motto ); ?></p>
 				<?php endif; ?>
 			</div>
@@ -53,7 +53,7 @@ $ek_hero_l = $ek_hero ? (int) ek_opt( 'ek_hero_image_light' ) : 0;
 				<?php if ( 1 === $ek_paged ) : ?>
 					<div class="ek-section__head"><h2 id="ek-latest-title" class="ek-section__title">Další články</h2></div>
 				<?php endif; ?>
-				<div class="ek-grid" data-ek-grid>
+				<div class="ek-grid" data-ekt-grid>
 					<?php
 					while ( have_posts() ) {
 						the_post();
@@ -61,7 +61,7 @@ $ek_hero_l = $ek_hero ? (int) ek_opt( 'ek_hero_image_light' ) : 0;
 					}
 					?>
 				</div>
-				<?php ek_load_more(); ?>
+				<?php echo ekt_load_more(); // phpcs:ignore WordPress.Security.EscapeOutput -- escapuje modul ?>
 			</section>
 		<?php else : ?>
 			<p>Zatím tu nic není.</p>

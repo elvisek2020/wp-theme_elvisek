@@ -1,0 +1,9 @@
+/* EKT github — jen funkční rozložení karty repozitáře. Barvy, písmo a mezery jsou v CSS šablony. */
+:where(.ekt-gh) { display: flex; flex-wrap: wrap; align-items: flex-start; gap: .75rem 1rem; }
+:where(.ekt-gh__icon) { flex: 0 0 auto; line-height: 0; }
+:where(.ekt-gh__body) { flex: 1 1 16rem; min-width: 0; }
+:where(.ekt-gh__name), :where(.ekt-gh__desc) { margin: 0 0 .35em; overflow-wrap: anywhere; }
+:where(.ekt-gh__facts) { display: flex; flex-wrap: wrap; gap: .25rem 1rem; margin: 0; padding: 0; list-style: none; }
+:where(.ekt-gh__fact) { display: inline-flex; align-items: center; gap: .35em; margin: 0; }
+:where(.ekt-gh__btn) { flex: 0 0 auto; align-self: center; white-space: nowrap; }
+:where(.ekt-gh--plain) { display: block; }

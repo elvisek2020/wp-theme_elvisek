@@ -1,0 +1,21 @@
+/*
+ * EKT embeds — vložená videa na šířku obsahu se stálým poměrem stran (výchozí 16 : 9).
+ * Jiný poměr: --ekt-embed-ratio (např. 9 / 16 pro svislé video).
+ */
+:where(iframe.ekt-embed) {
+	display: block;
+	width: 100%;
+	max-width: 100%;
+	height: auto;
+	aspect-ratio: var(--ekt-embed-ratio, 16 / 9);
+	border: 0;
+}
+
+/* Blok Vložit s responzivním obalem core (wp-has-aspect-ratio) drží poměr sám (podpora responsive-embeds). */
+:where(.wp-embed-responsive .wp-has-aspect-ratio iframe.ekt-embed) { aspect-ratio: auto; }
+
+/* Blokový styl „Úzké“ (ekt-narrow, starší ek-narrow): video jen na šířku čtení. */
+:where(.is-style-ekt-narrow),
+:where(.is-style-ek-narrow) {
+	max-width: var(--ekt-narrow-width, 800px);
+}

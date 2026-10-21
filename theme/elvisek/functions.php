@@ -1,35 +1,92 @@
 <?php
 /**
- * ElvisEK — šablona pro www.elvisek.cz
+ * Šablona ElvisEK — identita a načtení modulů.
  *
- * Každý modul v inc/ jde vypnout zakomentováním řádku níže.
+ * Soubor theme/elvisek/functions.php. Kanonické moduly v inc/ekt/ (a jejich assets/ekt/) jsou na všech
+ * webech bajtově shodné a mění se jen ve skillu (scripts/modules.py). Web se liší tímto souborem,
+ * šablonovými soubory (header.php, single.php…), assets/css/ a projektovými moduly
+ * inc/<oblast>.php a inc/site-*.php. Vypnutí kanonického modulu = smazání souboru i jeho assets.
  */
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'EK_VERSION', (string) wp_get_theme( get_template() )->get( 'Version' ) );
-define( 'EK_DIR', get_template_directory() );
-define( 'EK_URI', get_template_directory_uri() );
+/* -------------------------------------------------------------------------
+ * Identita šablony (hodnoty z hlavičky style.css)
+ * ---------------------------------------------------------------------- */
 
-$ek_modules = array(
-	'setup',             // podpora šablony, menu, velikosti obrázků, úklid <head>
-	'customizer',        // motto, obrázek hlavičky, text do patičky, GA4 ID
-	'assets',            // CSS/JS, podmíněné načítání
-	'template-tags',     // pomocné funkce pro šablony (meta, ikony, karty)
-	'category-image',    // obrázek rubriky (náhled článků bez vlastního / místo vlastního)
-	'category-color',    // barva rubriky: jemný podtón štítků, dlaždic a karet
-	'content',           // externí odkazy, kotvy nadpisů, obsah článku (TOC)
-	'seo',               // meta description, Open Graph, JSON-LD
-	'comments-antispam', // honeypot + časová kontrola
-	'analytics-consent', // GA4 + cookie lišta (jen když je vyplněné ID)
-	'updater',           // aktualizace z GitHub Releases
-	'updated',           // štítek „Aktualizováno“ u návodů
-	'markdown',          // článek jako Markdown (.md) a tlačítko Kopírovat pro AI
-	'social',            // sdílení článku, profily v patičce, rychlé hledání (REST)
-	'github',            // blok GitHub repozitář (karta, data z API s cache)
-	'pwa',               // instalovatelný web: manifest, service worker, stránka offline
+define( 'EKT_LEGACY', array( 'ek' ) ); // staré prefixy dat šablony k migraci: 'ek', 'iv', 'mnd'; nová šablona array()
+
+define( 'EKT_FILE', __FILE__ );
+define( 'EKT_DIR', get_template_directory() );
+define( 'EKT_URI', get_template_directory_uri() );
+define( 'EKT_SLUG', get_template() ); // složka šablony = název ZIPu ve vydání
+
+$ekt_header = get_file_data(
+	EKT_DIR . '/style.css',
+	array(
+		'name'    => 'Theme Name',
+		'version' => 'Version',
+		'uri'     => 'Update URI',
+	)
+);
+define( 'EKT_NAME', (string) $ekt_header['name'] );
+define( 'EKT_VERSION', (string) $ekt_header['version'] );
+define( 'EKT_REPO', trim( (string) preg_replace( '#^https?://github\.com/#i', '', (string) $ekt_header['uri'] ), '/' ) ); // owner/repo
+unset( $ekt_header );
+
+/* -------------------------------------------------------------------------
+ * Projektové moduly šablony v inc/ (pořadí = pořadí načtení, komentář = co dělají).
+ * Kanonické moduly sem nepatří, načítají se samy z inc/ekt/.
+ * ---------------------------------------------------------------------- */
+
+$ekt_site_modules = array(
+	'setup',         // menu, logo, velikosti obrázků, content_width, výpis článků
+	'assets',        // styly a skript šablony, preload písem, editor
+	'template-tags', // karty, štítky, logo, témata, drobečky, související články
 );
 
-foreach ( $ek_modules as $ek_module ) {
-	require EK_DIR . '/inc/' . $ek_module . '.php';
+/* -------------------------------------------------------------------------
+ * Načtení: inc/ekt/common.php, ostatní inc/ekt/*.php abecedně (bez updater), projektové
+ * moduly ze seznamu výše, inc/site-*.php, nakonec inc/ekt/updater.php.
+ * ---------------------------------------------------------------------- */
+
+if ( ! is_file( EKT_DIR . '/inc/ekt/common.php' ) ) {
+	add_action(
+		'admin_notices',
+		static function () {
+			if ( current_user_can( 'switch_themes' ) ) {
+				echo '<div class="notice notice-error"><p><strong>Šablona ' . esc_html( EKT_NAME ) . ':</strong> chybí soubor <code>inc/ekt/common.php</code>, funkce šablony se nenačetly. Nahrajte šablonu znovu celou.</p></div>';
+			}
+		}
+	);
+	return;
 }
+
+require_once EKT_DIR . '/inc/ekt/common.php';
+
+$ekt_paths = glob( EKT_DIR . '/inc/ekt/*.php' );
+$ekt_paths = is_array( $ekt_paths ) ? $ekt_paths : array();
+sort( $ekt_paths );
+foreach ( $ekt_paths as $ekt_path ) {
+	if ( ! in_array( basename( $ekt_path, '.php' ), array( 'common', 'updater' ), true ) ) {
+		require_once $ekt_path;
+	}
+}
+
+foreach ( $ekt_site_modules as $ekt_name ) {
+	if ( is_file( EKT_DIR . '/inc/' . $ekt_name . '.php' ) ) {
+		require_once EKT_DIR . '/inc/' . $ekt_name . '.php';
+	}
+}
+
+$ekt_paths = glob( EKT_DIR . '/inc/site-*.php' );
+$ekt_paths = is_array( $ekt_paths ) ? $ekt_paths : array();
+sort( $ekt_paths );
+foreach ( $ekt_paths as $ekt_path ) {
+	require_once $ekt_path;
+}
+
+if ( is_file( EKT_DIR . '/inc/ekt/updater.php' ) ) {
+	require_once EKT_DIR . '/inc/ekt/updater.php';
+}
+unset( $ekt_site_modules, $ekt_paths, $ekt_path, $ekt_name );

@@ -41,9 +41,9 @@ Obojí se vydává společně se stejným číslem verze a aktualizuje se přím
 - Tlačítko Nahoru
 
 **Technicky**
-- Hybridní šablona: PHP šablony a `theme.json`, moduly v `inc/` jdou vypnout jednotlivě
+- Hybridní šablona: PHP šablony a `theme.json`; funkce z kanonických modulů skillu `wp-custom-theme` (`inc/ekt/`, stejné na všech spravovaných webech), vzhled vlastní
 - Fonty (Nunito Sans, Space Grotesk, JetBrains Mono) i zvýrazňovač kódu jsou lokálně, žádné CDN
-- SEO: meta description, Open Graph, Twitter karty, JSON-LD, kanonické URL
+- SEO: meta description, Open Graph, Twitter karty, JSON-LD, kanonické URL; `noindex` u hledání, datových archivů a feedů
 - Google Analytics 4 s vlastní cookie lištou — načte se jen se souhlasem a jen když je vyplněné ID
 - Antispam komentářů (honeypot a časová kontrola) bez reCAPTCHA
 
@@ -52,9 +52,10 @@ Obojí se vydává společně se stejným číslem verze a aktualizuje se přím
 | Sekce | Volby |
 |---|---|
 | Úvodní stránka | nadpis s mottem, obrázek hlavičky (světlý / tmavý), výběr a pořadí témat, počet témat |
-| Články | boční panel (obsah článku, novinky), čísla řádků u kódu, odkazy Starší / Novější, režim obrázku rubriky |
+| Články | boční panel (obsah článku, novinky), čísla řádků u kódu, sdílení, odkazy Starší / Novější, režim obrázku rubriky |
 | Patička | text o webu, rok založení |
-| SEO | meta description titulky, Google Analytics 4 ID |
+| Sociální sítě | e-mail, GitHub, LinkedIn a další profily v patičce |
+| SEO a analytika | meta description titulky, Google Analytics 4 ID |
 
 Obrázek rubriky se nastavuje v *Příspěvky → Rubriky*.
 

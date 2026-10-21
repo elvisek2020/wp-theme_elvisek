@@ -4,7 +4,7 @@
  */
 defined( 'ABSPATH' ) || exit;
 ?>
-<article <?php post_class( 'ek-featured' ); ?><?php echo ek_cat_stripe_style(); ?>>
+<article <?php post_class( 'ek-featured' ); ?><?php echo ekt_term_stripe_style( get_post() ); ?>>
 	<a class="ek-featured__thumb ek-thumb" href="<?php the_permalink(); ?>" tabindex="-1" aria-hidden="true">
 		<?php ek_thumbnail( 'ek-featured', array( 'loading' => 'eager', 'fetchpriority' => 'high', 'sizes' => '(max-width: 900px) 100vw, 700px' ) ); ?>
 	</a>
@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 		<div class="ek-featured__chips">
 			<span class="ek-chip ek-chip--solid">Nejnovější</span>
 			<?php echo ek_category_chips(); ?>
-			<?php echo ek_updated_chip(); ?>
+			<?php echo ekt_updated_chip(); ?>
 		</div>
 		<h2 class="ek-featured__title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>
 		<p class="ek-featured__excerpt"><?php echo esc_html( wp_trim_words( get_the_excerpt(), 60, '…' ) ); ?></p>

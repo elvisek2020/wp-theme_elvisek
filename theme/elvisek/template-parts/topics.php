@@ -4,7 +4,7 @@
  */
 defined( 'ABSPATH' ) || exit;
 
-$ek_topics = ek_topics( (int) ek_opt( 'ek_topics_count' ) ?: 8 );
+$ek_topics = ek_topics( (int) ekt_opt( 'site_topics_count' ) ?: 8 );
 if ( ! $ek_topics ) {
 	return;
 }
@@ -16,10 +16,10 @@ if ( ! $ek_topics ) {
 	<ul class="ek-topics">
 		<?php foreach ( $ek_topics as $cat ) : ?>
 			<li>
-				<a class="ek-topic" href="<?php echo esc_url( get_category_link( $cat ) ); ?>"<?php echo ek_cat_style( $cat ); ?>>
-					<span class="ek-topic__icon"><?php echo ek_icon( ek_category_icon_name( $cat->slug ), 20 ); ?></span>
+				<a class="ek-topic" href="<?php echo esc_url( get_category_link( $cat ) ); ?>"<?php echo ekt_term_color_style( $cat ); ?>>
+					<span class="ek-topic__icon"><?php echo ekt_icon( ek_category_icon_name( $cat->slug ), 20 ); ?></span>
 					<span class="ek-topic__name"><?php echo esc_html( $cat->name ); ?></span>
-					<span class="ek-topic__count"><?php echo esc_html( ek_plural( (int) $cat->count, 'článek', 'články', 'článků' ) ); ?></span>
+					<span class="ek-topic__count"><?php echo esc_html( ekt_plural( (int) $cat->count, '%d článek', '%d články', '%d článků' ) ); ?></span>
 				</a>
 			</li>
 		<?php endforeach; ?>

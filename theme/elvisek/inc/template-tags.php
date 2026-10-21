@@ -6,61 +6,6 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Inline SVG ikona (stroke, barva = currentColor).
- */
-function ek_icon( string $name, int $size = 18 ): string {
-	static $paths = array(
-		'search'   => '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
-		'moon'     => '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>',
-		'sun'      => '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
-		'menu'     => '<path d="M4 6h16M4 12h16M4 18h16"/>',
-		'close'    => '<path d="M6 6l12 12M18 6 6 18"/>',
-		'print'    => '<path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="7"/>',
-		'chevron'  => '<path d="m6 9 6 6 6-6"/>',
-		'github'   => '<path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>',
-		'linkedin' => '<path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/>',
-		'facebook' => '<path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>',
-		'mail'     => '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/>',
-		'link'     => '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
-		'check'    => '<path d="M20 6 9 17l-5-5"/>',
-		'arrow-up' => '<path d="M12 19V5M6 11l6-6 6 6"/>',
-		'refresh'  => '<path d="M20 11a8 8 0 0 0-14.6-4.5L4 8M4 4v4h4M4 13a8 8 0 0 0 14.6 4.5L20 16M20 20v-4h-4"/>',
-		'arrow'    => '<path d="M5 12h14M13 6l6 6-6 6"/>',
-		'arrow-l'  => '<path d="M19 12H5M11 6l-6 6 6 6"/>',
-		'copy'     => '<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>',
-		'gear'     => '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
-		'expand'   => '<path d="M4 9V5a1 1 0 0 1 1-1h4M15 4h4a1 1 0 0 1 1 1v4M20 15v4a1 1 0 0 1-1 1h-4M9 20H5a1 1 0 0 1-1-1v-4"/>',
-		'lock'     => '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
-		'rss'      => '<path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/>',
-		'folder'   => '<path d="M3 6a1 1 0 0 1 1-1h5l2 2h9a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/>',
-		'star'     => '<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3l-5.6 2.9 1.1-6.2L3 9.6l6.2-.9z"/>',
-		'tag'      => '<path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.2"/>',
-		'code'     => '<path d="m8 7-5 5 5 5M16 7l5 5-5 5"/>',
-		'scale'    => '<path d="M12 3v18M7 21h10M5 7h14M5 7l-3 7a3.5 3.5 0 0 0 6 0zM19 7l-3 7a3.5 3.5 0 0 0 6 0z"/>',
-		'offline'  => '<path d="M2 2l20 20M8.5 16.5a5 5 0 0 1 7 0M5 13a10 10 0 0 1 5.2-2.8M19 13a10 10 0 0 0-2.4-1.7M2 9.5a15 15 0 0 1 4.4-2.9M22 9.5A15 15 0 0 0 11 5.1M12 20h.01"/>',
-		// Ikony kategorií.
-		'chip'     => '<path d="M9 3v2M15 3v2M9 19v2M15 19v2M3 9h2M3 15h2M19 9h2M19 15h2"/><rect x="5" y="5" width="14" height="14" rx="1"/><path d="M9 9h6v6H9z"/>',
-		'laptop'   => '<path d="M4 5h16a1 1 0 0 1 1 1v10H3V6a1 1 0 0 1 1-1zM1 19h22"/>',
-		'terminal' => '<path d="m4 17 6-5-6-5M12 19h8"/>',
-		'phone'    => '<rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/>',
-		'home'     => '<path d="m3 11 9-7 9 7M5 10v10h14V10M10 20v-6h4v6"/>',
-		'smarthome' => '<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><circle cx="12" cy="14.5" r="1.8"/><path d="M12 12.7V10M10.4 15.4l-2.2 1.3M13.6 15.4l2.2 1.3"/>',
-		'sparkle'   => '<path d="M12 3.5l1.9 5.1 5.1 1.9-5.1 1.9L12 17.5l-1.9-5.1L5 10.5l5.1-1.9z"/><path d="M18.5 15.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/>',
-		'server'   => '<rect x="3" y="4" width="18" height="7" rx="1"/><rect x="3" y="13" width="18" height="7" rx="1"/><path d="M7 7.5h.01M7 16.5h.01"/>',
-		'globe'    => '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>',
-		'wifi'     => '<path d="M12 20h.01M8.5 16.5a5 5 0 0 1 7 0M5 13a10 10 0 0 1 14 0M2 9.5a15 15 0 0 1 20 0"/>',
-		'car'      => '<path d="M5 17h14M5 17a2 2 0 1 1-4 0v-4l2-5h18l2 5v4a2 2 0 1 1-4 0"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/>',
-		'bag'      => '<path d="M6 7h12l1 13H5zM9 7a3 3 0 0 1 6 0"/>',
-	);
-	$inner = $paths[ $name ] ?? $paths['folder'];
-	return sprintf(
-		'<svg class="ek-icon" width="%1$d" height="%1$d" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">%2$s</svg>',
-		$size,
-		$inner
-	);
-}
-
-/**
  * Ikona podle slugu kategorie.
  */
 function ek_category_icon_name( string $slug ): string {
@@ -82,19 +27,6 @@ function ek_category_icon_name( string $slug ): string {
 }
 
 /**
- * Hlavní kategorie článku (mimo „Nezařazené“).
- */
-function ek_primary_category( $post = null ): ?WP_Term {
-	$cats = get_the_category( $post ? get_post( $post )->ID : 0 );
-	foreach ( $cats as $cat ) {
-		if ( (int) $cat->term_id !== (int) get_option( 'default_category' ) ) {
-			return $cat;
-		}
-	}
-	return $cats[0] ?? null;
-}
-
-/**
  * Doba čtení v minutách (200 slov/min, obrázek ~ 10 s).
  */
 function ek_reading_time( $post = null ): int {
@@ -109,11 +41,11 @@ function ek_reading_time( $post = null ): int {
  * Štítek kategorie.
  */
 function ek_category_chip( $post = null, string $class = 'ek-chip' ): string {
-	$cat = ek_primary_category( $post );
+	$cat = ekt_primary_category( $post );
 	if ( ! $cat ) {
 		return '';
 	}
-	return sprintf( '<a class="%s" href="%s"%s>%s</a>', esc_attr( $class . ' ek-chip--cat' ), esc_url( get_category_link( $cat ) ), ek_cat_style( $cat ), esc_html( $cat->name ) );
+	return sprintf( '<a class="%s" href="%s"%s>%s</a>', esc_attr( $class . ' ek-chip--cat' ), esc_url( get_category_link( $cat ) ), ekt_term_color_style( $cat ), esc_html( $cat->name ) );
 }
 
 /**
@@ -131,7 +63,7 @@ function ek_category_chips( $post = null, string $class = 'ek-chip' ): string {
 	}
 	$out = '';
 	foreach ( $cats as $cat ) {
-		$out .= sprintf( '<a class="%s" href="%s"%s>%s</a>', esc_attr( $class . ' ek-chip--cat' ), esc_url( get_category_link( $cat ) ), ek_cat_style( $cat ), esc_html( $cat->name ) );
+		$out .= sprintf( '<a class="%s" href="%s"%s>%s</a>', esc_attr( $class . ' ek-chip--cat' ), esc_url( get_category_link( $cat ) ), ekt_term_color_style( $cat ), esc_html( $cat->name ) );
 	}
 	return '<span class="ek-chips">' . $out . '</span>';
 }
@@ -145,8 +77,8 @@ function ek_thumbnail( string $size = 'ek-card', array $attr = array() ): void {
 		the_post_thumbnail( $size, array_merge( array( 'alt' => trim( html_entity_decode( wp_strip_all_tags( get_the_title() ), ENT_QUOTES, 'UTF-8' ) ) ), $attr, array( 'class' => $class ) ) );
 		return;
 	}
-	$cat = ek_primary_category();
-	echo '<span class="ek-thumb__placeholder">' . ek_icon( ek_category_icon_name( $cat ? $cat->slug : '' ), 40 ) . '</span>';
+	$cat = ekt_primary_category();
+	echo '<span class="ek-thumb__placeholder">' . ekt_icon( ek_category_icon_name( $cat ? $cat->slug : '' ), 40 ) . '</span>';
 }
 
 /**
@@ -175,7 +107,7 @@ function ek_date( string $format = 'short' ): string {
  */
 function ek_topics( int $limit = 8 ): array {
 	// Ruční výběr a pořadí z Přizpůsobit → Úvodní stránka → Témata v hlavičce (prázdné = automaticky podle počtu článků).
-	$ids = array_filter( array_map( 'absint', explode( ',', (string) get_theme_mod( 'ek_topics', '' ) ) ) );
+	$ids = array_filter( array_map( 'absint', explode( ',', (string) ekt_opt( 'site_topics' ) ) ) );
 	if ( $ids ) {
 		$terms = get_categories( array( 'include' => $ids, 'orderby' => 'include', 'hide_empty' => true ) );
 		if ( $terms ) {
@@ -192,28 +124,12 @@ function ek_topics( int $limit = 8 ): array {
 }
 
 /**
- * Tlačítko „Načíst další“ (funguje i bez JS jako odkaz na další stránku).
- */
-function ek_load_more( string $label = 'Načíst další články' ): void {
-	global $wp_query;
-	$paged = max( 1, (int) get_query_var( 'paged' ) );
-	if ( $paged >= (int) $wp_query->max_num_pages ) {
-		return;
-	}
-	printf(
-		'<div class="ek-more"><a class="ek-btn ek-btn--ghost" data-ek-more href="%s">%s</a></div>',
-		esc_url( get_pagenum_link( $paged + 1 ) ),
-		esc_html( $label )
-	);
-}
-
-/**
  * Drobečková navigace pro článek.
  */
 function ek_breadcrumbs(): void {
 	$items = array( sprintf( '<a href="%s">Úvod</a>', esc_url( home_url( '/' ) ) ) );
 	if ( is_single() ) {
-		$cat = ek_primary_category();
+		$cat = ekt_primary_category();
 		if ( $cat ) {
 			$items[] = sprintf( '<a href="%s">%s</a>', esc_url( get_category_link( $cat ) ), esc_html( $cat->name ) );
 		}
@@ -225,7 +141,7 @@ function ek_breadcrumbs(): void {
  * Související články ze stejné kategorie.
  */
 function ek_related_posts( int $count = 3 ): array {
-	$cat = ek_primary_category();
+	$cat = ekt_primary_category();
 	if ( ! $cat ) {
 		return array();
 	}
@@ -236,15 +152,6 @@ function ek_related_posts( int $count = 3 ): array {
 		'ignore_sticky_posts' => true,
 		'no_found_rows'       => true,
 	) );
-}
-
-/**
- * Rozsah let pro copyright.
- */
-function ek_copyright_years(): string {
-	$since = (int) ek_opt( 'ek_since' );
-	$now   = (int) wp_date( 'Y' );
-	return ( $since && $since < $now ) ? $since . '–' . $now : (string) $now;
 }
 
 /**
@@ -270,13 +177,13 @@ function ek_logo( bool $compact = false ): void {
 function ek_header_tools( string $search_id ): void {
 	?>
 	<div class="ek-tools">
-		<div class="ek-qs" data-ek-qs data-ek-search-api="<?php echo esc_url( rest_url( 'ek/v1/search' ) ); ?>">
-			<form role="search" method="get" class="ek-qs__form" id="<?php echo esc_attr( $search_id ); ?>" action="<?php echo esc_url( home_url( '/' ) ); ?>">
+		<div class="ek-qs">
+			<form role="search" method="get" class="ek-qs__form" data-ekt-qs id="<?php echo esc_attr( $search_id ); ?>" action="<?php echo esc_url( home_url( '/' ) ); ?>">
 				<label class="screen-reader-text" for="<?php echo esc_attr( $search_id ); ?>-input">Hledat</label>
 				<input id="<?php echo esc_attr( $search_id ); ?>-input" class="ek-qs__input" type="search" name="s" value="<?php echo esc_attr( get_search_query() ); ?>" placeholder="Hledat návody…" autocomplete="off" tabindex="-1">
 			</form>
 			<button type="button" class="ek-iconbtn" data-ek-search-toggle aria-expanded="false" aria-controls="<?php echo esc_attr( $search_id ); ?>" aria-label="Hledat">
-				<?php echo ek_icon( 'search' ); ?>
+				<?php echo ekt_icon( 'search', 18 ); ?>
 			</button>
 		</div>
 	</div>
@@ -289,7 +196,7 @@ function ek_header_tools( string $search_id ): void {
 function ek_nav_topics(): array {
 	static $topics = null;
 	if ( null === $topics ) {
-		$topics = ek_topics( (int) ek_opt( 'ek_topics_count' ) ?: 8 );
+		$topics = ek_topics( (int) ekt_opt( 'site_topics_count' ) ?: 8 );
 	}
 	return $topics;
 }
@@ -325,12 +232,4 @@ function ek_is_current_topic( WP_Term $cat ): bool {
 		return true;
 	}
 	return is_single() && in_category( $cat->term_id, get_queried_object_id() );
-}
-
-/**
- * České skloňování podle čísla: 1 článek, 2–4 články, 5+ článků.
- */
-function ek_plural( int $n, string $one, string $few, string $many ): string {
-	$form = 1 === $n ? $one : ( ( $n >= 2 && $n <= 4 ) ? $few : $many );
-	return $n . ' ' . $form;
 }

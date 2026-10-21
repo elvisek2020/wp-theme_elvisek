@@ -1,0 +1,19 @@
+/* EKT quick-search — jen funkční CSS: výsledky pod polem hledání. Barvy, písmo a mezery v CSS šablony. */
+:where(form[data-ekt-qs]) { position: relative; } /* :where = nulová specificita, šablona ji přebije (např. absolutně umístěné pole v hlavičce) */
+:where(.ekt-qs) {
+	position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 100;
+	min-width: min(20rem, calc(100vw - 2rem)); max-height: 70vh; overflow: auto;
+	background: var(--ekt-bg, #fff); color: var(--ekt-fg, #111);
+	border: 1px solid var(--ekt-border, rgba(127, 127, 127, .35)); border-radius: var(--ekt-radius, 8px);
+	box-shadow: 0 8px 24px rgba(0, 0, 0, .12);
+}
+.ekt-qs[hidden] { display: none; }
+:where(.ekt-qs__list) { list-style: none; margin: 0; padding: 0; }
+:where(.ekt-qs__item) { margin: 0; }
+:where(.ekt-qs__link) { display: flex; flex-direction: column; gap: 2px; padding: .5em .75em; color: inherit; text-decoration: none; }
+:where(.ekt-qs__item.is-active .ekt-qs__link), :where(.ekt-qs__link:hover) { background: var(--ekt-border, rgba(127, 127, 127, .15)); }
+:where(.ekt-qs__title) { overflow-wrap: anywhere; }
+:where(.ekt-qs__title mark) { background: none; color: var(--ekt-accent, #0b63ce); }
+:where(.ekt-qs__meta) { font-size: .85em; color: var(--ekt-muted, #666); }
+:where(.ekt-qs__all) { display: block; padding: .6em .75em; border-top: 1px solid var(--ekt-border, rgba(127, 127, 127, .35)); color: var(--ekt-accent, #0b63ce); }
+:where(.ekt-qs__empty) { margin: 0; padding: .75em; color: var(--ekt-muted, #666); }
