@@ -73,13 +73,18 @@ Nahrazuje sedm dřívějších pluginů a funguje nezávisle na šabloně.
 | Média | další povolené typy souborů ke stažení |
 | Aktualizace | automatické aktualizace WordPressu a pluginů, aktualizace šablony i pluginu z GitHubu |
 | Admin | informace o serveru v patičce administrace |
-| Nástěnka | widget Zdraví webu: verze a aktualizace, velikost DB / autoload / uploads, koncepty, komentáře, poslední údržba |
+| Nástěnka | widget Zdraví webu: verze a aktualizace, velikost DB / autoload / uploads, koncepty, komentáře, přihlášení, poslední údržba |
+| Nastavení | *Nastavení → ElvisEK Core*: jednotlivé funkce jdou vypnout nebo upravit (limit přihlášení, typy souborů, `/llms.txt`, aktualizace…) |
+
+Moduly pluginu jsou kanonické moduly ze skillu `wp-custom-theme` (stejné na všech webech), projektové úpravy webu jsou v `inc/site-elvisek.php`.
 
 **Údržba webu** — *Nástroje → Údržba webu*
 - Sjednocení starších obrázků na WebP: převede soubory i odkazy v obsahu, staré adresy přesměruje (301)
 - Přehled databáze (velikost tabulek, autoload) a optimalizace
-- Největší soubory, nepoužité obrázky s hromadným mazáním a rozbité interní odkazy
+- Největší soubory, nepoužité obrázky a rozbité interní odkazy
 - Úklid revizí, konceptů, koše a expirovaných transientů
+- Pozůstatky po odebraných pluginech (tabulky, volby)
+- Karanténa: nepoužité obrázky a tabulky se nemažou hned, ale přesunou stranou; smazat je jde ručně
 
 ---
 

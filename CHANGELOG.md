@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.12.0 — 2026-10-21
+### ElvisEK Core
+- **Převod na kanonické moduly** ze skillu `wp-custom-theme`: plugin je teď složený z modulů, které jsou stejné na všech spravovaných webech (`inc/*.php`, prefix `ekc_`). Projektové úpravy webu jsou v `inc/site-elvisek.php`. Data se převedou sama při první návštěvě administrace: log přihlášení, poslední přihlášení, čas údržby, úvodní text `/llms.txt`
+- **Nová stránka Nastavení → ElvisEK Core**: funkce jdou vypnout nebo upravit bez zásahu do kódu (počet pokusů a délka blokace, typy souborů, `/llms.txt`, automatické aktualizace…)
+- Údržba webu: nové sekce **Pozůstatky pluginů** a **Karanténa** (nepoužité obrázky a tabulky se nejdřív přesunou stranou), log přihlášení s tlačítkem **Zrušit blokace**
+- Staré adresy stránek (Nástroje → Údržba webu, Log přihlášení) se přesměrují na nové
+
+Změny chování oproti 0.11.x (výchozí hodnoty společné pro všechny weby):
+- Opakovaná blokace přihlášení z jedné IP se prodlužuje (eskalace); aktivní blokace ze staré verze po aktualizaci zaniknou
+- Vypnutý editor souborů v administraci, skrytá verze WordPressu
+- Hlavička `Permissions-Policy` navíc blokuje `payment` a `usb` (místo `interest-cohort` je `browsing-topics`)
+- Rizikové typy souborů (`sh`, `py`, `dmg`, `bin`, `gbl`, `mobileconfig`) smí nahrát jen administrátor, ne editor
+- `/llms.txt`: správné tvary („4 články“) a bez HTML entit v popisech
+
+### Šablona
+- Beze změny, jen verze (šablona a plugin mají vždy stejné číslo)
+
 ## 0.11.7 — 2026-10-19
 ### Šablona
 - **Skrýt úvodní obrázek v článku**: nová volba v boxu **Nastavení článku** → Náhledový obrázek. Detail článku začne rovnou textem, karty na webu a náhled při sdílení zůstanou (hodí se pro portfolio, kde je obrázek v textu)
