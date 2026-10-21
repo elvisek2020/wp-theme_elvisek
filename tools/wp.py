@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Minimal WordPress REST client for www.elvisek.cz (drafts only).
 
-Credentials are read from ../ctime.txt (section "WordPress API"); they are never printed.
+Credentials are read from ../_docs/ctime.txt (section "WordPress API"); they are never printed.
 
 Usage:
   wp.py whoami
@@ -18,7 +18,7 @@ Posts are always created/updated with status=draft; publishing is left to a huma
 import argparse, base64, html, json, mimetypes, os, re, sys, urllib.error, urllib.request
 
 BASE = 'https://www.elvisek.cz/wp-json/wp/v2'
-CTIME = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'ctime.txt')
+CTIME = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '_docs', 'ctime.txt')
 
 
 def _auth() -> str:

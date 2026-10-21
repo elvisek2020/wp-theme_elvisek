@@ -125,7 +125,7 @@ python3 tools/wp.py upload obrazek.webp --alt "…"
 python3 tools/img.py
 ```
 
-Přístupové údaje čte `wp.py` z `ctime.txt`, který je v `.gitignore`.
+Přístupové údaje čte `wp.py` z `_docs/ctime.txt` (`_docs/` je v `.gitignore`).
 
 ## Vydání nové verze
 
