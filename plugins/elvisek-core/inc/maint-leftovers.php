@@ -1,7 +1,7 @@
 <?php
 /**
  * EKC module: maint-leftovers
- * Version: 1.1.0
+ * Version: 1.2.0
  * Requires: common
  * Replaces: plugins-garbage-collector, advanced-database-cleaner
  * Summary: Pozůstatky odebraných pluginů (tabulky, volby, metadata, role, složky) přesune do karantény se zálohou.
@@ -150,6 +150,15 @@ function ekc_leftovers_builtin(): array {
 			'plugin'  => 'cookie-law-info/cookie-law-info.php',
 			'tables'  => array( 'cli_%', 'cky_%' ),
 			'options' => array( 'cookielawinfo%', 'CookieLawInfo-%', 'cli_%', 'cky_%', 'wt_cli_%' ),
+		),
+		'forminator'           => array(
+			'name'     => 'Forminator',
+			'plugin'   => 'forminator/forminator.php',
+			'tables'   => array( 'frmt_%' ),
+			'options'  => array( 'forminator_%', 'widget_forminator_widget' ),
+			'paths'    => array( 'uploads/forminator' ),
+			// Dokud modul contact-form nepřevede všechny zprávy, tabulky se nenabízejí.
+			'requires' => static fn(): bool => ! function_exists( 'ekc_contact_form_migrated' ) || ekc_contact_form_migrated(),
 		),
 		'supsystic-social'     => array(
 			'name'   => 'Social Share Buttons by Supsystic',

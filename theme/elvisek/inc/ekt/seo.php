@@ -1,7 +1,7 @@
 <?php
 /**
  * EKT module: seo
- * Version: 1.0.0
+ * Version: 1.0.1
  * Requires: common
  * Replaces: wordpress-seo, seo-by-rank-math, wp-seopress, all-in-one-seo-pack, autodescription
  * Assets: –
@@ -68,7 +68,10 @@ add_action( 'init', 'ekt_seo_page_excerpt' );
  */
 function ekt_seo_clean( string $text, int $length = 0 ): string {
 	$length = $length > 0 ? $length : (int) apply_filters( 'ekt_seo_description_length', 160 );
-	$text   = wp_strip_all_tags( strip_shortcodes( excerpt_remove_blocks( $text ) ) );
+	$text   = strip_shortcodes( excerpt_remove_blocks( $text ) );
+	// Mezera u blokových značek a zalomení, ať se odrážky a řádky po odstranění HTML neslepí.
+	$text   = (string) preg_replace( '#<(?:br|/?(?:p|li|ul|ol|h[1-6]|div|td|th|tr|dt|dd|figcaption|blockquote|section|table))\b[^>]*>#i', ' $0 ', $text );
+	$text   = wp_strip_all_tags( $text );
 	$text   = trim( (string) preg_replace( '/\s+/u', ' ', html_entity_decode( $text, ENT_QUOTES | ENT_HTML5, 'UTF-8' ) ) );
 	if ( mb_strlen( $text ) > $length ) {
 		$text = rtrim( (string) preg_replace( '/\s+\S*$/u', '', mb_substr( $text, 0, $length - 1 ) ), ' ,.;:–-' ) . '…';

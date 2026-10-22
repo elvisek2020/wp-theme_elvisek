@@ -706,8 +706,8 @@ pre.ekt-code--narrow { max-width: 800px; }
 	padding: 10px 12px; font: 400 16px var(--ek-font);
 }
 .comment-form input[type="text"], .comment-form input[type="email"] { height: 46px; }
-.comment-form .comment-form-cookies-consent { display: flex; gap: 8px; align-items: flex-start; font-size: 14px; }
-.comment-form .comment-form-cookies-consent label { font-weight: 400; margin: 0; }
+.comment-form .comment-form-cookies-consent, .comment-form .comment-form-ekc-notify { display: flex; gap: 8px; align-items: flex-start; font-size: 14px; }
+.comment-form .comment-form-cookies-consent label, .comment-form .comment-form-ekc-notify label { font-weight: 400; margin: 0; }
 .ekt-hp { position: absolute !important; left: -9999px !important; width: 1px; height: 1px; overflow: hidden; }
 
 /* 404, prázdné výsledky */

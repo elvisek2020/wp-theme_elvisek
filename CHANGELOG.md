@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.14.0 — 2026-10-22
+
+### ElvisEK Core
+- **Upozornění na odpověď v komentáři**: ve formuláři komentáře zaškrtávátko „Pošlete mi e-mail, až někdo odpoví“. Když je odpověď schválená, odejde autorovi původního komentáře e-mail s úryvkem a odkazem. Vlastní odpověď ani pingback e-mail nepošle a každá odpověď ho pošle nejvýš jednou. Odběr jde zrušit jedním odkazem v e-mailu. Vypíná se v Nastavení → ElvisEK Core → Komentáře
+- **Počítadlo zobrazení bez cookies**: článek a stránka se započítají jednou za relaci karty, i když je web v cache hostingu. Nepočítají se přihlášení, roboti ani automaty a nic o návštěvníkovi se neukládá, takže to nepotřebuje souhlas s cookies. Výsledky jsou ve widgetu Zdraví webu (dnes / 7 / 30 dní, nejčtenější za 30 dní) a ve sloupci Zobrazení v přehledu článků a stránek (30 dní / celkem)
+- Údržba webu: pozůstatky pluginů podle novější verze kanonu
+- Odinstalace smaže i vlastní tabulky a metadata komentářů pluginu
+
+### Šablona
+- **Česká typografie**: pevné mezery za jednopísmennými předložkami a spojkami („v Praze“, „z Gmailu“), mezi číslem a jednotkou („500 kWh“, „10 %“) a v číslech. Netýká se kódu ani uloženého obsahu, upravuje se jen výstup na webu
+- Zaškrtávátko odběru odpovědí ve formuláři komentáře ve stylu webu
+- SEO: oprava slepených popisů (kanon seo 1.0.1)
+
 ## v0.13.0 — 2026-10-21
 
 ### Šablona

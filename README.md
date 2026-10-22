@@ -46,6 +46,7 @@ Obojí se vydává společně se stejným číslem verze a aktualizuje se přím
 - SEO: meta description, Open Graph, Twitter karty, JSON-LD, kanonické URL; `noindex` u hledání, datových archivů a feedů
 - Google Analytics 4 s vlastní cookie lištou — načte se jen se souhlasem a jen když je vyplněné ID
 - Antispam komentářů (honeypot a časová kontrola) bez reCAPTCHA
+- Česká typografie: pevné mezery za předložkami, mezi číslem a jednotkou
 
 **Nastavení** — *Vzhled → Přizpůsobit*
 
@@ -74,7 +75,9 @@ Nahrazuje sedm dřívějších pluginů a funguje nezávisle na šabloně.
 | Média | další povolené typy souborů ke stažení |
 | Aktualizace | automatické aktualizace WordPressu a pluginů, aktualizace šablony i pluginu z GitHubu |
 | Admin | informace o serveru v patičce administrace |
-| Nástěnka | widget Zdraví webu: verze a aktualizace, velikost DB / autoload / uploads, koncepty, komentáře, přihlášení, poslední údržba |
+| Nástěnka | widget Zdraví webu: verze a aktualizace, velikost DB / autoload / uploads, koncepty, komentáře, přihlášení, návštěvnost, poslední údržba |
+| Komentáře | upozornění e-mailem na odpověď (zaškrtávátko ve formuláři, odhlášení odkazem) |
+| Návštěvnost | počítadlo zobrazení článků bez cookies a osobních údajů, nejčtenější články, sloupec Zobrazení v přehledu |
 | Nastavení | *Nastavení → ElvisEK Core*: jednotlivé funkce jdou vypnout nebo upravit (limit přihlášení, typy souborů, `/llms.txt`, aktualizace…) |
 
 Moduly pluginu jsou kanonické moduly ze skillu `wp-custom-theme` (stejné na všech webech), projektové úpravy webu jsou v `inc/site-elvisek.php`.
