@@ -220,11 +220,18 @@ a.ek-chip:hover { color: var(--ek-accent-hover); }
 .ek-chipsnav .is-current a { background: var(--ek-chip); color: var(--ek-accent); }
 /* Maska na okraji jen když lišta opravdu přetéká (třídu nastavuje theme.js) */
 .ek-chipsnav:not(.is-overflowing) { -webkit-mask-image: none; mask-image: none; }
-/* Hodně témat: v liště bez ikon a těsněji, ať se vejdou */
+/* Položky se nesmršťují: co se nevejde, přeteče (maska / hamburger), místo aby se text ořízl */
+.ek-chipsnav li { flex-shrink: 0; }
+/* Hodně témat: v liště bez ikon a těsněji, ať se vejdou – na užším okně i při užší stránce (obsah 1180 px) */
 @media (max-width: 1700px) {
 	.ek-chipsnav--many ul { gap: 2px; }
 	.ek-chipsnav--many a { padding: 8px 9px; font-size: 14px; }
 	.ek-chipsnav--many a .ekt-icon { display: none; }
+}
+@media (min-width: 641px) {
+	:root[data-wide="0"] .ek-chipsnav--many ul { gap: 2px; }
+	:root[data-wide="0"] .ek-chipsnav--many a { padding: 8px 9px; font-size: 14px; }
+	:root[data-wide="0"] .ek-chipsnav--many a .ekt-icon { display: none; }
 }
 @media (max-width: 640px) {
 	.ek-bar__inner { gap: 10px; min-height: 56px; }

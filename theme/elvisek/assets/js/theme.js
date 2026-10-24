@@ -27,9 +27,12 @@
 		closeMenu = () => { if (!menu.hidden) setMenu(false); };
 		const syncMode = () => {
 			const compact = menuBar.classList.contains('is-menu');
-			// V režimu menu zabírá hamburger místo navíc – přičíst ho, ať se lišta nepřepíná tam a zpět.
-			const extra = compact ? menuBtn.offsetWidth + 20 : 0;
-			const fits = menuNav.scrollWidth <= menuNav.clientWidth + extra + 1;
+			// V režimu menu zabírá hamburger místo navíc (tlačítko + skutečná mezera v liště) – přičíst ho.
+			// Zpět na lištu až s rezervou 8 px: na hraně se šířky liší zaokrouhlením a lišta by přepínala dokola.
+			const gap = parseFloat(getComputedStyle(menuNav.parentElement).columnGap) || 0;
+			const fits = compact
+				? menuNav.scrollWidth <= menuNav.clientWidth + menuBtn.offsetWidth + gap - 8
+				: menuNav.scrollWidth <= menuNav.clientWidth + 1;
 			if (fits === !compact) return;
 			menuBar.classList.toggle('is-menu', !fits);
 			if (fits) closeMenu();

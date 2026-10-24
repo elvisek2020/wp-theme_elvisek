@@ -10,6 +10,7 @@
 - **`readme.html`, `license.txt` a `wp-config-sample.php`** (prozrazují verzi WordPressu) blokované pravidlem v `.htaccess`. Plugin si zapíše vlastní blok „ElvisEK Core“ při první návštěvě administrace a při deaktivaci ho odebere, ostatní pravidla zůstávají
 
 ### Šablona
+- **Lišta s tématy nebliká** při vypnuté široké stránce na velkém monitoru: témata jsou v liště bez ikon jako na menším okně (dřív se s ikonami nevešla a lišta přepínala mezi tématy a menu), položky se nesmršťují a přepnutí na menu má rezervu proti přepínání dokola
 - **Komentáře** se sbalí jen u diskuse s víc než 5 komentáři; do 5 komentářů jsou vidět rovnou (hranice jde změnit filtrem `ek_comments_collapse_over`)
 
 ## v0.14.0 — 2026-10-22
