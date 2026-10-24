@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.14.1 — 2026-10-24
+## v0.15.0 — 2026-10-24
 
 ### ElvisEK Core
 - **Content-Security-Policy** na webu: skripty jen z webu a Google Tag Manageru (GA až po souhlasu), vložená videa jen z YouTube a Vimea, zakázané pluginy (`object`), cizí `<base>` a odesílání formulářů jinam, web nejde vložit do cizí stránky. Inline skripty šablony zůstávají povolené (nonce kvůli cache hostingu nejde). Administrace beze změny
@@ -10,6 +10,7 @@
 - **`readme.html`, `license.txt` a `wp-config-sample.php`** (prozrazují verzi WordPressu) blokované pravidlem v `.htaccess`. Plugin si zapíše vlastní blok „ElvisEK Core“ při první návštěvě administrace a při deaktivaci ho odebere, ostatní pravidla zůstávají
 
 ### Šablona
+- **Logo pro BIMI** (`assets/icons/bimi.svg`, SVG Tiny PS podle ikony webu): logo vedle odesílatele v podporovaných poštovních klientech. Adresu uvádí DNS záznam `default._bimi.elvisek.cz`
 - **Lišta s tématy nebliká** při vypnuté široké stránce na velkém monitoru: témata jsou v liště bez ikon jako na menším okně (dřív se s ikonami nevešla a lišta přepínala mezi tématy a menu), položky se nesmršťují a přepnutí na menu má rezervu proti přepínání dokola
 - **Komentáře** se sbalí jen u diskuse s víc než 5 komentáři; do 5 komentářů jsou vidět rovnou (hranice jde změnit filtrem `ek_comments_collapse_over`)
 

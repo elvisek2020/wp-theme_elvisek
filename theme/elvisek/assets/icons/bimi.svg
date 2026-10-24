@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" version="1.2" baseProfile="tiny-ps" viewBox="0 0 512 512">
+<title>ElvisEK</title>
+<rect width="512" height="512" fill="#145ccf"/>
+<g fill="none" stroke="#ffffff" stroke-width="22" stroke-linecap="round" stroke-linejoin="round">
+<path d="M82 207L256 86L430 207"/>
+<path d="M97 214V405H414V214"/>
+<path d="M237 220H148V343H238M148 281H218"/>
+<path d="M316 220L241 281L316 343"/>
+</g>
+<rect x="344" y="256" width="32" height="82" rx="4" fill="#3e80e3"/>
+</svg>

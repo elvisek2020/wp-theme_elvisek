@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       ElvisEK Core
  * Description:       Funkce webu ElvisEK nezávislé na šabloně. Nahrazuje 7 pluginů.
- * Version:           0.14.1
+ * Version:           0.15.0
  * Requires at least: 6.4
  * Tested up to:      7.1
  * Requires PHP:      8.1
