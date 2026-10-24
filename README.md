@@ -69,7 +69,7 @@ Nahrazuje sedm dřívějších pluginů a funguje nezávisle na šabloně.
 | Oblast | Co dělá |
 |---|---|
 | Přihlášení | omezení pokusů o přihlášení, log přihlášení, poslední přihlášení uživatelů |
-| Bezpečnost | hardening WordPressu, bezpečnostní HTTP hlavičky včetně Content-Security-Policy, `security.txt`, přesměrování autorských stránek |
+| Bezpečnost | hardening WordPressu, bezpečnostní HTTP hlavičky včetně Content-Security-Policy a COOP, `security.txt`, batch API jen pro přihlášené, zablokované `readme.html`, přesměrování autorských stránek |
 | Obrázky | PNG/JPG se při nahrání uloží rovnou jako WebP (fotky se otočí podle EXIF), zmenšeniny ve WebP |
 | SEO | sitemap s datem změny a bez uživatelů, `/llms.txt` |
 | Média | další povolené typy souborů ke stažení |

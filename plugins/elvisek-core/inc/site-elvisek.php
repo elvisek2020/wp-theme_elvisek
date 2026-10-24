@@ -84,5 +84,63 @@ add_filter( 'ekc_security_headers', function ( array $headers ): array {
 		"form-action 'self'",
 		"frame-ancestors 'self'",
 	) ) . ( is_ssl() ? '; upgrade-insecure-requests' : '' );
+	// Cizí okno otevřené z webu (nebo web otevřený z cizího okna) nesdílí window.opener.
+	$headers['Cross-Origin-Opener-Policy'] = 'same-origin';
 	return $headers;
+} );
+
+/* =========================================================================
+ * REST batch API (/wp-json/batch/v1) jen pro přihlášené. Používá ho editor;
+ * anonymně slouží jen jako útočná plocha (např. díra wp2shell, opravená ve WP 7.0.2).
+ * ====================================================================== */
+
+add_filter( 'rest_pre_dispatch', function ( $result, $server, $request ) {
+	if ( null === $result && str_starts_with( (string) $request->get_route(), '/batch/v1' ) && ! is_user_logged_in() ) {
+		return new WP_Error( 'rest_forbidden', 'Batch API je jen pro přihlášené.', array( 'status' => 401 ) );
+	}
+	return $result;
+}, 10, 3 );
+
+/* =========================================================================
+ * .htaccess: soubory jádra, které prozrazují verzi WordPressu (readme.html, license.txt).
+ * Statické soubory obsluhuje server mimo PHP a aktualizace WordPressu je vrací, proto pravidlo
+ * v .htaccess (vlastní blok „ElvisEK Core“ vedle bloku WordPressu). Zapíše ho krok migrace,
+ * při deaktivaci pluginu se blok odebere.
+ * ====================================================================== */
+
+/**
+ * Zapíše (prázdné pole = odebere) blok pravidel v .htaccess v kořeni webu.
+ *
+ * @param string[] $rules Řádky pravidel.
+ * @return bool
+ */
+function ek_site_htaccess( array $rules ): bool {
+	require_once ABSPATH . 'wp-admin/includes/file.php';
+	require_once ABSPATH . 'wp-admin/includes/misc.php';
+	$file = get_home_path() . '.htaccess';
+	if ( ! is_file( $file ) || ! wp_is_writable( $file ) ) {
+		return false;
+	}
+	return (bool) insert_with_markers( $file, 'ElvisEK Core', $rules );
+}
+
+add_filter( 'ekc_migrations', function ( array $steps ): array {
+	$steps['site-elvisek/htaccess-1'] = static fn(): bool => ek_site_htaccess( array(
+		'<FilesMatch "^(readme\.html|license\.txt|wp-config-sample\.php)$">',
+		'	<IfModule mod_authz_core.c>',
+		'		Require all denied',
+		'	</IfModule>',
+		'	<IfModule !mod_authz_core.c>',
+		'		Order allow,deny',
+		'		Deny from all',
+		'	</IfModule>',
+		'</FilesMatch>',
+	) );
+	return $steps;
+} );
+
+register_deactivation_hook( EKC_FILE, static function () {
+	ek_site_htaccess( array() );
+	$done = (array) get_option( 'ekc_migrations_done', array() );
+	update_option( 'ekc_migrations_done', array_values( array_diff( $done, array( 'site-elvisek/htaccess-1' ) ) ), false );
 } );

@@ -5,6 +5,9 @@
 ### ElvisEK Core
 - **Content-Security-Policy** na webu: skripty jen z webu a Google Tag Manageru (GA až po souhlasu), vložená videa jen z YouTube a Vimea, zakázané pluginy (`object`), cizí `<base>` a odesílání formulářů jinam, web nejde vložit do cizí stránky. Inline skripty šablony zůstávají povolené (nonce kvůli cache hostingu nejde). Administrace beze změny
 - **`/.well-known/security.txt`** (RFC 9116): kontakt pro hlášení zranitelností, platnost se posouvá sama; `/security.txt` přesměruje
+- Hlavička **Cross-Origin-Opener-Policy: same-origin**
+- **REST batch API** (`/wp-json/batch/v1`) jen pro přihlášené, nepřihlášený dostane 401 (útočná plocha díry wp2shell; editor batch dál používá)
+- **`readme.html`, `license.txt` a `wp-config-sample.php`** (prozrazují verzi WordPressu) blokované pravidlem v `.htaccess`. Plugin si zapíše vlastní blok „ElvisEK Core“ při první návštěvě administrace a při deaktivaci ho odebere, ostatní pravidla zůstávají
 
 ### Šablona
 - **Komentáře** se sbalí jen u diskuse s víc než 5 komentáři; do 5 komentářů jsou vidět rovnou (hranice jde změnit filtrem `ek_comments_collapse_over`)
