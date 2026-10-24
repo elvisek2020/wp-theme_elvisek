@@ -2,6 +2,10 @@
 
 ## v0.14.1 — 2026-10-24
 
+### ElvisEK Core
+- **Content-Security-Policy** na webu: skripty jen z webu a Google Tag Manageru (GA až po souhlasu), vložená videa jen z YouTube a Vimea, zakázané pluginy (`object`), cizí `<base>` a odesílání formulářů jinam, web nejde vložit do cizí stránky. Inline skripty šablony zůstávají povolené (nonce kvůli cache hostingu nejde). Administrace beze změny
+- **`/.well-known/security.txt`** (RFC 9116): kontakt pro hlášení zranitelností, platnost se posouvá sama; `/security.txt` přesměruje
+
 ### Šablona
 - **Komentáře** se sbalí jen u diskuse s víc než 5 komentáři; do 5 komentářů jsou vidět rovnou (hranice jde změnit filtrem `ek_comments_collapse_over`)
 
