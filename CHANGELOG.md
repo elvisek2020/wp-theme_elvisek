@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.15.1 — 2026-10-24
+
+### ElvisEK Core
+- Aktualizace pluginu už nehlásí **„Kompatibilita s WordPressem 7.1.3: Nebylo otestováno“**: „Tested up to: 7.1“ platí pro celou řadu 7.1.x (jako na wordpress.org). Projeví se u aktualizací nabízených po instalaci této verze
+
 ## v0.15.0 — 2026-10-24
 
 ### ElvisEK Core

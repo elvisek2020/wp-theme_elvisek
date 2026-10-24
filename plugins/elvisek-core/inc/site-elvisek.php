@@ -144,3 +144,61 @@ register_deactivation_hook( EKC_FILE, static function () {
 	$done = (array) get_option( 'ekc_migrations_done', array() );
 	update_option( 'ekc_migrations_done', array_values( array_diff( $done, array( 'site-elvisek/htaccess-1' ) ) ), false );
 } );
+
+/* =========================================================================
+ * „Tested up to: 7.1“ platí pro celou řadu 7.1.x (jako na wordpress.org). WordPress jinak
+ * porovná 7.1 s 7.1.3 a v Aktualizacích hlásí „Kompatibilita s WordPressem: Nebylo otestováno“.
+ * Kanonický updater posílá hodnotu z hlavičky beze změny, proto úprava nad uloženou aktualizací.
+ * ====================================================================== */
+
+/**
+ * Nejvyšší známá verze WordPressu ve stejné řadě (major.minor) jako $tested, jinak $tested.
+ *
+ * @param string $tested Hodnota „Tested up to“.
+ * @return string
+ */
+function ek_site_tested_full( string $tested ): string {
+	if ( ! preg_match( '/^\d+\.\d+$/', $tested ) ) {
+		return $tested;
+	}
+	$versions = array( (string) preg_replace( '/-.*$/', '', (string) get_bloginfo( 'version' ) ) );
+	$core     = get_site_transient( 'update_core' );
+	foreach ( (array) ( is_object( $core ) ? ( $core->updates ?? array() ) : array() ) as $offer ) {
+		if ( ! empty( $offer->current ) ) {
+			$versions[] = (string) $offer->current;
+		}
+	}
+	$best = $tested;
+	foreach ( $versions as $v ) {
+		if ( ( $v === $tested || str_starts_with( $v, $tested . '.' ) ) && version_compare( $v, $best, '>' ) ) {
+			$best = $v;
+		}
+	}
+	return $best;
+}
+
+add_filter( 'site_transient_update_plugins', function ( $transient ) {
+	if ( ! is_object( $transient ) || ! defined( 'EKC_BASENAME' ) ) {
+		return $transient;
+	}
+	foreach ( array( 'response', 'no_update' ) as $list ) {
+		if ( isset( $transient->{$list}[ EKC_BASENAME ] ) ) {
+			$item = $transient->{$list}[ EKC_BASENAME ];
+			if ( is_object( $item ) && isset( $item->tested ) ) {
+				$item->tested = ek_site_tested_full( (string) $item->tested );
+			} elseif ( is_array( $item ) && isset( $item['tested'] ) ) {
+				$item['tested'] = ek_site_tested_full( (string) $item['tested'] );
+			}
+			$transient->{$list}[ EKC_BASENAME ] = $item;
+		}
+	}
+	return $transient;
+} );
+
+// Okno „Zobrazit podrobnosti“ (kanon odpovídá na plugins_api s prioritou 10).
+add_filter( 'plugins_api', function ( $result, $action, $args ) {
+	if ( 'plugin_information' === $action && is_object( $result ) && isset( $result->tested ) && dirname( (string) EKC_BASENAME ) === ( $args->slug ?? '' ) ) {
+		$result->tested = ek_site_tested_full( (string) $result->tested );
+	}
+	return $result;
+}, 20, 3 );
