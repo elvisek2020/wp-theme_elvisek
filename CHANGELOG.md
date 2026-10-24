@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.14.1 — 2026-10-24
+
+### Šablona
+- **Komentáře** se sbalí jen u diskuse s víc než 5 komentáři; do 5 komentářů jsou vidět rovnou (hranice jde změnit filtrem `ek_comments_collapse_over`)
+
 ## v0.14.0 — 2026-10-22
 
 ### ElvisEK Core

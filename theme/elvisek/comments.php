@@ -8,10 +8,12 @@ if ( post_password_required() ) {
 	return;
 }
 $ek_count = (int) get_comments_number();
+// Sbalit jen dlouhé diskuse; pár komentářů je vidět rovnou.
+$ek_collapse = $ek_count > (int) apply_filters( 'ek_comments_collapse_over', 5 );
 ?>
 <section id="komentare" class="ek-comments">
 	<?php if ( $ek_count ) : ?>
-		<details class="ek-comments__box" data-ek-comments>
+		<details class="ek-comments__box" data-ek-comments<?php echo $ek_collapse ? '' : ' open'; ?>>
 		<summary class="ek-comments__summary">
 			<h2 class="ek-compose__title"><?php echo esc_html( 'Komentáře (' . $ek_count . ')' ); ?></h2>
 			<span class="ek-comments__toggle"><span class="ek-comments__show">Zobrazit</span><span class="ek-comments__hide">Skrýt</span><?php echo ekt_icon( 'chevron', 18 ); ?></span>
