@@ -1,7 +1,7 @@
 <?php
 /**
  * EKT module: term-image
- * Version: 1.0.0
+ * Version: 1.1.0
  * Requires: common
  * Replaces: categories-images, wp-term-images
  * Assets: –
@@ -18,8 +18,12 @@ defined( 'ABSPATH' ) || exit;
  * Plugin SLUG-core (modul maint-media) dostane ID obrázků rubrik přes filtr ekc_media_used_ids,
  * aby je nepovažoval za nepoužité.
  *
+ * Článek s vlastním náhledovým obrázkem může v boxu Nastavení článku zaškrtnout „Vlastní náhled
+ * místo obrázku rubriky“ (post setting own_thumb) – pak se mu obrázek rubriky nepodstrčí ani při
+ * volbě always (filtr ekt_term_image_term vrátí null).
+ *
  * Veřejné funkce: ekt_term_image_id( $term ), ekt_term_image_taxonomies().
- * Přizpůsobit: ekt_posts → term_image_mode (výchozí always).
+ * Přizpůsobit: ekt_posts → term_image_mode (výchozí always). Nastavení článku: own_thumb.
  * Filtry: ekt_term_image_taxonomies( ['category'] ), ekt_term_image_post_types( ['post'] ),
  * ekt_term_image_term( $term, $post ) (který term dává obrázek; výchozí ekt_primary_category()).
  */
@@ -38,6 +42,16 @@ ekt_setting_register(
 			'fallback' => 'Jen u článků bez vlastního obrázku',
 			'off'      => 'Nepoužívat',
 		),
+	)
+);
+
+ekt_post_setting_register(
+	'own_thumb',
+	array(
+		'type'     => 'checkbox',
+		'label'    => 'Vlastní náhled místo obrázku rubriky',
+		'help'     => 'Platí, jen když má článek nastavený náhledový obrázek.',
+		'priority' => 60,
 	)
 );
 
@@ -89,6 +103,21 @@ function ekt_term_image_thumbnail( $thumbnail_id, $post ) {
 	return $img ? $img : $thumbnail_id;
 }
 add_filter( 'post_thumbnail_id', 'ekt_term_image_thumbnail', 10, 2 );
+
+/**
+ * Článek s volbou own_thumb a vlastním náhledovým obrázkem: žádný term (obrázek rubriky se nepodstrčí).
+ *
+ * @param WP_Term|null $term Term, který dává obrázek.
+ * @param WP_Post|null $post Článek.
+ * @return WP_Term|null
+ */
+function ekt_term_image_own_thumb( $term, $post ) {
+	if ( $post instanceof WP_Post && ekt_post_setting( 'own_thumb', $post ) && get_post_meta( $post->ID, '_thumbnail_id', true ) ) {
+		return null;
+	}
+	return $term;
+}
+add_filter( 'ekt_term_image_term', 'ekt_term_image_own_thumb', 5, 2 );
 
 /**
  * Plugin maint-media: obrázky rubrik jsou použité (nekarantenovat).
@@ -272,13 +301,14 @@ JS
 add_action( 'admin_enqueue_scripts', 'ekt_term_image_admin_assets' );
 
 /*
- * Migrace: term meta ek_image → ekt_image (A elvisek). Theme_mod ek_cat_image_mode →
+ * Migrace: term meta ek_image → ekt_image (A elvisek), post meta {p}_own_thumb → ekt_own_thumb. Theme_mod ek_cat_image_mode →
  * ekt_term_image_mode převádí common.
  */
 add_filter(
 	'ekt_migrations',
 	static function ( array $steps ): array {
 		$steps['term-image/term-meta'] = 'ekt_term_image_migrate';
+		$steps['term-image/own-thumb'] = 'ekt_term_image_migrate_own_thumb';
 		return $steps;
 	}
 );
@@ -292,6 +322,19 @@ function ekt_term_image_migrate(): bool {
 	$ok = true;
 	foreach ( ekt_legacy_prefixes() as $p ) {
 		$ok = ekt_migrate_meta_key( 'term', $p . '_image', 'ekt_image' ) && $ok;
+	}
+	return $ok;
+}
+
+/**
+ * Krok migrace: post meta {p}_own_thumb → ekt_own_thumb.
+ *
+ * @return bool
+ */
+function ekt_term_image_migrate_own_thumb(): bool {
+	$ok = true;
+	foreach ( ekt_legacy_prefixes() as $p ) {
+		$ok = ekt_migrate_meta_key( 'post', $p . '_own_thumb', 'ekt_own_thumb' ) && $ok;
 	}
 	return $ok;
 }

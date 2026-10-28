@@ -1,7 +1,7 @@
 <?php
 /**
  * EKC module: updater
- * Version: 1.0.1
+ * Version: 1.1.0
  * Requires: common
  * Replaces: –
  * Summary: Aktualizace pluginu z GitHub Releases (Update URI) včetně okna Zobrazit podrobnosti.
@@ -117,6 +117,35 @@ function ekc_release(): array {
 }
 
 /**
+ * „Tested up to“ pro WordPress: „7.1“ platí pro celou řadu 7.1.x (jako na wordpress.org).
+ * WordPress jinak porovná 7.1 s běžící 7.1.3 a v Aktualizacích i v okně Zobrazit podrobnosti
+ * hlásí „Kompatibilita s WordPressem: Nebylo otestováno“. Vrátí nejvyšší známou verzi ze stejné
+ * řady (běžící WordPress a nabídky v update_core), jinak hodnotu z hlavičky beze změny.
+ *
+ * @param string $tested Hodnota „Tested up to“ (výchozí EKC_TESTED).
+ * @return string
+ */
+function ekc_updater_tested( string $tested = EKC_TESTED ): string {
+	if ( ! preg_match( '/^\d+\.\d+$/', $tested ) ) {
+		return $tested;
+	}
+	$versions = array( (string) preg_replace( '/-.*$/', '', (string) get_bloginfo( 'version' ) ) );
+	$core     = get_site_transient( 'update_core' );
+	foreach ( (array) ( is_object( $core ) ? ( $core->updates ?? array() ) : array() ) as $offer ) {
+		if ( is_object( $offer ) && ! empty( $offer->current ) ) {
+			$versions[] = (string) $offer->current;
+		}
+	}
+	$best = $tested;
+	foreach ( $versions as $v ) {
+		if ( ( $v === $tested || str_starts_with( $v, $tested . '.' ) ) && version_compare( $v, $best, '>' ) ) {
+			$best = $v;
+		}
+	}
+	return $best;
+}
+
+/**
  * Odpověď pro kontrolu aktualizací (Update URI → filtr update_plugins_github.com).
  *
  * @param array|false $update      Data aktualizace.
@@ -139,7 +168,7 @@ function ekc_updater_check( $update, $plugin_data, $plugin_file ) {
 		'version'      => $release['version'],
 		'url'          => $release['url'],
 		'package'      => $release['package'],
-		'tested'       => EKC_TESTED,
+		'tested'       => ekc_updater_tested(),
 		'requires'     => (string) $header['requires'],
 		'requires_php' => (string) $header['requires_php'],
 	);
@@ -166,7 +195,7 @@ function ekc_updater_info( $result, $action, $args ) {
 		'version'       => $release['version'] ?? EKC_VERSION,
 		'author'        => esc_html( (string) $header['author'] ),
 		'homepage'      => 'https://github.com/' . EKC_REPO,
-		'tested'        => EKC_TESTED,
+		'tested'        => ekc_updater_tested(),
 		'requires'      => (string) $header['requires'],
 		'requires_php'  => (string) $header['requires_php'],
 		'last_updated'  => $release['date'] ?? '',

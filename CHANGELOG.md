@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.16.0 — 2026-10-28
+
+Převzetí novějších kanonických modulů ze skillu `wp-custom-theme`. Pro návštěvníka se nic nemění, funkce, které web dosud řešil vlastním kódem, teď dělají kanonické moduly.
+
+### ElvisEK Core
+- **Kanonické moduly hardening 1.1.0, security-headers 1.1.0 a updater 1.1.0**: CSP, COOP, `security.txt`, batch API jen pro přihlášené, blok `readme.html` v `.htaccess` a kompatibilita s celou řadou WordPressu 7.1.x už nejsou projektový kód webu
+- Nové volby v **Nastavení → ElvisEK Core → Zabezpečení**: Content-Security-Policy, Cross-Origin-Opener-Policy, kontakt pro `security.txt`, batch API jen pro přihlášené, ochrana souborů jádra v `.htaccess`. Při první návštěvě administrace se CSP zapne a vyplní se kontakt, takže web funguje stejně jako ve verzi 0.15.1
+
+### Šablona
+- **Kanonické moduly term-image 1.1.0 a lightbox 1.1.0**: „Vlastní náhled místo obrázku rubriky“ je v boxu Nastavení článku z kanonu. Hodnoty u článků se převedou samy (`ekt_site_own_thumb` → `ekt_own_thumb`)
+- Nová volba **Přizpůsobit → Články → Zvětšovat i obrázky bez odkazu**, při převodu se zapne (jako dosud)
+
 ## v0.15.1 — 2026-10-24
 
 ### ElvisEK Core

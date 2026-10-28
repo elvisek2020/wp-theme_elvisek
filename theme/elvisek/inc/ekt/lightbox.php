@@ -1,7 +1,7 @@
 <?php
 /**
  * EKT module: lightbox
- * Version: 1.0.1
+ * Version: 1.1.0
  * Requires: common
  * Replaces: wp-jquery-lightbox, simple-lightbox, responsive-lightbox
  * Assets: js/lightbox.js, css/lightbox.css
@@ -14,8 +14,9 @@ defined( 'ABSPATH' ) || exit;
  * Server (filtr the_content, priorita 15 – před content-links) označí odkazy na soubor obrázku
  * atributem data-ekt-lightbox="<skupina>" (výchozí „post“; obrázky jedné skupiny se listují spolu).
  * Klasické galerie [gallery] bez parametru link dostanou link="file", aby vedly na obrázek.
- * Volitelně (filtr ekt_lightbox_unlinked, výchozí false) i obrázky bez odkazu v bloku Obrázek
- * dostanou data-ekt-lightbox na <img> (zvětší se největší verze ze srcset).
+ * Volitelně (Přizpůsobit → Články → lightbox_unlinked, výchozí vypnuto; filtr ekt_lightbox_unlinked)
+ * i obrázky bez odkazu v bloku Obrázek dostanou data-ekt-lightbox na <img> (zvětší se největší
+ * verze ze srcset).
  *
  * JS (assets/ekt/js/lightbox.js) hledá jen [data-ekt-lightbox] uvnitř [data-ekt-content]
  * (šablona obalí obsah článku: <div data-ekt-content>…</div>) a vytvoří si dialog sám:
@@ -27,8 +28,22 @@ defined( 'ABSPATH' ) || exit;
  * Dokud běží původní plugin, nedělá nic (ekt_legacy_active( 'lightbox' )).
  *
  * Veřejné funkce: ekt_lightbox_enabled(), ekt_lightbox_is_image_url( $url ), ekt_lightbox_mark( $html ).
- * Filtry: ekt_lightbox_unlinked (false), ekt_lightbox_texts( $texts ), ekt_lightbox_group( $group ).
+ * Přizpůsobit: ekt_posts → lightbox_unlinked (výchozí false).
+ * Filtry: ekt_lightbox_unlinked (výchozí z volby lightbox_unlinked), ekt_lightbox_texts( $texts ),
+ * ekt_lightbox_group( $group ).
  */
+
+ekt_setting_register(
+	'lightbox_unlinked',
+	array(
+		'type'        => 'checkbox',
+		'default'     => false,
+		'label'       => 'Zvětšovat i obrázky bez odkazu',
+		'description' => 'Lightbox otevře i obrázek v článku, který nevede na soubor obrázku.',
+		'section'     => 'posts',
+		'priority'    => 45,
+	)
+);
 
 /**
  * Dělá modul něco? Ne, dokud běží původní plugin.
@@ -60,7 +75,7 @@ function ekt_lightbox_mark( $html ) {
 		return $html;
 	}
 	$group    = sanitize_key( (string) apply_filters( 'ekt_lightbox_group', 'post' ) );
-	$unlinked = (bool) apply_filters( 'ekt_lightbox_unlinked', false );
+	$unlinked = (bool) apply_filters( 'ekt_lightbox_unlinked', (bool) ekt_opt( 'lightbox_unlinked' ) );
 	$p        = new WP_HTML_Tag_Processor( $html );
 	$marked   = 0;
 	$in_link  = false;

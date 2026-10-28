@@ -97,15 +97,10 @@ ekt_setting_register( 'site_sidebar_recent', array( 'type' => 'checkbox', 'defau
 ekt_setting_register( 'site_postnav', array( 'type' => 'checkbox', 'default' => false, 'label' => 'Pod článkem: odkazy Starší / Novější', 'section' => 'posts', 'priority' => 50 ) );
 
 /* =========================================================================
- * Nastavení článku: vlastní náhled a skrytý úvodní obrázek (0.11.6, 0.11.7)
+ * Nastavení článku: skrytý úvodní obrázek (0.11.7). Vlastní náhled místo obrázku rubriky
+ * (0.11.6) je od term-image 1.1 v kanonu (post setting own_thumb).
  * ====================================================================== */
 
-ekt_post_setting_register( 'site_own_thumb', array(
-	'type'       => 'checkbox',
-	'label'      => 'Použít vlastní náhled místo obrázku rubriky',
-	'post_types' => array( 'post' ),
-	'priority'   => 60,
-) );
 ekt_post_setting_register( 'site_hide_hero', array(
 	'type'       => 'checkbox',
 	'label'      => 'Skrýt úvodní obrázek v článku',
@@ -116,26 +111,27 @@ ekt_post_setting_register( 'site_hide_hero', array(
 
 add_filter( 'ekt_migrations', function ( array $steps ): array {
 	$steps['site-elvisek/post-meta'] = 'ek_site_migrate_post_meta';
+	$steps['site-elvisek/kanon-1-1'] = 'ek_site_migrate_canon_1_1';
 	return $steps;
 } );
 
 function ek_site_migrate_post_meta(): bool {
-	return ekt_migrate_meta_key( 'post', 'ek_own_thumb', 'ekt_site_own_thumb' )
-		&& ekt_migrate_meta_key( 'post', 'ek_hide_hero', 'ekt_site_hide_hero' );
+	return ekt_migrate_meta_key( 'post', 'ek_hide_hero', 'ekt_site_hide_hero' );
+}
+
+/**
+ * Přechod na term-image 1.1 a lightbox 1.1: vlastní náhled byl na webu pod projektovým klíčem
+ * (ekt_site_own_thumb), lightbox i pro obrázky bez odkazu zapínal filtr. Obojí teď drží kanon.
+ */
+function ek_site_migrate_canon_1_1(): bool {
+	ekt_opt_set( 'lightbox_unlinked', true );
+	return ekt_migrate_meta_key( 'post', 'ekt_site_own_thumb', 'ekt_own_thumb' );
 }
 
 /** Detail článku bez úvodního obrázku. */
 function ek_hide_hero( $post = null ): bool {
 	return (bool) ekt_post_setting( 'site_hide_hero', $post );
 }
-
-// Článek s vlastním náhledem: obrázek rubriky se nepodstrčí (karty, detail, Open Graph).
-add_filter( 'ekt_term_image_term', function ( $term, $post ) {
-	if ( $post && ekt_post_setting( 'site_own_thumb', $post ) && get_post_meta( $post->ID, '_thumbnail_id', true ) ) {
-		return null;
-	}
-	return $term;
-}, 10, 2 );
 
 /* =========================================================================
  * Nastavení kanonických modulů pro tento web
@@ -145,9 +141,6 @@ add_filter( 'ekt_term_image_term', function ( $term, $post ) {
 add_filter( 'ekt_load_more_per_page', fn() => 12 );
 add_filter( 'ekt_load_more_home_offset', fn() => 1 );
 add_filter( 'ekt_load_more_texts', fn( $t ) => array_merge( (array) $t, array( 'more' => is_search() ? 'Další výsledky' : 'Načíst další články' ) ) );
-
-// Lightbox i u obrázků bez odkazu (jako dosud: zvětšit jde každý obrázek v článku).
-add_filter( 'ekt_lightbox_unlinked', '__return_true' );
 
 // Patička: přepínač Systém / Světlý / Tmavý a Široká stránka.
 add_filter( 'ekt_color_scheme_wide', '__return_true' );
