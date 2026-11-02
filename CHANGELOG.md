@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.17.0 — 2026-11-02
+
+Ochrana přihlášení proti pomalým útokům z mnoha adres a dvoufázové ověření. Web je referenční pro skill `wp-custom-theme`: změny kanonických modulů jsou popsané v `KANON.md` a skill je převezme.
+
+### ElvisEK Core
+- **Dvoufázové ověření** (nový modul two-factor): v profilu se naskenuje QR kód do aplikace (Google Authenticator, 1Password, Bitwarden…), po heslu se pak zadává šestimístný kód. 10 záložních kódů na jedno použití, aplikační hesla (REST) fungují dál. Volba **Vyžadovat u správců** pustí správce bez 2FA jen do profilu. Sloupec 2FA v přehledu uživatelů, řádek „Správci bez 2FA“ ve widgetu Zdraví webu
+- **Blokace celé sítě** (login-guard 1.1.0): pokusy se můžou počítat za rozsah /24 (IPv6 /64) místo jedné adresy, a **okno pro počítání pokusů** jde prodloužit až na 24 h. Obojí v Nastavení → ElvisEK Core → Přihlášení, výchozí chování je beze změny
+- **Délka logu přihlášení** (login-log 1.1.0): počet událostí (až 5000) a stáří záznamů (až 365 dní) jsou nastavitelné. Nová událost „správné heslo, chybný kód 2FA“, která znamená, že heslo zná někdo cizí. Widget Zdraví webu ji ukáže zvlášť
+
+### Vydání
+- Šablona i plugin 0.17.0
+
 ## v0.16.0 — 2026-10-28
 
 Převzetí novějších kanonických modulů ze skillu `wp-custom-theme`. Pro návštěvníka se nic nemění, funkce, které web dosud řešil vlastním kódem, teď dělají kanonické moduly.

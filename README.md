@@ -68,7 +68,7 @@ Nahrazuje sedm dřívějších pluginů a funguje nezávisle na šabloně.
 
 | Oblast | Co dělá |
 |---|---|
-| Přihlášení | omezení pokusů o přihlášení, log přihlášení, poslední přihlášení uživatelů |
+| Přihlášení | dvoufázové ověření kódem z aplikace (TOTP, záložní kódy, volitelně povinné pro správce), omezení pokusů o přihlášení i za celou síť, log přihlášení s nastavitelnou délkou, poslední přihlášení uživatelů |
 | Bezpečnost | hardening WordPressu, bezpečnostní HTTP hlavičky včetně Content-Security-Policy a COOP, `security.txt`, batch API jen pro přihlášené, zablokované `readme.html`, přesměrování autorských stránek |
 | Obrázky | PNG/JPG se při nahrání uloží rovnou jako WebP (fotky se otočí podle EXIF), zmenšeniny ve WebP |
 | SEO | sitemap s datem změny a bez uživatelů, `/llms.txt` |
@@ -80,7 +80,7 @@ Nahrazuje sedm dřívějších pluginů a funguje nezávisle na šabloně.
 | Návštěvnost | počítadlo zobrazení článků bez cookies a osobních údajů, nejčtenější články, sloupec Zobrazení v přehledu |
 | Nastavení | *Nastavení → ElvisEK Core*: jednotlivé funkce jdou vypnout nebo upravit (limit přihlášení, typy souborů, `/llms.txt`, aktualizace…) |
 
-Moduly pluginu jsou kanonické moduly ze skillu `wp-custom-theme` (stejné na všech webech), projektové úpravy webu jsou v `inc/site-elvisek.php`.
+Moduly pluginu jsou kanonické moduly ze skillu `wp-custom-theme` (stejné na všech webech), projektové úpravy webu jsou v `inc/site-elvisek.php`. Tento web je pro skill referenční: nové a upravené moduly vznikají tady a skill je přebírá, přehled je v [KANON.md](KANON.md).
 
 **Údržba webu** — *Nástroje → Údržba webu*
 - Sjednocení starších obrázků na WebP: převede soubory i odkazy v obsahu, staré adresy přesměruje (301)

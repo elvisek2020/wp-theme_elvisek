@@ -1,7 +1,7 @@
 <?php
 /**
  * EKC module: login-log
- * Version: 1.0.0
+ * Version: 1.1.0
  * Requires: common
  * Replaces: simple-login-log, wp-last-login
  * Summary: Log přihlášení, neúspěšných pokusů a blokací a sloupec Poslední přihlášení u uživatelů.
@@ -11,8 +11,11 @@ defined( 'ABSPATH' ) || exit;
 
 /*
  * Záznamy jsou v option ekc_login_log (bez autoloadu) ve formátu {t, e, u, i, d, a}:
- * čas, událost success|failed|lockout, zadané jméno, IP, délka blokace v sekundách, prohlížeč.
- * Nejnovější první, nejvýš EKC_LOGIN_LOG_MAX záznamů a EKC_LOGIN_LOG_DAYS dní (konstanty v common).
+ * čas, událost success|failed|twofactor|lockout, zadané jméno, IP, délka blokace v sekundách,
+ * prohlížeč. Událost twofactor = správné heslo, ale chybný kód dvoufázového ověření (modul
+ * two-factor) – heslo pak nejspíš zná někdo cizí.
+ * Nejnovější první; kolik záznamů a dní se drží, je v nastavení (login_log_max, login_log_days),
+ * výchozí hodnoty jsou konstanty EKC_LOGIN_LOG_MAX a EKC_LOGIN_LOG_DAYS v common.
  * Blokace zapisuje modul login-guard přes ekc_login_log_add(). Stránka logu (ekc-login-log)
  * se zobrazuje i při vypnutém logu (starší záznamy). Čas posledního přihlášení: user meta
  * ekc_last_login a sloupec v přehledu uživatelů.
@@ -24,10 +27,56 @@ ekc_settings_register(
 		'type'    => 'bool',
 		'default' => true,
 		'label'   => 'Log přihlášení',
-		'help'    => 'Záznam přihlášení, neúspěšných pokusů a blokací (posledních ' . EKC_LOGIN_LOG_MAX . ' událostí, nejvýš ' . EKC_LOGIN_LOG_DAYS . ' dní) a sloupec Poslední přihlášení v přehledu uživatelů.',
+		'help'    => 'Záznam přihlášení, neúspěšných pokusů a blokací a sloupec Poslední přihlášení v přehledu uživatelů.',
 		'section' => 'Přihlášení',
 	)
 );
+ekc_settings_register(
+	'login_log_max',
+	array(
+		'type'    => 'int',
+		'default' => EKC_LOGIN_LOG_MAX,
+		'label'   => 'Délka logu',
+		'help'    => 'Kolik posledních událostí se v logu přihlášení drží. Při útocích stovky denně, pro historii několika týdnů 2000 a víc.',
+		'section' => 'Přihlášení',
+		'min'     => 50,
+		'max'     => 5000,
+		'unit'    => 'událostí',
+	)
+);
+ekc_settings_register(
+	'login_log_days',
+	array(
+		'type'    => 'int',
+		'default' => EKC_LOGIN_LOG_DAYS,
+		'label'   => 'Stáří záznamů v logu',
+		'help'    => 'Starší záznamy se mažou, i když se do délky logu vejdou.',
+		'section' => 'Přihlášení',
+		'min'     => 7,
+		'max'     => 365,
+		'unit'    => 'dní',
+	)
+);
+
+/**
+ * Kolik událostí se v logu drží.
+ *
+ * @return int
+ */
+function ekc_login_log_max(): int {
+	$max = (int) ekc_opt( 'login_log_max' );
+	return $max > 0 ? $max : EKC_LOGIN_LOG_MAX;
+}
+
+/**
+ * Kolik dní se záznamy drží.
+ *
+ * @return int
+ */
+function ekc_login_log_days(): int {
+	$days = (int) ekc_opt( 'login_log_days' );
+	return $days > 0 ? $days : EKC_LOGIN_LOG_DAYS;
+}
 
 /**
  * Záznamy logu, nejnovější první.
@@ -36,7 +85,7 @@ ekc_settings_register(
  * @return array<int,array{t:int,e:string,u:string,i:string,d:int,a:string}>
  */
 function ekc_login_log( int $limit = 50 ): array {
-	$since = time() - EKC_LOGIN_LOG_DAYS * DAY_IN_SECONDS;
+	$since = time() - ekc_login_log_days() * DAY_IN_SECONDS;
 	$rows  = array();
 	foreach ( (array) get_option( 'ekc_login_log', array() ) as $row ) {
 		$row = ekc_login_log_row( $row );
@@ -53,12 +102,12 @@ function ekc_login_log( int $limit = 50 ): array {
 /**
  * Zapíše událost do logu (při vypnutém logu nic).
  *
- * @param string $event    success|failed|lockout.
+ * @param string $event    success|failed|twofactor|lockout.
  * @param string $user     Zadané uživatelské jméno nebo e-mail.
  * @param int    $duration Délka blokace v sekundách (lockout).
  */
 function ekc_login_log_add( string $event, string $user, int $duration = 0 ): void {
-	if ( ! ekc_opt( 'login_log' ) || ! in_array( $event, array( 'success', 'failed', 'lockout' ), true ) ) {
+	if ( ! ekc_opt( 'login_log' ) || ! in_array( $event, array( 'success', 'failed', 'twofactor', 'lockout' ), true ) ) {
 		return;
 	}
 	$log = get_option( 'ekc_login_log', array() );
@@ -74,13 +123,14 @@ function ekc_login_log_add( string $event, string $user, int $duration = 0 ): vo
 			'a' => isset( $_SERVER['HTTP_USER_AGENT'] ) ? mb_substr( sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ), 0, 160 ) : '',
 		)
 	);
-	$since = time() - EKC_LOGIN_LOG_DAYS * DAY_IN_SECONDS;
-	$log   = array_filter( array_slice( $log, 0, EKC_LOGIN_LOG_MAX ), static fn( $row ) => is_array( $row ) && (int) ( $row['t'] ?? 0 ) >= $since );
+	$since = time() - ekc_login_log_days() * DAY_IN_SECONDS;
+	$log   = array_filter( array_slice( $log, 0, ekc_login_log_max() ), static fn( $row ) => is_array( $row ) && (int) ( $row['t'] ?? 0 ) >= $since );
 	update_option( 'ekc_login_log', array_values( $log ), false );
 }
 
 /**
- * Neúspěšný pokus (během blokace z login-guard se nezapisuje).
+ * Neúspěšný pokus (během blokace z login-guard se nezapisuje). Chybný kód dvoufázového
+ * ověření (chyba ekc_2fa_invalid z modulu two-factor) je samostatná událost twofactor.
  *
  * @param string        $username Zadané jméno.
  * @param WP_Error|null $error    Chyba.
@@ -89,7 +139,8 @@ function ekc_login_log_failed( $username, $error = null ): void {
 	if ( $error instanceof WP_Error && in_array( 'ekc_locked', $error->get_error_codes(), true ) ) {
 		return;
 	}
-	ekc_login_log_add( 'failed', (string) $username );
+	$event = $error instanceof WP_Error && in_array( 'ekc_2fa_invalid', $error->get_error_codes(), true ) ? 'twofactor' : 'failed';
+	ekc_login_log_add( $event, (string) $username );
 }
 add_action( 'wp_login_failed', 'ekc_login_log_failed', 5, 2 );
 
@@ -164,6 +215,8 @@ function ekc_login_log_event( array $row ): string {
 			$minutes = max( 1, (int) round( (int) $row['d'] / MINUTE_IN_SECONDS ) );
 			$label   = $minutes < 120 ? $minutes . ' min' : number_format_i18n( $minutes / 60, 0 === $minutes % 60 ? 0 : 1 ) . ' h';
 			return ekc_status_dot( 'bad' ) . ' zablokováno na ' . esc_html( $label );
+		case 'twofactor':
+			return ekc_status_dot( 'bad' ) . ' správné heslo, chybný kód 2FA';
 	}
 	return ekc_status_dot( 'warn' ) . ' neúspěšný pokus';
 }
@@ -175,7 +228,7 @@ function ekc_login_log_page(): void {
 	if ( ! current_user_can( 'manage_options' ) ) {
 		return;
 	}
-	$log = ekc_login_log( EKC_LOGIN_LOG_MAX );
+	$log = ekc_login_log( ekc_login_log_max() );
 	echo '<div class="wrap"><h1>Log přihlášení</h1>';
 	ekc_maintenance_notice();
 	if ( ! ekc_opt( 'login_log' ) ) {
@@ -202,6 +255,6 @@ function ekc_login_log_page(): void {
 		);
 	}
 	echo '</tbody></table>';
-	echo '<p class="description">' . esc_html( sprintf( 'Uchovává se posledních %d událostí, nejvýše %d dní.', EKC_LOGIN_LOG_MAX, EKC_LOGIN_LOG_DAYS ) ) . ' <a href="' . esc_url( ekc_page_url( 'ekc-nastaveni' ) ) . '">Nastavení</a></p>';
+	echo '<p class="description">' . esc_html( sprintf( 'Uchovává se posledních %d událostí, nejvýše %d dní.', ekc_login_log_max(), ekc_login_log_days() ) ) . ' <a href="' . esc_url( ekc_page_url( 'ekc-nastaveni' ) ) . '">Nastavení</a></p>';
 	echo '</div>';
 }

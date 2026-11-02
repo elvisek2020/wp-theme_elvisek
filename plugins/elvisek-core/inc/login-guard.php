@@ -1,7 +1,7 @@
 <?php
 /**
  * EKC module: login-guard
- * Version: 1.0.0
+ * Version: 1.1.0
  * Requires: common
  * Replaces: limit-login-attempts-reloaded, loginizer, advanced-nocaptcha-recaptcha, all-in-one-wp-security-and-firewall
  * Summary: Limit pokusů o přihlášení s eskalací blokace, zbývajícími pokusy a zrušením blokací.
@@ -10,21 +10,25 @@
 defined( 'ABSPATH' ) || exit;
 
 /*
- * Po nastaveném počtu chybných pokusů během 15 minut se IP adresa zablokuje na nastavenou dobu,
- * každá další blokace během 24 hodin je dvakrát delší (nejvýš 24 h). Platí pro wp-login.php
- * i další místa, kde se ověřuje heslo (aplikační hesla, XML-RPC). Během blokace se pokusy
+ * Po nastaveném počtu chybných pokusů během nastaveného okna (výchozí 15 minut) se IP adresa
+ * zablokuje na nastavenou dobu, každá další blokace během 24 hodin je dvakrát delší (nejvýš 24 h).
+ * Volitelně se pokusy počítají a blokují za celou síť (/24 u IPv4, /64 u IPv6) – proti útokům,
+ * které střídají adresy v jednom rozsahu a z jedné adresy zkusí jen jednou dvakrát.
+ * Platí pro wp-login.php i další místa, kde se ověřuje heslo (aplikační hesla, XML-RPC),
+ * a pro chybné kódy dvoufázového ověření (modul two-factor). Během blokace se pokusy
  * nepočítají ani neprodlužují blokaci.
  *
  * Počítadla i blokace jsou v jedné option ekc_lockouts (bez autoloadu), ne v transientech:
  * s perzistentní object cache se transienty nedají vypsat ani hromadně smazat.
- * Formát: [ ip => { f: chybné pokusy v okně, s: začátek okna, l: blokace do, n: počet blokací
- * za 24 h, w: čas poslední blokace, u: poslední zadané jméno } ].
+ * Formát: [ klíč => { f: chybné pokusy v okně, s: začátek okna, l: blokace do, n: počet blokací
+ * za 24 h, w: čas poslední blokace, u: poslední zadané jméno, i: poslední IP } ]. Klíč je IP adresa,
+ * při blokaci sítí rozsah (203.0.113.0/24, 2001:db8:1:2::/64).
  *
  * Chybové hlášky přepisuje jen pro chybné jméno, e-mail nebo heslo (vlastní kód ekc_failed)
  * a blokaci (ekc_locked); ostatní chyby (prázdné heslo, 2FA, jiné pluginy) nechává být.
  */
 
-const EKC_LOGIN_WINDOW      = 15 * MINUTE_IN_SECONDS; // okno pro počítání chybných pokusů
+const EKC_LOGIN_WINDOW      = 15 * MINUTE_IN_SECONDS; // výchozí okno pro počítání chybných pokusů
 const EKC_LOGIN_LOCKOUT_MAX = DAY_IN_SECONDS;         // nejdelší blokace
 const EKC_LOCKOUTS_MAX      = 500;                    // nejvýš sledovaných IP adres
 
@@ -34,7 +38,7 @@ ekc_settings_register(
 		'type'    => 'bool',
 		'default' => true,
 		'label'   => 'Omezení pokusů o přihlášení',
-		'help'    => 'Po opakovaných chybných pokusech z jedné IP adresy se přihlášení dočasně zablokuje. Chybové hlášky neprozradí, jestli uživatel existuje.',
+		'help'    => 'Po opakovaných chybných pokusech z jedné IP adresy (nebo sítě, viz níže) se přihlášení dočasně zablokuje. Chybové hlášky neprozradí, jestli uživatel existuje.',
 		'section' => 'Přihlášení',
 	)
 );
@@ -44,11 +48,34 @@ ekc_settings_register(
 		'type'    => 'int',
 		'default' => 5,
 		'label'   => 'Počet pokusů',
-		'help'    => 'Kolik chybných pokusů během 15 minut je povoleno.',
+		'help'    => 'Kolik chybných pokusů během okna pro počítání je povoleno.',
 		'section' => 'Přihlášení',
 		'min'     => 3,
 		'max'     => 20,
 		'unit'    => 'pokusů',
+	)
+);
+ekc_settings_register(
+	'login_window',
+	array(
+		'type'    => 'int',
+		'default' => 15,
+		'label'   => 'Okno pro počítání pokusů',
+		'help'    => 'Za jak dlouhou dobu se chybné pokusy sčítají. Delší okno zachytí i pomalé útoky (pokus každých 10 minut), např. 60–240 minut.',
+		'section' => 'Přihlášení',
+		'min'     => 5,
+		'max'     => 1440,
+		'unit'    => 'minut',
+	)
+);
+ekc_settings_register(
+	'login_subnet',
+	array(
+		'type'    => 'bool',
+		'default' => false,
+		'label'   => 'Blokovat celou síť',
+		'help'    => 'Pokusy se počítají a blokují za celý rozsah /24 (IPv4) nebo /64 (IPv6), ne za jednu adresu. Proti útokům, které střídají adresy v jedné síti. Může zablokovat i sousedy ve stejné síti (mobilní operátor, firma).',
+		'section' => 'Přihlášení',
 	)
 );
 ekc_settings_register(
@@ -70,20 +97,78 @@ ekc_settings_register(
  * ---------------------------------------------------------------------- */
 
 /**
+ * Okno pro počítání chybných pokusů v sekundách.
+ *
+ * @return int
+ */
+function ekc_login_window(): int {
+	$minutes = (int) ekc_opt( 'login_window' );
+	return $minutes > 0 ? $minutes * MINUTE_IN_SECONDS : EKC_LOGIN_WINDOW;
+}
+
+/**
+ * Síť, do které IP adresa patří: /24 u IPv4, /64 u IPv6.
+ *
+ * @param string $ip IP adresa.
+ * @return string Např. 203.0.113.0/24, při neplatné adrese ''.
+ */
+function ekc_ip_subnet( string $ip ): string {
+	if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
+		return (string) preg_replace( '/\.\d+$/', '.0', $ip ) . '/24';
+	}
+	$bin = filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 ) ? inet_pton( $ip ) : false;
+	if ( false === $bin || 16 !== strlen( $bin ) ) {
+		return '';
+	}
+	return (string) inet_ntop( substr( $bin, 0, 8 ) . str_repeat( "\0", 8 ) ) . '/64';
+}
+
+/**
+ * Klíč, pod kterým se počítají pokusy a blokace: IP adresa, nebo její síť (nastavení login_subnet).
+ *
+ * @param string $ip IP adresa, '' = aktuální návštěvník.
+ * @return string
+ */
+function ekc_login_guard_key( string $ip = '' ): string {
+	$ip = '' !== $ip ? $ip : ekc_client_ip();
+	if ( ekc_opt( 'login_subnet' ) ) {
+		$net = ekc_ip_subnet( $ip );
+		if ( '' !== $net ) {
+			return $net;
+		}
+	}
+	return $ip;
+}
+
+/**
+ * Platný klíč blokace (IP adresa nebo síť ve tvaru adresa/prefix)?
+ *
+ * @param string $key Klíč.
+ * @return bool
+ */
+function ekc_login_guard_valid_key( string $key ): bool {
+	if ( filter_var( $key, FILTER_VALIDATE_IP ) ) {
+		return true;
+	}
+	return (bool) preg_match( '#^([0-9a-f:.]+)/(24|64)$#i', $key, $m ) && filter_var( $m[1], FILTER_VALIDATE_IP );
+}
+
+/**
  * Sledované IP adresy (bez prošlých záznamů).
  *
  * @return array<string,array>
  */
 function ekc_lockouts(): array {
 	$data = get_option( 'ekc_lockouts', array() );
-	$data = is_array( $data ) ? $data : array();
-	$now  = time();
+	$data   = is_array( $data ) ? $data : array();
+	$now    = time();
+	$window = max( ekc_login_window(), EKC_LOGIN_WINDOW );
 	foreach ( $data as $ip => $row ) {
 		if ( ! is_array( $row ) ) {
 			unset( $data[ $ip ] );
 			continue;
 		}
-		$fails_alive = (int) ( $row['s'] ?? 0 ) + EKC_LOGIN_WINDOW > $now && (int) ( $row['f'] ?? 0 ) > 0;
+		$fails_alive = (int) ( $row['s'] ?? 0 ) + $window > $now && (int) ( $row['f'] ?? 0 ) > 0;
 		$lock_alive  = (int) ( $row['l'] ?? 0 ) > $now;
 		$count_alive = (int) ( $row['w'] ?? 0 ) + DAY_IN_SECONDS > $now;
 		if ( ! $fails_alive && ! $lock_alive && ! $count_alive ) {
@@ -112,14 +197,15 @@ function ekc_lockouts_save( array $data ): void {
 }
 
 /**
- * Do kdy je IP zablokovaná (unix čas), 0 = není.
+ * Do kdy je IP zablokovaná (unix čas), 0 = není. Kontroluje adresu i její síť.
  *
  * @param string $ip IP adresa.
  * @return int
  */
 function ekc_login_locked_until( string $ip ): int {
 	$data  = ekc_lockouts();
-	$until = (int) ( $data[ $ip ]['l'] ?? 0 );
+	$net   = ekc_ip_subnet( $ip );
+	$until = max( (int) ( $data[ $ip ]['l'] ?? 0 ), '' !== $net ? (int) ( $data[ $net ]['l'] ?? 0 ) : 0 );
 	return $until > time() ? $until : 0;
 }
 
@@ -134,9 +220,9 @@ function ekc_lockouts_active(): int {
 }
 
 /**
- * Zruší blokaci jedné IP adresy, nebo všech (i s počítadly).
+ * Zruší blokaci jedné IP adresy nebo sítě, nebo všech (i s počítadly).
  *
- * @param string $ip IP adresa, '' = všechny.
+ * @param string $ip IP adresa nebo síť (klíč), '' = všechny.
  * @return int Počet zrušených blokací.
  */
 function ekc_lockouts_clear( string $ip = '' ): int {
@@ -197,10 +283,10 @@ function ekc_login_guard_authenticate( $user, $username ) {
 	if ( ! ekc_opt( 'login_protection' ) ) {
 		return $user;
 	}
-	$ip    = ekc_client_ip();
+	$key   = ekc_login_guard_key();
 	$data  = ekc_lockouts();
-	$row   = $data[ $ip ] ?? array();
-	$until = (int) ( $row['l'] ?? 0 );
+	$row   = $data[ $key ] ?? array();
+	$until = max( (int) ( $row['l'] ?? 0 ), ekc_login_locked_until( ekc_client_ip() ) );
 
 	if ( $until > time() ) {
 		return new WP_Error(
@@ -210,7 +296,7 @@ function ekc_login_guard_authenticate( $user, $username ) {
 	}
 
 	if ( is_wp_error( $user ) && array_intersect( $user->get_error_codes(), array( 'invalid_username', 'invalid_email', 'incorrect_password' ) ) ) {
-		$fails = ( (int) ( $row['s'] ?? 0 ) + EKC_LOGIN_WINDOW > time() ? (int) ( $row['f'] ?? 0 ) : 0 ) + 1;
+		$fails = ( (int) ( $row['s'] ?? 0 ) + ekc_login_window() > time() ? (int) ( $row['f'] ?? 0 ) : 0 ) + 1;
 		$left  = (int) ekc_opt( 'login_attempts' ) - $fails;
 		$text  = '<strong>Chyba:</strong> Nesprávné uživatelské jméno, e-mail nebo heslo.';
 		if ( $left <= 0 ) {
@@ -240,6 +326,7 @@ function ekc_login_guard_failed( $username, $error = null ): void {
 		return;
 	}
 	$ip   = ekc_client_ip();
+	$key  = ekc_login_guard_key( $ip );
 	$now  = time();
 	$data = ekc_lockouts();
 	$row  = array_merge(
@@ -250,18 +337,20 @@ function ekc_login_guard_failed( $username, $error = null ): void {
 			'n' => 0,
 			'w' => 0,
 			'u' => '',
+			'i' => '',
 		),
-		(array) ( $data[ $ip ] ?? array() )
+		(array) ( $data[ $key ] ?? array() )
 	);
-	if ( (int) $row['l'] > $now ) {
+	if ( (int) $row['l'] > $now || ekc_login_locked_until( $ip ) ) {
 		return; // blokace běží – nepočítat ani neprodlužovat
 	}
-	if ( (int) $row['s'] + EKC_LOGIN_WINDOW <= $now ) {
+	if ( (int) $row['s'] + ekc_login_window() <= $now ) {
 		$row['f'] = 0;
 		$row['s'] = $now;
 	}
 	$row['f'] = (int) $row['f'] + 1;
 	$row['u'] = mb_substr( sanitize_user( (string) $username, false ), 0, 60 );
+	$row['i'] = $ip;
 
 	$duration = 0;
 	if ( $row['f'] >= (int) ekc_opt( 'login_attempts' ) ) {
@@ -272,7 +361,7 @@ function ekc_login_guard_failed( $username, $error = null ): void {
 		$row['f']  = 0;
 		$row['s']  = 0;
 	}
-	$data[ $ip ] = $row;
+	$data[ $key ] = $row;
 	ekc_lockouts_save( $data );
 
 	if ( $duration && function_exists( 'ekc_login_log_add' ) ) {
@@ -285,14 +374,14 @@ add_action( 'wp_login_failed', 'ekc_login_guard_failed', 10, 2 );
  * Úspěšné přihlášení vynuluje chybné pokusy (počet blokací za 24 h zůstává).
  */
 function ekc_login_guard_success(): void {
-	$ip   = ekc_client_ip();
+	$key  = ekc_login_guard_key();
 	$data = ekc_lockouts();
-	if ( empty( $data[ $ip ]['f'] ) ) {
+	if ( empty( $data[ $key ]['f'] ) ) {
 		return;
 	}
-	$data[ $ip ]['f'] = 0;
-	$data[ $ip ]['s'] = 0;
-	ekc_lockouts_save( ekc_lockouts_prune_row( $data, $ip ) );
+	$data[ $key ]['f'] = 0;
+	$data[ $key ]['s'] = 0;
+	ekc_lockouts_save( ekc_lockouts_prune_row( $data, $key ) );
 }
 add_action( 'wp_login', 'ekc_login_guard_success' );
 
@@ -322,11 +411,11 @@ function ekc_lockouts_prune_row( array $data, string $ip ): array {
  * @return array
  */
 function ekc_login_guard_unlock( string $item = '' ): array {
-	$ip    = filter_var( $item, FILTER_VALIDATE_IP ) ? $item : '';
+	$ip    = ekc_login_guard_valid_key( $item ) ? $item : '';
 	$count = ekc_lockouts_clear( $ip );
 	return array(
 		'message' => '' !== $ip
-			? ( $count ? 'Blokace IP adresy ' . $ip . ' byla zrušena.' : 'IP adresa ' . $ip . ' už zablokovaná nebyla.' )
+			? ( $count ? 'Blokace ' . $ip . ' byla zrušena.' : $ip . ' už zablokovaná nebyla.' )
 			: ( $count ? 'Zrušeno blokací přihlášení: ' . $count . '.' : 'Žádná IP adresa nebyla zablokovaná, počítadla jsou vynulovaná.' ),
 		'mark'    => false,
 	);
@@ -344,7 +433,7 @@ function ekc_login_guard_render( string $id ): void {
 
 	echo '<p>';
 	if ( ekc_opt( 'login_protection' ) ) {
-		echo esc_html( sprintf( 'Po %d neúspěšných pokusech během 15 minut se IP adresa zablokuje na %d min, každá další blokace během 24 h je dvakrát delší.', (int) ekc_opt( 'login_attempts' ), (int) ekc_opt( 'login_lockout' ) ) );
+		echo esc_html( ekc_login_guard_summary() . sprintf( ' na %d min, každá další blokace během 24 h je dvakrát delší.', (int) ekc_opt( 'login_lockout' ) ) );
 	} else {
 		echo ekc_status_dot( 'warn' ) . ' Omezení pokusů o přihlášení je vypnuté.'; // phpcs:ignore WordPress.Security.EscapeOutput
 	}
@@ -354,12 +443,12 @@ function ekc_login_guard_render( string $id ): void {
 	echo '</p>';
 
 	if ( ! $locked ) {
-		echo '<p>' . ekc_status_dot( 'ok' ) . ' Žádná IP adresa není zablokovaná.</p>'; // phpcs:ignore WordPress.Security.EscapeOutput
+		echo '<p>' . ekc_status_dot( 'ok' ) . ' Žádná IP adresa ani síť není zablokovaná.</p>'; // phpcs:ignore WordPress.Security.EscapeOutput
 		return;
 	}
-	echo '<table class="widefat striped" style="max-width:720px"><thead><tr><th>IP adresa</th><th>Zablokováno do</th><th>Blokací za 24 h</th><th>Poslední jméno</th><th></th></tr></thead><tbody>';
+	echo '<table class="widefat striped" style="max-width:820px"><thead><tr><th>IP adresa / síť</th><th>Zablokováno do</th><th>Blokací za 24 h</th><th>Poslední jméno</th><th>Poslední IP</th><th></th></tr></thead><tbody>';
 	foreach ( $locked as $ip => $row ) {
-		echo '<tr><td><code>' . esc_html( (string) $ip ) . '</code></td><td>' . esc_html( ekc_datetime( (int) $row['l'] ) ) . '</td><td>' . (int) ( $row['n'] ?? 0 ) . '</td><td>' . esc_html( (string) ( $row['u'] ?? '' ) ) . '</td><td>';
+		echo '<tr><td><code>' . esc_html( (string) $ip ) . '</code></td><td>' . esc_html( ekc_datetime( (int) $row['l'] ) ) . '</td><td>' . (int) ( $row['n'] ?? 0 ) . '</td><td>' . esc_html( (string) ( $row['u'] ?? '' ) ) . '</td><td>' . esc_html( (string) ( $row['i'] ?? '' ) ) . '</td><td>';
 		ekc_maintenance_button( $id, 'unlock', 'Zrušit', '', false, (string) $ip );
 		echo '</td></tr>';
 	}
@@ -381,13 +470,29 @@ ekc_maintenance_section(
 );
 
 /**
+ * Popis pravidla: „Po 5 neúspěšných pokusech během 60 minut se zablokuje celá síť (/24)“.
+ *
+ * @return string
+ */
+function ekc_login_guard_summary(): string {
+	$minutes = (int) ( ekc_login_window() / MINUTE_IN_SECONDS );
+	$window  = $minutes < 120 ? $minutes . ' minut' : ekc_login_duration_label( $minutes * MINUTE_IN_SECONDS );
+	return sprintf(
+		'Po %1$d neúspěšných pokusech během %2$s se zablokuje %3$s',
+		(int) ekc_opt( 'login_attempts' ),
+		$window,
+		ekc_opt( 'login_subnet' ) ? 'celá síť (/24, u IPv6 /64)' : 'IP adresa'
+	);
+}
+
+/**
  * Stav blokací a tlačítko nad tabulkou logu přihlášení (akce modulu login-log).
  */
 function ekc_login_guard_log_status(): void {
 	$active = ekc_lockouts_active();
 	echo '<p>';
 	if ( ekc_opt( 'login_protection' ) ) {
-		echo esc_html( sprintf( 'Po %d neúspěšných pokusech se IP adresa dočasně zablokuje. Aktuálně zablokováno: %d.', (int) ekc_opt( 'login_attempts' ), $active ) );
+		echo esc_html( ekc_login_guard_summary() . sprintf( ' dočasně. Aktuálně zablokováno: %d.', $active ) );
 	} else {
 		echo 'Omezení pokusů o přihlášení je vypnuté.';
 	}

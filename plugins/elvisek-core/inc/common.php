@@ -1,7 +1,7 @@
 <?php
 /**
  * EKC module: common
- * Version: 1.0.1
+ * Version: 1.0.2
  * Requires: –
  * Replaces: –
  * Summary: Společné API pro moduly: registr nastavení, helpery, karanténa, kostra Údržby webu a migrace dat.
@@ -1142,7 +1142,7 @@ function ekc_login_log_row( $row ): ?array {
 	}
 	return array(
 		't' => (int) $row['t'],
-		'e' => in_array( $row['e'] ?? '', array( 'success', 'failed', 'lockout' ), true ) ? $row['e'] : 'failed',
+		'e' => in_array( $row['e'] ?? '', array( 'success', 'failed', 'twofactor', 'lockout' ), true ) ? $row['e'] : 'failed',
 		'u' => (string) ( $row['u'] ?? '' ),
 		'i' => (string) ( $row['i'] ?? '' ),
 		'd' => (int) ( $row['d'] ?? 0 ),

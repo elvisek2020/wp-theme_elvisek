@@ -1,7 +1,7 @@
 <?php
 /**
  * EKC module: health
- * Version: 1.0.0
+ * Version: 1.1.0
  * Requires: common
  * Replaces: –
  * Summary: Widget Zdraví webu na Nástěnce: verze a aktualizace, data, obsah, přihlášení, poslední údržba.
@@ -138,15 +138,20 @@ function ekc_health_rows(): array {
 		$failed = 0;
 		$last   = null;
 		$since  = time() - DAY_IN_SECONDS;
-		foreach ( (array) ekc_login_log( 200 ) as $row ) {
-			if ( 'failed' === ( $row['e'] ?? '' ) && (int) $row['t'] >= $since ) {
+		$twofa  = 0;
+		foreach ( (array) ekc_login_log( function_exists( 'ekc_login_log_max' ) ? ekc_login_log_max() : 200 ) as $row ) {
+			if ( in_array( $row['e'] ?? '', array( 'failed', 'twofactor' ), true ) && (int) $row['t'] >= $since ) {
 				++$failed;
+				$twofa += 'twofactor' === $row['e'] ? 1 : 0;
 			}
 			if ( ! $last && 'success' === ( $row['e'] ?? '' ) ) {
 				$last = $row;
 			}
 		}
 		$rows['Přihlášení']['Neúspěšné za 24 h']   = sprintf( '<a href="%1$s">%2$d</a>', esc_url( ekc_page_url( 'ekc-login-log' ) ), $failed ) . ( $failed > 20 ? ' ' . $warn : '' );
+		if ( $twofa ) {
+			$rows['Přihlášení']['Chybný kód 2FA za 24 h'] = sprintf( '<a href="%1$s">%2$d</a>', esc_url( ekc_page_url( 'ekc-login-log' ) ), $twofa ) . ' ' . ekc_status_dot( 'bad' ) . ' heslo zná někdo cizí, změňte ho';
+		}
 		$rows['Přihlášení']['Poslední přihlášení'] = $last ? esc_html( ekc_datetime( (int) $last['t'] ) . ' · ' . $last['u'] ) : '—';
 	}
 	if ( function_exists( 'ekc_lockouts_active' ) ) {
