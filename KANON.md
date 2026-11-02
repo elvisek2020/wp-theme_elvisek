@@ -21,8 +21,8 @@ Agent pro skilly převzal do kanonu všech 10 modulů z tagu `v0.18.0` beze změ
 common 1.0.3, settings 1.1.0, health 1.1.0, login-guard 1.2.0, login-log 1.2.0, two-factor 1.1.0
 (nový, volitelný), hardening 1.1.1, security-headers 1.1.1, llms-txt 1.0.1, sitemap 1.0.1.
 Dokumentace skillu doplněná (modules-api.md, plugin.md, SKILL.md, dev-and-testing.md).
-`modules.py status` na `plugins/elvisek-core` hlásí vše aktuální. V repu claude-skills zatím
-necommitnuté, commit a nahrání do claude.ai je na rozhodnutí uživatele.
+`modules.py status` na `plugins/elvisek-core` hlásí vše aktuální. V repu claude-skills commit
+`10998c9`, skill je nahraný do claude.ai.
 
 #### v0.18.0 — přehlednější nastavení, whitelist, stránkovaný log
 
