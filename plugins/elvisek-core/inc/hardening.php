@@ -1,7 +1,7 @@
 <?php
 /**
  * EKC module: hardening
- * Version: 1.1.0
+ * Version: 1.1.1
  * Requires: common
  * Replaces: disable-xml-rpc, disable-xml-rpc-api, stop-user-enumeration, disable-file-editor, wp-security-txt
  * Summary: Vypnuté XML-RPC, zakázaný editor souborů, skrytá verze WordPressu a uživatelská jména, batch API jen pro přihlášené, blok souborů jádra v .htaccess, security.txt.
@@ -24,6 +24,7 @@ ekc_settings_register(
 		'label'   => 'Vypnout XML-RPC a pingbacky',
 		'help'    => 'Staré rozhraní pro vzdálené publikování, častý cíl útoků. xmlrpc.php vrací 403, z hlavičky stránky zmizí odkaz RSD a X-Pingback. Výjimku jde povolit filtrem ekc_allow_xmlrpc.',
 		'section' => 'Zabezpečení',
+		'group'   => 'WordPress',
 	)
 );
 ekc_settings_register(
@@ -34,6 +35,7 @@ ekc_settings_register(
 		'label'   => 'Zakázat editor souborů',
 		'help'    => 'Skryje úpravy kódu šablon a pluginů v administraci (konstanta DISALLOW_FILE_EDIT). Když je konstanta ve wp-config.php, má přednost.',
 		'section' => 'Zabezpečení',
+		'group'   => 'WordPress',
 	)
 );
 ekc_settings_register(
@@ -44,6 +46,7 @@ ekc_settings_register(
 		'label'   => 'Skrýt uživatelská jména',
 		'help'    => 'Pro nepřihlášené: adresy ?author=… a archivy autorů přesměrují na úvodní stránku, seznam uživatelů v REST API není, oEmbed bez jména autora.',
 		'section' => 'Zabezpečení',
+		'group'   => 'WordPress',
 	)
 );
 ekc_settings_register(
@@ -54,6 +57,7 @@ ekc_settings_register(
 		'label'   => 'Skrýt verzi WordPressu',
 		'help'    => 'Bez meta značky generator a verze v kanálech RSS.',
 		'section' => 'Zabezpečení',
+		'group'   => 'WordPress',
 	)
 );
 ekc_settings_register(
@@ -64,6 +68,7 @@ ekc_settings_register(
 		'label'   => 'Zablokovat readme.html a license.txt',
 		'help'    => 'Soubory jádra, které prozrazují verzi WordPressu (i wp-config-sample.php), vrátí 403. Pravidlo se zapíše do .htaccess ve vlastním bloku vedle bloku WordPressu (jen Apache a LiteSpeed; na Nginx nic nedělá), při deaktivaci pluginu se odebere.',
 		'section' => 'Zabezpečení',
+		'group'   => 'WordPress',
 	)
 );
 ekc_settings_register(
@@ -74,6 +79,7 @@ ekc_settings_register(
 		'label'   => 'REST batch API jen pro přihlášené',
 		'help'    => 'Hromadné požadavky /wp-json/batch/v1 používá jen editor bloků. Nepřihlášenému vrátí 401 – anonymně slouží jen jako útočná plocha.',
 		'section' => 'Zabezpečení',
+		'group'   => 'WordPress',
 	)
 );
 ekc_settings_register(
@@ -84,6 +90,7 @@ ekc_settings_register(
 		'label'    => 'Kontakt pro hlášení zranitelností',
 		'help'     => 'E-mail nebo adresa https://… Vyplněním se zapne /.well-known/security.txt (RFC 9116). Prázdné = vypnuto.',
 		'section'  => 'Zabezpečení',
+		'group'    => 'Hlášení zranitelností (security.txt)',
 		'sanitize' => 'ekc_hardening_sanitize_contact',
 	)
 );

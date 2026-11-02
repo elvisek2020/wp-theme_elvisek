@@ -1,7 +1,7 @@
 <?php
 /**
  * EKC module: llms-txt
- * Version: 1.0.0
+ * Version: 1.0.1
  * Requires: common
  * Replaces: website-llms-txt, llms-txt-generator
  * Summary: Adresa /llms.txt se stručným přehledem webu pro AI (llmstxt.org) – blog podle rubrik, nebo strom stránek po jazycích.
@@ -24,6 +24,7 @@ ekc_settings_register(
 		'label'   => 'Soubor /llms.txt',
 		'help'    => 'Stručný přehled webu pro AI asistenty (llmstxt.org).',
 		'section' => 'SEO',
+		'group'   => '/llms.txt',
 	)
 );
 ekc_settings_register(
@@ -38,6 +39,8 @@ ekc_settings_register(
 			'pages' => 'Stránky: strom stránek (po jazycích)',
 		),
 		'section' => 'SEO',
+		'group'   => '/llms.txt',
+		'parent'  => 'llms_txt',
 	)
 );
 ekc_settings_register(
@@ -48,6 +51,8 @@ ekc_settings_register(
 		'label'   => 'Úvod do /llms.txt',
 		'help'    => 'Pár vět o tom, co web je a pro koho. Prázdné = text titulní stránky (u stránek) nebo nic (u blogu).',
 		'section' => 'SEO',
+		'group'   => '/llms.txt',
+		'parent'  => 'llms_txt',
 	)
 );
 

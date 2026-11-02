@@ -1,7 +1,7 @@
 <?php
 /**
  * EKC module: common
- * Version: 1.0.2
+ * Version: 1.0.3
  * Requires: –
  * Replaces: –
  * Summary: Společné API pro moduly: registr nastavení, helpery, karanténa, kostra Údržby webu a migrace dat.
@@ -112,7 +112,9 @@ function ekc_settings_fields( ?string $key = null, ?array $field = null ): array
  *
  * @param string $key   Klíč v ekc_settings (malá písmena, podtržítka).
  * @param array  $field type (bool|int|select|text|textarea|list), default, label, help, section,
- *                      options (select: hodnota => popisek), min, max, unit (int), sanitize (callable).
+ *                      options (select: hodnota => popisek), min, max, unit (int), sanitize (callable),
+ *                      group (podnadpis uvnitř sekce), parent (klíč přepínače, pod který pole patří:
+ *                      zobrazí se odsazené a ztlumené, když je přepínač vypnutý).
  */
 function ekc_settings_register( string $key, array $field ): void {
 	$type     = in_array( $field['type'] ?? '', array( 'bool', 'int', 'select', 'text', 'textarea', 'list' ), true ) ? $field['type'] : 'bool';
@@ -136,6 +138,8 @@ function ekc_settings_register( string $key, array $field ): void {
 			'max'      => null,
 			'unit'     => '',
 			'sanitize' => null,
+			'group'    => '',
+			'parent'   => '',
 		),
 		$field
 	);
@@ -669,7 +673,9 @@ function ekc_maintenance_sections( ?string $id = null, ?array $args = null ): ar
  *
  * @param string $id   ID sekce (a-z, 0-9, -), zároveň kotva #ekc-<id>.
  * @param array  $args title (string), order (int, menší = výš), render (callable( string $id )),
- *                     tasks (array task_id => callable( string $item, array $items ): string|array).
+ *                     tasks (array task_id => callable( string $item, array $items ): string|array),
+ *                     hidden (bool: sekce se v Údržbě nezobrazí, jen obsluhuje úlohy tlačítek
+ *                     z jiné stránky, např. zrušení blokací v logu přihlášení).
  */
 function ekc_maintenance_section( string $id, array $args ): void {
 	$id = sanitize_key( $id );
@@ -681,6 +687,7 @@ function ekc_maintenance_section( string $id, array $args ): void {
 				'order'  => 50,
 				'render' => null,
 				'tasks'  => array(),
+				'hidden' => false,
 			),
 			$args
 		)
@@ -858,7 +865,7 @@ function ekc_maintenance_page(): void {
 	if ( ! current_user_can( 'manage_options' ) ) {
 		return;
 	}
-	$sections = ekc_maintenance_sections();
+	$sections = array_filter( ekc_maintenance_sections(), static fn( $section ) => empty( $section['hidden'] ) );
 	uasort( $sections, static fn( $a, $b ) => ( (int) $a['order'] <=> (int) $b['order'] ) ?: strcmp( (string) $a['title'], (string) $b['title'] ) );
 
 	echo '<div class="wrap"><h1>Údržba webu</h1>';

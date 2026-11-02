@@ -1,7 +1,7 @@
 <?php
 /**
  * EKC module: settings
- * Version: 1.0.0
+ * Version: 1.1.0
  * Requires: common
  * Replaces: –
  * Summary: Stránka Nastavení → NAZEV Core vykreslená z registru nastavení (ekc_settings_register).
@@ -180,17 +180,88 @@ function ekc_settings_page(): void {
 		echo '<p>Žádný modul nemá nastavení.</p></div>';
 		return;
 	}
+	$slugs = array();
+	foreach ( array_keys( $groups ) as $section ) {
+		$slugs[ $section ] = sanitize_title( remove_accents( (string) $section ) );
+	}
+	echo '<nav class="nav-tab-wrapper ekc-tabs">';
+	foreach ( $slugs as $section => $slug ) {
+		printf( '<a href="#ekc-sec-%1$s" class="nav-tab" data-tab="%1$s">%2$s</a>', esc_attr( $slug ), esc_html( (string) $section ) );
+	}
+	echo '</nav>';
+
 	echo '<form method="post" action="options.php">';
 	settings_fields( 'ekc_settings_group' );
 	foreach ( $groups as $section => $fields ) {
-		echo '<h2 class="title">' . esc_html( $section ) . '</h2><table class="form-table" role="presentation">';
+		$slug = $slugs[ $section ];
+		printf( '<div class="card ekc-sec" id="ekc-sec-%1$s"><h2 class="title">%2$s</h2>', esc_attr( $slug ), esc_html( (string) $section ) );
+		$subgroups = array();
 		foreach ( $fields as $key => $field ) {
-			printf( '<tr><th scope="row"><label for="%1$s">%2$s</label></th><td>', esc_attr( 'ekc-' . str_replace( '_', '-', $key ) ), esc_html( (string) $field['label'] ) );
-			ekc_settings_field( $key, $field );
-			echo '</td></tr>';
+			$subgroups[ (string) $field['group'] ][ $key ] = $field;
 		}
-		echo '</table>';
+		foreach ( $subgroups as $group => $items ) {
+			if ( '' !== $group ) {
+				echo '<h3 class="ekc-group">' . esc_html( $group ) . '</h3>';
+			}
+			echo '<table class="form-table" role="presentation">';
+			foreach ( $items as $key => $field ) {
+				$parent = (string) $field['parent'];
+				printf(
+					'<tr%1$s><th scope="row"><label for="%2$s">%3$s</label></th><td>',
+					'' !== $parent ? ' class="ekc-child" data-parent="' . esc_attr( 'ekc-' . str_replace( '_', '-', $parent ) ) . '"' : '',
+					esc_attr( 'ekc-' . str_replace( '_', '-', $key ) ),
+					esc_html( (string) $field['label'] )
+				);
+				ekc_settings_field( $key, $field );
+				echo '</td></tr>';
+			}
+			echo '</table>';
+		}
+		submit_button( 'Uložit změny', 'primary', 'submit-' . $slug );
+		echo '</div>';
 	}
-	submit_button();
 	echo '</form></div>';
+	?>
+	<style>
+		.ekc-tabs { margin-top: 16px; }
+		.ekc-sec.card { max-width: 980px; margin-top: 16px; padding: 4px 24px 8px; }
+		.ekc-sec h2.title { margin-bottom: 0; }
+		.ekc-sec h3.ekc-group { margin: 20px 0 0; padding-top: 16px; border-top: 1px solid #dcdcde; font-size: 14px; }
+		.ekc-sec h2 + h3.ekc-group { border-top: 0; padding-top: 4px; }
+		.ekc-sec .form-table { margin-top: 4px; }
+		.ekc-sec .form-table th { width: 230px; }
+		.ekc-sec tr.ekc-child th { padding-left: 22px; font-weight: 400; }
+		.ekc-sec tr.ekc-child th label::before { content: "↳ "; color: #8c8f94; }
+		.ekc-sec tr.ekc-off { opacity: .5; }
+		.ekc-sec .description { max-width: 640px; }
+		.js .ekc-sec { display: none; }
+		.js .ekc-sec.is-active { display: block; }
+	</style>
+	<script>
+	( function () {
+		var tabs = [].slice.call( document.querySelectorAll( '.ekc-tabs .nav-tab' ) );
+		var ref = document.querySelector( 'input[name="_wp_http_referer"]' );
+		function show( slug, remember ) {
+			var current = tabs.filter( function ( t ) { return t.dataset.tab === slug; } )[ 0 ] || tabs[ 0 ];
+			if ( ! current ) { return; }
+			slug = current.dataset.tab;
+			tabs.forEach( function ( t ) { t.classList.toggle( 'nav-tab-active', t === current ); } );
+			document.querySelectorAll( '.ekc-sec' ).forEach( function ( c ) { c.classList.toggle( 'is-active', c.id === 'ekc-sec-' + slug ); } );
+			if ( remember ) { history.replaceState( null, '', '#ekc-sec-' + slug ); }
+			if ( ref ) { ref.value = ref.value.replace( /#.*$/, '' ) + '#ekc-sec-' + slug; }
+		}
+		tabs.forEach( function ( t ) {
+			t.addEventListener( 'click', function ( e ) { e.preventDefault(); show( t.dataset.tab, true ); } );
+		} );
+		show( location.hash.replace( '#ekc-sec-', '' ), false );
+		document.querySelectorAll( 'tr[data-parent]' ).forEach( function ( row ) {
+			var box = document.getElementById( row.dataset.parent );
+			if ( ! box ) { return; }
+			var sync = function () { row.classList.toggle( 'ekc-off', ! box.checked ); };
+			box.addEventListener( 'change', sync );
+			sync();
+		} );
+	} )();
+	</script>
+	<?php
 }

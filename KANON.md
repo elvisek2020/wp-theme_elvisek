@@ -10,9 +10,49 @@ Stav proti kanonu: `python3 -I scripts/modules.py status <repo>/plugins/elvisek-
 
 ## Čeká na převzetí do skillu
 
-### v0.17.1 — two-factor 1.0.1
+### v0.18.0 — přehlednější nastavení, whitelist, stránkovaný log
 
-- Klíč k ručnímu zadání se zobrazuje vcelku, bez mezer po čtyřech znacích (snazší kopírování do Apple Hesel a dalších aplikací).
+| Modul | Verze | Změna |
+|---|---|---|
+| `settings` | 1.0.0 → 1.1.0 | stránka nastavení po záložkách (sekce), podskupiny a podřízené volby |
+| `common` | 1.0.2 → 1.0.3 | `ekc_settings_register()` přijímá `group` a `parent`; `ekc_maintenance_section()` přijímá `hidden` |
+| `login-guard` | 1.1.0 → 1.2.0 | whitelist `login_whitelist`, přehled blokací přesunutý z Údržby do logu přihlášení |
+| `login-log` | 1.1.0 → 1.2.0 | stránkování (filtr `ekc_login_log_per_page`, výchozí 50) |
+| `two-factor` | 1.0.0 → 1.1.0 | klíč k ručnímu zadání bez mezer; `group`/`parent` u nastavení |
+| `hardening` | 1.1.0 → 1.1.1 | `group` u nastavení |
+| `security-headers` | 1.1.0 → 1.1.1 | `group`/`parent` u nastavení |
+| `llms-txt` | 1.0.0 → 1.0.1 | `group`/`parent` u nastavení |
+| `sitemap` | 1.0.0 → 1.0.1 | `group` u nastavení |
+
+#### settings 1.1.0 a common 1.0.3
+
+- Nová (volitelná) pole v `ekc_settings_register()`: `group` (podnadpis uvnitř sekce, pořadí podle
+  první registrace) a `parent` (klíč bool přepínače; řádek je odsazený se šipkou ↳ a ztlumený, když
+  je přepínač vypnutý — jen vzhled, hodnota se dál ukládá).
+- Stránka: záložky `nav-tab-wrapper` (sekce = karta `#ekc-sec-<slug>`, slug z názvu sekce bez
+  diakritiky), tlačítko Uložit v každé kartě; vybraná záložka se drží v kotvě a přes
+  `_wp_http_referer` přežije uložení. Bez JS se zobrazí všechny karty pod sebou.
+- `ekc_maintenance_section( …, array( 'hidden' => true ) )` — sekce se v Údržbě nezobrazí, jen
+  obsluhuje úlohy tlačítek z jiné stránky.
+- Skupiny na tomto webu: Přihlášení (Omezení pokusů / Log přihlášení / Dvoufázové ověření),
+  Zabezpečení (WordPress / Hlášení zranitelností (security.txt) / HTTP hlavičky),
+  SEO (/llms.txt / Sitemapa). Hlavní přepínače skupin mají kratší popisky (Omezovat pokusy,
+  Zapisovat přihlášení, Povolit uživatelům), aby se neopakoval nadpis skupiny.
+
+#### login-guard 1.2.0
+
+- `login_whitelist` (list, výchozí prázdný, `sanitize` → `ekc_login_whitelist_sanitize()`): adresy
+  a rozsahy CIDR (IPv4 i IPv6), neplatné položky se zahodí. Z adres na whitelistu se pokusy
+  nepočítají, `ekc_login_locked_until()` pro ně vrací 0 (ani blokace sítě je nezastaví), hláška
+  o zbývajících pokusech se nezobrazuje. Nápověda ukazuje aktuální adresu správce.
+- Nové funkce: `ekc_ip_in_range( $ip, $range )`, `ekc_login_whitelisted( $ip = '' )`.
+- Sekce `login` v Údržbě je `hidden`; pravidlo, whitelist, tabulka blokací a tlačítka Zrušit /
+  Zrušit všechny jsou v kartě „Blokace“ nad logem přihlášení (`ekc_login_log_before`).
+
+#### login-log 1.2.0
+
+- Stránkování po 50 (`paged`, filtr `ekc_login_log_per_page`, min. 10), počet „1–50 z 190“
+  nahoře i dole.
 
 ### v0.17.0 — dvoufázové ověření, blokace sítí, delší log přihlášení
 
@@ -22,7 +62,7 @@ v 15 minutách nezabrala ani jednou za den, log se 200 událostmi držel jen 4 d
 
 | Modul | Verze | Změna |
 |---|---|---|
-| `two-factor` | **nový 1.0.0** (v0.17.1: 1.0.1) | TOTP (RFC 6238) se záložními kódy, QR kód v SVG bez knihoven |
+| `two-factor` | **nový 1.0.0** | TOTP (RFC 6238) se záložními kódy, QR kód v SVG bez knihoven |
 | `login-guard` | 1.0.0 → 1.1.0 | blokace podle sítě /24 (IPv6 /64), nastavitelné okno pro počítání pokusů |
 | `login-log` | 1.0.0 → 1.1.0 | nastavitelná délka a stáří logu, nová událost `twofactor` |
 | `health` | 1.0.0 → 1.1.0 | čte celý log (`ekc_login_log_max()`), počítá i `twofactor`, řádek „Chybný kód 2FA za 24 h“ |

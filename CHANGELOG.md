@@ -1,12 +1,15 @@
 # Changelog
 
-## v0.17.1 — 2026-11-02
+## v0.18.0 — 2026-11-02
 
 ### ElvisEK Core
-- Dvoufázové ověření: klíč k ručnímu zadání se v profilu zobrazuje vcelku bez mezer, jde rovnou zkopírovat třeba do Apple Hesel (two-factor 1.0.1)
+- **Nastavení → ElvisEK Core** po záložkách (Přihlášení, Zabezpečení, SEO…). Uvnitř jsou volby seskupené (např. Omezení pokusů, Log přihlášení, Dvoufázové ověření, HTTP hlavičky) a podřízené volby odsazené pod hlavním přepínačem, ztlumené, když je vypnutý. Po uložení zůstane otevřená stejná záložka
+- **Whitelist** pro omezení pokusů o přihlášení: IP adresy a rozsahy (IPv4 i IPv6, např. `203.0.113.0/24`), které se nikdy automaticky nezablokují. Pokusy z nich se jen zapíšou do logu
+- **Log přihlášení** má stránkování (50 záznamů na stránku) a nahoře přehled blokací: pravidlo, whitelist, zablokované adresy a sítě a tlačítka pro zrušení. Sekce Přihlášení z Údržby webu zmizela
+- Dvoufázové ověření: klíč k ručnímu zadání se v profilu zobrazuje vcelku bez mezer, jde rovnou zkopírovat třeba do Apple Hesel
 
 ### Vydání
-- Šablona i plugin 0.17.1
+- Šablona i plugin 0.18.0 (obsahuje i nevydanou 0.17.1)
 
 ## v0.17.0 — 2026-11-02
 

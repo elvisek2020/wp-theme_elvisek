@@ -1,7 +1,7 @@
 <?php
 /**
  * EKC module: security-headers
- * Version: 1.1.0
+ * Version: 1.1.1
  * Requires: common
  * Replaces: http-headers, headers-security-advanced-hsts-wp
  * Summary: Bezpečnostní HTTP hlavičky na webu (nosniff, rámce, referrer, oprávnění, COOP, volitelně HSTS a CSP).
@@ -17,6 +17,7 @@ ekc_settings_register(
 		'label'   => 'Bezpečnostní HTTP hlavičky',
 		'help'    => 'X-Content-Type-Options, X-Frame-Options, Referrer-Policy a Permissions-Policy, podle voleb níže i COOP, HSTS a CSP. Úprava filtrem ekc_security_headers.',
 		'section' => 'Zabezpečení',
+		'group'   => 'HTTP hlavičky',
 	)
 );
 ekc_settings_register(
@@ -27,6 +28,8 @@ ekc_settings_register(
 		'label'   => 'HSTS (vynutit HTTPS)',
 		'help'    => 'Prohlížeč bude web rok otevírat jen přes HTTPS (bez subdomén, jen na HTTPS a nikdy na lokálním vývoji). Zapínejte jen, když HTTPS funguje spolehlivě.',
 		'section' => 'Zabezpečení',
+		'group'   => 'HTTP hlavičky',
+		'parent'  => 'security_headers',
 	)
 );
 ekc_settings_register(
@@ -37,6 +40,8 @@ ekc_settings_register(
 		'label'   => 'Oddělit okna (Cross-Origin-Opener-Policy)',
 		'help'    => 'Cizí okno otevřené z webu (nebo web otevřený z cizího okna) nesdílí window.opener. Vypněte jen kvůli přihlášení nebo platbě ve vyskakovacím okně.',
 		'section' => 'Zabezpečení',
+		'group'   => 'HTTP hlavičky',
+		'parent'  => 'security_headers',
 	)
 );
 ekc_settings_register(
@@ -47,6 +52,8 @@ ekc_settings_register(
 		'label'   => 'Content-Security-Policy',
 		'help'    => 'Skripty, rámce a další zdroje jen z webu, Google Analytics a videí YouTube a Vimeo. Před zapnutím ověřte, že web nic dalšího nenačítá (konzole prohlížeče). Zdroje se doplňují filtrem ekc_csp_sources.',
 		'section' => 'Zabezpečení',
+		'group'   => 'HTTP hlavičky',
+		'parent'  => 'security_headers',
 	)
 );
 

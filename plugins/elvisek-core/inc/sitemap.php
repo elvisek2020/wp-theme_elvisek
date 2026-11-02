@@ -1,7 +1,7 @@
 <?php
 /**
  * EKC module: sitemap
- * Version: 1.0.0
+ * Version: 1.0.1
  * Requires: common
  * Replaces: google-sitemap-generator, google-xml-sitemaps-v3-for-qtranslate, xml-sitemap-feed, simple-wp-sitemap
  * Summary: Vestavěná sitemapa WordPressu bez uživatelů, s datem změny a přesměrováním starých adres sitemapy.
@@ -25,6 +25,7 @@ ekc_settings_register(
 		'label'   => 'Sitemap bez uživatelů',
 		'help'    => 'Seznam autorů v sitemapě prozrazuje přihlašovací jména.',
 		'section' => 'SEO',
+		'group'   => 'Sitemapa',
 	)
 );
 ekc_settings_register(
@@ -35,6 +36,7 @@ ekc_settings_register(
 		'label'   => 'Datum změny v sitemapě',
 		'help'    => 'Vyhledávače podle něj poznají, co mají projít znovu.',
 		'section' => 'SEO',
+		'group'   => 'Sitemapa',
 	)
 );
 ekc_settings_register(
@@ -45,6 +47,7 @@ ekc_settings_register(
 		'label'   => 'Přesměrovat staré adresy sitemapy',
 		'help'    => '/sitemap.xml, /sitemap.xml.gz a /sitemap_index.xml → /wp-sitemap.xml (301). Jen když neběží jiný plugin se sitemapou.',
 		'section' => 'SEO',
+		'group'   => 'Sitemapa',
 	)
 );
 

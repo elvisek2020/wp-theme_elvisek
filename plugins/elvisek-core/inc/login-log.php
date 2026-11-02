@@ -1,7 +1,7 @@
 <?php
 /**
  * EKC module: login-log
- * Version: 1.1.0
+ * Version: 1.2.0
  * Requires: common
  * Replaces: simple-login-log, wp-last-login
  * Summary: Log přihlášení, neúspěšných pokusů a blokací a sloupec Poslední přihlášení u uživatelů.
@@ -26,9 +26,10 @@ ekc_settings_register(
 	array(
 		'type'    => 'bool',
 		'default' => true,
-		'label'   => 'Log přihlášení',
+		'label'   => 'Zapisovat přihlášení',
 		'help'    => 'Záznam přihlášení, neúspěšných pokusů a blokací a sloupec Poslední přihlášení v přehledu uživatelů.',
 		'section' => 'Přihlášení',
+		'group'   => 'Log přihlášení',
 	)
 );
 ekc_settings_register(
@@ -39,6 +40,8 @@ ekc_settings_register(
 		'label'   => 'Délka logu',
 		'help'    => 'Kolik posledních událostí se v logu přihlášení drží. Při útocích stovky denně, pro historii několika týdnů 2000 a víc.',
 		'section' => 'Přihlášení',
+		'group'   => 'Log přihlášení',
+		'parent'  => 'login_log',
 		'min'     => 50,
 		'max'     => 5000,
 		'unit'    => 'událostí',
@@ -52,6 +55,8 @@ ekc_settings_register(
 		'label'   => 'Stáří záznamů v logu',
 		'help'    => 'Starší záznamy se mažou, i když se do délky logu vejdou.',
 		'section' => 'Přihlášení',
+		'group'   => 'Log přihlášení',
+		'parent'  => 'login_log',
 		'min'     => 7,
 		'max'     => 365,
 		'unit'    => 'dní',
@@ -228,7 +233,13 @@ function ekc_login_log_page(): void {
 	if ( ! current_user_can( 'manage_options' ) ) {
 		return;
 	}
-	$log = ekc_login_log( ekc_login_log_max() );
+	$all      = ekc_login_log( ekc_login_log_max() );
+	$per_page = (int) ekc_filter( 'ekc_login_log_per_page', 50 );
+	$per_page = max( 10, $per_page );
+	$pages    = max( 1, (int) ceil( count( $all ) / $per_page ) );
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- jen stránkování
+	$paged = isset( $_GET['paged'] ) ? min( $pages, max( 1, absint( $_GET['paged'] ) ) ) : 1;
+	$log   = array_slice( $all, ( $paged - 1 ) * $per_page, $per_page );
 	echo '<div class="wrap"><h1>Log přihlášení</h1>';
 	ekc_maintenance_notice();
 	if ( ! ekc_opt( 'login_log' ) ) {
@@ -240,7 +251,32 @@ function ekc_login_log_page(): void {
 	 */
 	do_action( 'ekc_login_log_before' );
 
-	echo '<table class="widefat striped" style="margin-top:1em"><thead><tr><th>Čas</th><th>Uživatel</th><th>Výsledek</th><th>IP adresa</th><th>Prohlížeč</th></tr></thead><tbody>';
+	$nav = static function () use ( $all, $log, $paged, $pages, $per_page ): void {
+		if ( ! $all ) {
+			return;
+		}
+		$from = ( $paged - 1 ) * $per_page + 1;
+		echo '<div class="tablenav"><div class="tablenav-pages"><span class="displaying-num">' . esc_html( sprintf( '%d–%d z %d', $from, $from + count( $log ) - 1, count( $all ) ) ) . '</span>';
+		if ( $pages > 1 ) {
+			echo '<span class="pagination-links ekc-pages">' . wp_kses_post(
+				(string) paginate_links(
+					array(
+						'base'      => add_query_arg( 'paged', '%#%', ekc_page_url( 'ekc-login-log' ) ),
+						'format'    => '',
+						'current'   => $paged,
+						'total'     => $pages,
+						'prev_text' => '‹',
+						'next_text' => '›',
+						'mid_size'  => 2,
+					)
+				)
+			) . '</span>';
+		}
+		echo '</div><br class="clear"></div>';
+	};
+	echo '<style>.ekc-pages .page-numbers{display:inline-block;min-width:30px;margin-left:3px;padding:0 6px;border:1px solid #2271b1;border-radius:3px;background:#f6f7f7;line-height:28px;text-align:center;text-decoration:none}.ekc-pages .page-numbers.current{border-color:#dcdcde;background:#fff;color:#50575e;font-weight:600}.ekc-pages .page-numbers.dots{border-color:transparent;background:none}</style>';
+	$nav();
+	echo '<table class="widefat striped"><thead><tr><th>Čas</th><th>Uživatel</th><th>Výsledek</th><th>IP adresa</th><th>Prohlížeč</th></tr></thead><tbody>';
 	if ( ! $log ) {
 		echo '<tr><td colspan="5">Zatím prázdné.</td></tr>';
 	}
@@ -255,6 +291,7 @@ function ekc_login_log_page(): void {
 		);
 	}
 	echo '</tbody></table>';
+	$nav();
 	echo '<p class="description">' . esc_html( sprintf( 'Uchovává se posledních %d událostí, nejvýše %d dní.', ekc_login_log_max(), ekc_login_log_days() ) ) . ' <a href="' . esc_url( ekc_page_url( 'ekc-nastaveni' ) ) . '">Nastavení</a></p>';
 	echo '</div>';
 }
