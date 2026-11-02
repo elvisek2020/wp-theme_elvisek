@@ -10,6 +10,24 @@ Stav proti kanonu: `python3 -I scripts/modules.py status <repo>/plugins/elvisek-
 
 ## Čeká na převzetí do skillu
 
+Stav: v0.17.0 i v0.18.0 jsou vydané a od 2026-11-02 běží na produkci www.elvisek.cz (ověřeno:
+přihlášení s 2FA, záložky nastavení, whitelist, blokace sítí, stránkovaný log).
+Zdrojové soubory k převzetí: `plugins/elvisek-core/inc/{two-factor,login-guard,login-log,settings,common,health,hardening,security-headers,llms-txt,sitemap}.php`
+(tag `v0.18.0`). Výsledný stav modulů proti kanonu:
+
+| Modul | Kanon | Web (v0.18.0) |
+|---|---|---|
+| `common` | 1.0.1 | 1.0.3 |
+| `settings` | 1.0.0 | 1.1.0 |
+| `health` | 1.0.0 | 1.1.0 |
+| `login-guard` | 1.0.0 | 1.2.0 |
+| `login-log` | 1.0.0 | 1.2.0 |
+| `two-factor` | — | 1.1.0 (nový) |
+| `hardening` | 1.1.0 | 1.1.1 |
+| `security-headers` | 1.1.0 | 1.1.1 |
+| `llms-txt` | 1.0.0 | 1.0.1 |
+| `sitemap` | 1.0.0 | 1.0.1 |
+
 ### v0.18.0 — přehlednější nastavení, whitelist, stránkovaný log
 
 | Modul | Verze | Změna |
