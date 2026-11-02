@@ -10,25 +10,21 @@ Stav proti kanonu: `python3 -I scripts/modules.py status <repo>/plugins/elvisek-
 
 ## Čeká na převzetí do skillu
 
-Stav: v0.17.0 i v0.18.0 jsou vydané a od 2026-11-02 běží na produkci www.elvisek.cz (ověřeno:
-přihlášení s 2FA, záložky nastavení, whitelist, blokace sítí, stránkovaný log).
-Zdrojové soubory k převzetí: `plugins/elvisek-core/inc/{two-factor,login-guard,login-log,settings,common,health,hardening,security-headers,llms-txt,sitemap}.php`
-(tag `v0.18.0`). Výsledný stav modulů proti kanonu:
+Zatím nic. Na příští verzi modulu `two-factor`: komentář v hlavičce uvádí jako příklad klienta
+aplikačních hesel „wp.py“ (nástroj tohoto webu) — nahradit obecným popisem.
 
-| Modul | Kanon | Web (v0.18.0) |
-|---|---|---|
-| `common` | 1.0.1 | 1.0.3 |
-| `settings` | 1.0.0 | 1.1.0 |
-| `health` | 1.0.0 | 1.1.0 |
-| `login-guard` | 1.0.0 | 1.2.0 |
-| `login-log` | 1.0.0 | 1.2.0 |
-| `two-factor` | — | 1.1.0 (nový) |
-| `hardening` | 1.1.0 | 1.1.1 |
-| `security-headers` | 1.1.0 | 1.1.1 |
-| `llms-txt` | 1.0.0 | 1.0.1 |
-| `sitemap` | 1.0.0 | 1.0.1 |
+## Převzato do skillu
 
-### v0.18.0 — přehlednější nastavení, whitelist, stránkovaný log
+### v0.17.0 + v0.18.0 — převzato 2026-11-02
+
+Agent pro skilly převzal do kanonu všech 10 modulů z tagu `v0.18.0` beze změny (bajtově shodné):
+common 1.0.3, settings 1.1.0, health 1.1.0, login-guard 1.2.0, login-log 1.2.0, two-factor 1.1.0
+(nový, volitelný), hardening 1.1.1, security-headers 1.1.1, llms-txt 1.0.1, sitemap 1.0.1.
+Dokumentace skillu doplněná (modules-api.md, plugin.md, SKILL.md, dev-and-testing.md).
+`modules.py status` na `plugins/elvisek-core` hlásí vše aktuální. V repu claude-skills zatím
+necommitnuté, commit a nahrání do claude.ai je na rozhodnutí uživatele.
+
+#### v0.18.0 — přehlednější nastavení, whitelist, stránkovaný log
 
 | Modul | Verze | Změna |
 |---|---|---|
@@ -42,7 +38,7 @@ Zdrojové soubory k převzetí: `plugins/elvisek-core/inc/{two-factor,login-guar
 | `llms-txt` | 1.0.0 → 1.0.1 | `group`/`parent` u nastavení |
 | `sitemap` | 1.0.0 → 1.0.1 | `group` u nastavení |
 
-#### settings 1.1.0 a common 1.0.3
+##### settings 1.1.0 a common 1.0.3
 
 - Nová (volitelná) pole v `ekc_settings_register()`: `group` (podnadpis uvnitř sekce, pořadí podle
   první registrace) a `parent` (klíč bool přepínače; řádek je odsazený se šipkou ↳ a ztlumený, když
@@ -57,7 +53,7 @@ Zdrojové soubory k převzetí: `plugins/elvisek-core/inc/{two-factor,login-guar
   SEO (/llms.txt / Sitemapa). Hlavní přepínače skupin mají kratší popisky (Omezovat pokusy,
   Zapisovat přihlášení, Povolit uživatelům), aby se neopakoval nadpis skupiny.
 
-#### login-guard 1.2.0
+##### login-guard 1.2.0
 
 - `login_whitelist` (list, výchozí prázdný, `sanitize` → `ekc_login_whitelist_sanitize()`): adresy
   a rozsahy CIDR (IPv4 i IPv6), neplatné položky se zahodí. Z adres na whitelistu se pokusy
@@ -67,12 +63,12 @@ Zdrojové soubory k převzetí: `plugins/elvisek-core/inc/{two-factor,login-guar
 - Sekce `login` v Údržbě je `hidden`; pravidlo, whitelist, tabulka blokací a tlačítka Zrušit /
   Zrušit všechny jsou v kartě „Blokace“ nad logem přihlášení (`ekc_login_log_before`).
 
-#### login-log 1.2.0
+##### login-log 1.2.0
 
 - Stránkování po 50 (`paged`, filtr `ekc_login_log_per_page`, min. 10), počet „1–50 z 190“
   nahoře i dole.
 
-### v0.17.0 — dvoufázové ověření, blokace sítí, delší log přihlášení
+#### v0.17.0 — dvoufázové ověření, blokace sítí, delší log přihlášení
 
 Motivace: log přihlášení ukázal pomalý distribuovaný útok na dvě jména (ElvisEK, Claude Laura) —
 pokus každých 9–14 minut, pokaždé z jiné IP ve stejné /24. Blokace po 5 pokusech z jedné IP
@@ -86,7 +82,7 @@ v 15 minutách nezabrala ani jednou za den, log se 200 událostmi držel jen 4 d
 | `health` | 1.0.0 → 1.1.0 | čte celý log (`ekc_login_log_max()`), počítá i `twofactor`, řádek „Chybný kód 2FA za 24 h“ |
 | `common` | 1.0.1 → 1.0.2 | `ekc_login_log_row()` propustí událost `twofactor` |
 
-#### two-factor 1.0.0 (nový)
+##### two-factor 1.0.0 (nový)
 
 - **Nastavení** (sekce Přihlášení): `two_factor` (bool, výchozí zapnuto: uživatelé si ověření můžou
   zapnout v profilu), `two_factor_required` (bool, výchozí vypnuto: správce bez 2FA pustí
@@ -114,7 +110,7 @@ v 15 minutách nezabrala ani jednou za den, log se 200 událostmi držel jen 4 d
 - **QR**: bajtový režim, úroveň M, verze 1–15, výběr masky podle penalizace (pravidla 1, 2, 4).
   Ověřeno dekodérem jsQR pro verze 1, 7, 9 a 11 včetně UTF-8.
 
-#### login-guard 1.1.0
+##### login-guard 1.1.0
 
 - `login_window` (int, minuty, výchozí 15, 5–1440) — okno pro počítání chybných pokusů.
 - `login_subnet` (bool, výchozí vypnuto) — klíč v `ekc_lockouts` je síť (`203.0.113.0/24`,
@@ -126,7 +122,7 @@ v 15 minutách nezabrala ani jednou za den, log se 200 událostmi držel jen 4 d
   `ekc_login_guard_valid_key()`, `ekc_login_guard_summary()`.
 - Výchozí hodnoty se nemění, chování stávajících webů zůstává stejné.
 
-#### login-log 1.1.0
+##### login-log 1.1.0
 
 - `login_log_max` (int, výchozí `EKC_LOGIN_LOG_MAX` = 200, 50–5000) a `login_log_days`
   (int, výchozí `EKC_LOGIN_LOG_DAYS` = 90, 7–365); funkce `ekc_login_log_max()`,
@@ -134,7 +130,7 @@ v 15 minutách nezabrala ani jednou za den, log se 200 událostmi držel jen 4 d
 - Událost `twofactor` = správné heslo, chybný kód 2FA (červená tečka „správné heslo, chybný kód
   2FA“) — heslo nejspíš zná někdo cizí.
 
-#### Do dokumentace skillu
+##### Do dokumentace skillu (doplněno)
 
 - `references/modules-api.md`: tabulka nastavení (`login_window`, `login_subnet`, `login_log_max`,
   `login_log_days`, `two_factor`, `two_factor_required`), datový formát `ekc_login_log`
@@ -143,7 +139,7 @@ v 15 minutách nezabrala ani jednou za den, log se 200 událostmi držel jen 4 d
 - `references/plugin.md` / seznam modulů: `two-factor` jako volitelný modul (Replaces:
   two-factor, wp-2fa, wordfence-login-security, google-authenticator).
 
-## Převzato do skillu
+### Starší
 
 - v0.16.0 — hardening 1.1.0, security-headers 1.1.0, updater 1.1.0, term-image 1.1.0,
   lightbox 1.1.0 (z projektového kódu tohoto webu).
