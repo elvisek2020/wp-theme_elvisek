@@ -1,7 +1,7 @@
 <?php
 /**
  * EKC module: two-factor
- * Version: 1.0.0
+ * Version: 1.0.1
  * Requires: common
  * Replaces: two-factor, wp-2fa, wordfence-login-security, google-authenticator
  * Summary: Dvoufázové ověření kódem z aplikace (TOTP) se záložními kódy, volitelně povinné pro správce.
@@ -522,7 +522,7 @@ function ekc_2fa_profile( $user ): void {
 		echo '<p>' . ekc_status_dot( 'warn' ) . ' Vypnuto. Po zapnutí bude přihlášení chtít kromě hesla i kód z aplikace v telefonu.</p>'; // phpcs:ignore WordPress.Security.EscapeOutput
 		echo '<ol style="max-width:640px"><li>V aplikaci (Google Authenticator, Microsoft Authenticator, 1Password, Bitwarden…) přidejte účet a naskenujte QR kód.</li><li>Zadejte šestimístný kód, který aplikace ukáže, a uložte profil.</li></ol>';
 		echo '<div style="display:inline-block;padding:8px;background:#fff;border:1px solid #dcdcde;line-height:0">' . ekc_2fa_qr_svg( ekc_2fa_uri( $user, $secret ), 4 ) . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput -- SVG skládá modul z čísel
-		echo '<p>Ruční zadání klíče: <code style="user-select:all">' . esc_html( trim( chunk_split( $secret, 4, ' ' ) ) ) . '</code></p>';
+		echo '<p>Ruční zadání klíče: <code style="user-select:all">' . esc_html( $secret ) . '</code></p>';
 		echo '<p><label for="ekc_2fa_enable">Kód z aplikace</label><br><input type="text" name="ekc_2fa_enable" id="ekc_2fa_enable" class="regular-text" style="max-width:12em" inputmode="numeric" autocomplete="one-time-code"></p>';
 	} else {
 		echo '<p>Vypnuto. Zapnout si ho musí uživatel sám ve svém profilu.</p>';

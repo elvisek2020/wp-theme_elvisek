@@ -10,6 +10,10 @@ Stav proti kanonu: `python3 -I scripts/modules.py status <repo>/plugins/elvisek-
 
 ## Čeká na převzetí do skillu
 
+### v0.17.1 — two-factor 1.0.1
+
+- Klíč k ručnímu zadání se zobrazuje vcelku, bez mezer po čtyřech znacích (snazší kopírování do Apple Hesel a dalších aplikací).
+
 ### v0.17.0 — dvoufázové ověření, blokace sítí, delší log přihlášení
 
 Motivace: log přihlášení ukázal pomalý distribuovaný útok na dvě jména (ElvisEK, Claude Laura) —
@@ -18,7 +22,7 @@ v 15 minutách nezabrala ani jednou za den, log se 200 událostmi držel jen 4 d
 
 | Modul | Verze | Změna |
 |---|---|---|
-| `two-factor` | **nový 1.0.0** | TOTP (RFC 6238) se záložními kódy, QR kód v SVG bez knihoven |
+| `two-factor` | **nový 1.0.0** (v0.17.1: 1.0.1) | TOTP (RFC 6238) se záložními kódy, QR kód v SVG bez knihoven |
 | `login-guard` | 1.0.0 → 1.1.0 | blokace podle sítě /24 (IPv6 /64), nastavitelné okno pro počítání pokusů |
 | `login-log` | 1.0.0 → 1.1.0 | nastavitelná délka a stáří logu, nová událost `twofactor` |
 | `health` | 1.0.0 → 1.1.0 | čte celý log (`ekc_login_log_max()`), počítá i `twofactor`, řádek „Chybný kód 2FA za 24 h“ |

@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.17.1 — 2026-11-02
+
+### ElvisEK Core
+- Dvoufázové ověření: klíč k ručnímu zadání se v profilu zobrazuje vcelku bez mezer, jde rovnou zkopírovat třeba do Apple Hesel (two-factor 1.0.1)
+
+### Vydání
+- Šablona i plugin 0.17.1
+
 ## v0.17.0 — 2026-11-02
 
 Ochrana přihlášení proti pomalým útokům z mnoha adres a dvoufázové ověření. Web je referenční pro skill `wp-custom-theme`: změny kanonických modulů jsou popsané v `KANON.md` a skill je převezme.
